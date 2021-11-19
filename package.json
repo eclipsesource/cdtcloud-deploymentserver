@@ -1,0 +1,20 @@
+{
+  "name": "cdtcloud-deploymentserver",
+  "version": "0.0.0",
+  "repository": "git@github.com:EclipseSource/cdtcloud-deploymentserver.git",
+  "author": "WoH <wolfgang@hey.com>",
+  "license": "EPL-2.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "packages/theia-extension/*"
+  ],
+  "scripts": {
+    "test": "lerna run --parallel test",
+    "typecheck": "lerna run --parallel typecheck",
+    "lint": "lerna run --parallel lint"
+  },
+  "dependencies": {
+    "lerna": "^4.0.0"
+  }
+}
