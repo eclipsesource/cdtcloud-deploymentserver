@@ -3,6 +3,15 @@ name: CI
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: dev
+          POSTGRES_DB: deploymentdb
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -12,6 +21,12 @@ jobs:
 
       - name: Install
         run: yarn install --ignore-scripts
+
+      - name: Migrate
+        run: yarn run --cwd=packages/deployment-server prisma migrate deploy
+
+      - name: Generate types
+        run: yarn run --cwd=packages/deployment-server prisma generate
 
       - name: Check
         run: yarn run typecheck

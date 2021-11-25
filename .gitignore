@@ -1,2 +1,4 @@
 node_modules
 yarn-error.log
+packages/deployment-server/src/deployments/*
+packages/deployment-server/src/deployments/!.keep
