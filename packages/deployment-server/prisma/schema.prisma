@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Connector {
+  id      String   @unique @default(uuid()) @db.Uuid
+  devices Device[]
+}
+
+model DeviceType {
+  id      String   @unique @default(uuid()) @db.Uuid
+  devices Device[]
+}
+
+model Device {
+  id        String       @unique @default(uuid()) @db.Uuid
+  status    DeviceStatus @default(UNAVAILABLE)
+  connector Connector    @relation(fields: [connectorId], references: [id])
+  type      DeviceType   @relation(fields: [deviceTypeId], references: [id])
+
+  connectorId  String @db.Uuid
+  deviceTypeId String @db.Uuid
+}
+
+enum DeviceStatus {
+  UNAVAILABLE
+  AVAILABLE
+  DEPLOYING
+  RUNNING
+}
