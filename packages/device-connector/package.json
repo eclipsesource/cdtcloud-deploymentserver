@@ -28,6 +28,7 @@
     "@types/tap": "^15.0.5",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
+    "@types/ws": "^8.2.0",
     "eslint": "^8.2.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-config-standard-with-typescript": "^21.0.1",
