@@ -14,7 +14,8 @@
     "@theia/process": "latest",
     "@theia/terminal": "latest",
     "@theia/workspace": "latest",
-    "cdtcloud": "0.0.0"
+    "cdtcloud": "0.0.0",
+    "react-select": "^5.2.1"
   },
   "devDependencies": {
     "@theia/cli": "latest"
