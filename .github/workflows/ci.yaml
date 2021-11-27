@@ -25,11 +25,11 @@ jobs:
       - name: Migrate
         run: yarn run --cwd=packages/deployment-server prisma migrate deploy
 
-      - name: Seed database
-        run: yarn run --cwd=packages/deployment-server prisma db seed
-
       - name: Generate types
         run: yarn run --cwd=packages/deployment-server prisma generate
+
+      - name: Seed database
+        run: yarn run --cwd=packages/deployment-server prisma db seed
 
       - name: Check
         run: yarn run typecheck
