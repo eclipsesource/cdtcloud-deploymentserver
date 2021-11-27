@@ -4,6 +4,7 @@ import type { AddressInfo, Server as WSServer } from 'ws'
 import { promisify } from 'node:util'
 import type { Server } from 'node:http'
 import { db } from '../util/prisma'
+import { Socket } from 'node:net'
 
 const WebSocketServer = ((WebSocket as any).WebSocketServer) as typeof WSServer
 
@@ -11,22 +12,44 @@ type ConnectorId = string
 
 export const QueueManager = {
   queueMap: new Map<ConnectorId, WSServer>(),
-  server: null as Server | null,
 
   setServer (server: Server) {
-    this.server = server
+    server.on('upgrade', (request, socket, head) => {
+      const match = request.url?.match(/^\/connectors\/(.+)\/queue$/)
+
+      if (match == null) {
+        return socket.destroy()
+      }
+
+      const id = match[1]
+
+      console.log(id)
+
+      if (this.queueMap.has(id) == null) {
+        return socket.destroy()
+      }
+
+      // We just checked
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const matchedServer = this.queueMap.get(id)!
+
+      matchedServer.handleUpgrade(request, socket as Socket, head, function done (ws) {
+        matchedServer.emit('connection', ws, request)
+      })
+    })
   },
 
   register (uuid: ConnectorId): WSServer {
-    if (this.server == null) {
-      throw new Error('Server not set')
-    }
-
-    const wsServer = new WebSocketServer({ server: this.server, path: `/connectors/${uuid}/queue` })
+    const wsServer = new WebSocketServer({ noServer: true })
     this.queueMap.set(uuid, wsServer)
 
-    wsServer.on('error', () => {
+    wsServer.on('error', (error) => {
+      console.error(error)
       this.queueMap.delete(uuid)
+    })
+
+    wsServer.on('connection', () => {
+      console.log(arguments)
     })
 
     return wsServer
