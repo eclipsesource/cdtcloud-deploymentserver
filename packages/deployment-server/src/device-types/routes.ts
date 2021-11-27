@@ -8,6 +8,7 @@ export default function deviceTypeRoutes (router: Router): void {
   router.get('/device-types', validate<DeviceType[]>({}), async (req, res, next) => {
     try {
       const deviceTypes = await req.db.deviceType.findMany()
+
       return res.json(deviceTypes)
     } catch (e) {
       next(e)
@@ -29,6 +30,7 @@ export default function deviceTypeRoutes (router: Router): void {
   router.post('/device-types', validate<DeviceType>({ body: {} }), async (req, res, next) => {
     try {
       const deviceType = await req.db.deviceType.create({ data: req.body })
+
       return res.json(deviceType)
     } catch (e) {
       next(e)
@@ -41,6 +43,7 @@ export default function deviceTypeRoutes (router: Router): void {
         where: { id: req.params.id },
         data: req.body
       })
+
       return res.json(deviceType)
     } catch (e) {
       next(e)
@@ -52,11 +55,13 @@ export default function deviceTypeRoutes (router: Router): void {
       const deviceType = await req.db.deviceType.delete({
         where: { id: req.params.id }
       })
+
       return res.json(deviceType)
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError && e.code === 'P2025') {
         return res.sendStatus(404)
       }
+
       next(e)
     }
   })

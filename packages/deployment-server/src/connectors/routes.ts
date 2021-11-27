@@ -1,8 +1,9 @@
-import { Connector } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
-import { Router } from 'express'
 import { idParams, IdParams } from '../util/idParams'
 import { validate } from '../util/validate'
+
+import type { Router } from 'express'
+import type { Connector } from '.'
 
 export default function connectorRoutes (router: Router): void {
   router.get('/connectors',
@@ -10,6 +11,7 @@ export default function connectorRoutes (router: Router): void {
     async (req, res, next) => {
       try {
         const connectors = await req.db.connector.findMany()
+
         return res.json(connectors)
       } catch (e) {
         next(e)
@@ -20,7 +22,17 @@ export default function connectorRoutes (router: Router): void {
     validate<Connector>({}),
     async (req, res, next) => {
       try {
-        return res.json(await req.db.connector.create({ data: {} }))
+        const connector = await req.db.connector.create({
+          data: {
+
+          }
+        })
+
+        // TODO: registerConnector(connector)
+
+        return res.json({
+          ...connector
+        })
       } catch (e) {
         next(e)
       }
@@ -30,7 +42,9 @@ export default function connectorRoutes (router: Router): void {
     validate<never, IdParams>({ params: idParams }),
     async (req, res, next) => {
       try {
+        // TODO: unregisterConnector({ id: req.params.id })
         await req.db.connector.delete({ where: { id: req.params.id } })
+
         return res.sendStatus(204)
       } catch (e) {
         if (e instanceof PrismaClientKnownRequestError && e.code === 'P2025') {

@@ -7,8 +7,9 @@
   "license": "EPL-2.0",
   "type": "module",
   "scripts": {
+    "nts": "node --experimental-loader esbuild-node-loader",
     "dev": "nodemon -x node --experimental-loader esbuild-node-loader  -r dotenv/config src/index.ts",
-    "start": "node --experimental-loader esbuild-node-loader src/index.ts",
+    "start": "yarn nts src/index.ts",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "tap --no-check-coverage test/*.spec.ts",
     "test:dev": "tap -w --no-coverage-report test/*.spec.ts",
@@ -20,6 +21,9 @@
     ],
     "no-check-coverage": true
   },
+  "prisma": {
+    "seed": "yarn nts prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^3.5.0",
     "@sinclair/typebox": "^0.21.2",
@@ -30,7 +34,8 @@
     "pino-http": "^6.0.0",
     "prisma": "^3.5.0",
     "statuses": "^2.0.1",
-    "undici": "^4.10.1"
+    "undici": "^4.10.1",
+    "ws": "^8.3.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
@@ -38,6 +43,7 @@
     "@types/pino-http": "^5.8.1",
     "@types/statuses": "^2.0.0",
     "@types/tap": "^15.0.5",
+    "@types/ws": "^8.2.0",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "dotenv": "^10.0.0",

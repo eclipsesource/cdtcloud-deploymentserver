@@ -8,8 +8,11 @@ declare module 'http' {
   }
 }
 
+export let db: PrismaClient
+
 export default async function connect (opts: Prisma.PrismaClientOptions = {}): Promise<PrismaClient> {
   const client = new prisma.PrismaClient(opts)
+  db = client
   await client.$connect()
   logger.info('Connected to Prisma')
   return client

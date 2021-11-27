@@ -17,14 +17,17 @@ model Connector {
 
 model DeviceType {
   id      String   @unique @default(uuid()) @db.Uuid
+  name    String
+  fqbn    String   @unique
   devices Device[]
 }
 
 model Device {
-  id        String       @unique @default(uuid()) @db.Uuid
-  status    DeviceStatus @default(UNAVAILABLE)
-  connector Connector    @relation(fields: [connectorId], references: [id])
-  type      DeviceType   @relation(fields: [deviceTypeId], references: [id])
+  id             String          @unique @default(uuid()) @db.Uuid
+  status         DeviceStatus    @default(UNAVAILABLE)
+  connector      Connector       @relation(fields: [connectorId], references: [id])
+  type           DeviceType      @relation(fields: [deviceTypeId], references: [id])
+  deployRequests DeployRequest[]
 
   connectorId  String @db.Uuid
   deviceTypeId String @db.Uuid
@@ -35,4 +38,21 @@ enum DeviceStatus {
   AVAILABLE
   DEPLOYING
   RUNNING
+}
+
+model DeployRequest {
+  id          String       @unique @default(uuid()) @db.Uuid
+  device      Device       @relation(fields: [deviceId], references: [id])
+  status      DeployStatus @default(PENDING)
+  artifactUrl String?
+
+  deviceId String @db.Uuid
+}
+
+enum DeployStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+  TERMINATED
 }

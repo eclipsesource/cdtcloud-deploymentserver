@@ -1,3 +1,1 @@
-import type { Connector } from '@prisma/client'
-
-export { Connector }
+export type { Connector } from '@prisma/client'
