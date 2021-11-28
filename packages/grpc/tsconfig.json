@@ -3,17 +3,21 @@
     "rootDir": ".",
     "outDir": "dist",
     "target": "es2021",
-    "lib": ["es2021", "DOM"],
+    "lib": [
+      "es2021",
+      "DOM"
+    ],
     "module": "es2022",
     "moduleResolution": "node",
     "strict": true,
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "isolatedModules": true,
-    "skipLibCheck": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   }
 }
