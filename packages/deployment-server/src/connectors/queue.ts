@@ -4,6 +4,7 @@ import type { AddressInfo, Server as WSServer } from 'ws'
 import type { Server } from 'node:http'
 import { db } from '../util/prisma'
 import { Socket } from 'node:net'
+import logger from '../util/logger'
 
 const WebSocketServer = ((WebSocket as any).WebSocketServer) as typeof WSServer
 
@@ -21,8 +22,6 @@ export const QueueManager = {
       }
 
       const id = match[1]
-
-      console.log(id)
 
       if (this.queueMap.has(id) == null) {
         return socket.destroy()
@@ -43,12 +42,12 @@ export const QueueManager = {
     this.queueMap.set(uuid, wsServer)
 
     wsServer.on('error', (error) => {
-      console.error(error)
+      logger.error(error)
       this.queueMap.delete(uuid)
     })
 
     wsServer.on('connection', () => {
-      console.log(arguments)
+      logger.info(arguments)
     })
 
     return wsServer
