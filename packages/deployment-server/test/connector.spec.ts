@@ -3,11 +3,15 @@ import tap from 'tap'
 import { fetch } from './util/fetch'
 import type { AddressInfo } from 'node:net'
 import { Server } from 'node:http'
-import { PrismaClient } from '@prisma/client'
+import dbClient, { PrismaClient } from '@prisma/client'
 import { closeServer, createServer } from '../src/server'
 import { Connector } from '../src/connectors'
 import WebSocket from 'ws'
 import { once } from 'node:events'
+import { addDeployRequest } from '../src/connectors/queue'
+import { randomUUID } from 'node:crypto'
+
+const { DeviceStatus } = dbClient
 
 const { before, teardown, test } = tap
 
@@ -73,6 +77,58 @@ test('Responds to the websocket connection after create', async (t) => {
 
   socket.onopen = () => {
     t.pass('Socket opened')
+    socket.close()
+  }
+
+  await once(socket, 'close')
+})
+
+test('Receives deployment requests', async (t) => {
+  const response = await fetch(`${baseUrl}/connectors`, {
+    method: 'POST'
+  })
+
+  const { id: connectorId } = await response.json() as Connector
+
+  const deviceType = await db.deviceType.create({
+    data: {
+      name: 'test',
+      fqbn: randomUUID()
+    }
+  })
+
+  const device = await db.device.create({
+    data: {
+      status: DeviceStatus.AVAILABLE,
+      type: {
+        connect: {
+          id: deviceType.id
+        }
+      },
+      connector: {
+        connect: {
+          id: connectorId
+        }
+      }
+    }
+  })
+
+  const socket = new WebSocket(`ws://0.0.0.0:${port}/connectors/${connectorId}/queue`)
+
+  socket.onopen = () => {
+    console.log('Socket opened')
+    addDeployRequest(connectorId, device, 'http://google.com')
+  }
+
+  socket.onmessage = (message) => {
+    t.equal(message.data, JSON.stringify({
+      type: 'deploy',
+      data: {
+        device,
+        artifactUri: 'http://google.com'
+      }
+    }))
+
     socket.close()
   }
 

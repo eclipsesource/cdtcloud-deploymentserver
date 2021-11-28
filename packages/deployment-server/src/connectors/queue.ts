@@ -102,14 +102,14 @@ export async function addDeployRequest (connectorId: ConnectorId, device: Device
     } else {
       queue.clients
         .forEach(client => {
-          if (client.readyState !== WebSocket.OPEN) {
+          if (client.readyState !== client.OPEN) {
             return
           }
 
           client.send(JSON.stringify({
             type: 'deploy',
             data: {
-              deviceType: device,
+              device,
               artifactUri
             }
           }), (err) => {
