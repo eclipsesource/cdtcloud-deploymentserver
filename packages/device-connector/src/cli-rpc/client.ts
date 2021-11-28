@@ -13,49 +13,45 @@ import { InitRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands
 import { Instance } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Instance'
 import { Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
 import { UploadResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadResponse'
-import { ProtoGrpcType } from 'arduino-cli_proto_ts/common/commands'
+import { ProtoGrpcType as ArduinoProtoGrpcType } from 'arduino-cli_proto_ts/common/commands'
 
 export class RPCClient {
   address: string
   private client: ArduinoCoreServiceClient | undefined
   instance: Instance | undefined
 
-  constructor(address: string = '127.0.0.1:50051') {
+  constructor (address: string = '127.0.0.1:50051') {
     this.address = address
   }
 
-  async init(): Promise<void> {
-    const address = this.address
-    const packageDefinition = protoLoader.loadSync(
-      '../grpc/proto/cc/arduino/cli/commands/v1/commands.proto', {
-        keepCase: true,
-        longs: String,
-        enums: String,
-        defaults: true,
-        oneofs: true
-      })
+  async init (): Promise<void> {
+    const loadedProto = protoLoader.loadSync('../grpc/proto/cc/arduino/cli/commands/v1/commands.proto', {
+      keepCase: true,
+      longs: String,
+      enums: String,
+      defaults: true,
+      oneofs: true
+    })
 
     const deadline = new Date()
     deadline.setSeconds(deadline.getSeconds() + 5)
 
     return await new Promise((resolve, reject) => {
-      const proto = grpc.loadPackageDefinition(packageDefinition) as unknown as ProtoGrpcType
-      if (!proto) {
-        return reject(new Error('Proto load failed'))
-      }
+      const arduinoGrpcObject = grpc.loadPackageDefinition(loadedProto) as unknown as ArduinoProtoGrpcType
 
-      const arduinoServiceClient = new proto.cc.arduino.cli.commands.v1.ArduinoCoreService(address, grpc.credentials.createInsecure())
+      const arduinoServiceClient = new arduinoGrpcObject.cc.arduino.cli.commands.v1.ArduinoCoreService(this.address, grpc.credentials.createInsecure())
       arduinoServiceClient.waitForReady(deadline, (error: Error | undefined) => {
         if (error != null) {
           return reject(new Error(error.message))
         }
+
         this.client = arduinoServiceClient
         return resolve()
       })
     })
   };
 
-  async createInstance(): Promise<void> {
+  async createInstance (): Promise<void> {
     return await new Promise((resolve, reject) => {
       if (this.client == null) {
         return reject(new Error('Client not initialized'))
@@ -74,7 +70,7 @@ export class RPCClient {
     })
   }
 
-  async initInstance(i?: Instance): Promise<void> {
+  async initInstance (i?: Instance): Promise<void> {
     const instance = i ?? this.instance
     const initRequest: InitRequest = { instance }
 
@@ -99,7 +95,7 @@ export class RPCClient {
     })
   }
 
-  async listBoards(): Promise<DetectedPort[]> {
+  async listBoards (): Promise<DetectedPort[]> {
     const boardListRequest: BoardListAllRequest = { instance: this.instance }
 
     return await new Promise((resolve, reject) => {
@@ -120,7 +116,7 @@ export class RPCClient {
     })
   }
 
-  async listAllBoards(): Promise<BoardListItem[]> {
+  async listAllBoards (): Promise<BoardListItem[]> {
     const boardListAllRequest: BoardListAllRequest = {
       instance: this.instance,
       search_args: [],
@@ -145,7 +141,7 @@ export class RPCClient {
     })
   }
 
-  async uploadBin(fqbn: string, port: Port, file: string, verify: boolean = false): Promise<boolean> {
+  async uploadBin (fqbn: string, port: Port, file: string, verify: boolean = false): Promise<boolean> {
     const uploadRequest = { instance: this.instance, fqbn, port, import_file: file, verify }
 
     return await new Promise((resolve, reject) => {
@@ -155,7 +151,7 @@ export class RPCClient {
 
       const stream = this.client.Upload(uploadRequest)
       stream.on('data', (data: UploadResponse) => {
-        if (data.err_stream && data.err_stream.length > 0) {
+        if (data.err_stream != null && data.err_stream.length > 0) {
           reject(new Error(data.err_stream.toString()))
         }
       })
@@ -171,7 +167,7 @@ export class RPCClient {
     })
   }
 
-  async burnBootloader(fqbn: string, port: Port, programmer: string, verify: boolean = false): Promise<boolean> {
+  async burnBootloader (fqbn: string, port: Port, programmer: string, verify: boolean = false): Promise<boolean> {
     const burnBootloaderRequest = { instance: this.instance, fqbn, port, programmer, verify }
 
     return await new Promise((resolve, reject) => {
@@ -181,7 +177,7 @@ export class RPCClient {
 
       const stream = this.client.BurnBootloader(burnBootloaderRequest)
       stream.on('data', (data: BurnBootloaderResponse) => {
-        if (data.err_stream && data.err_stream.length > 0) {
+        if (data.err_stream != null && data.err_stream.length > 0) {
           reject(new Error(data.err_stream.toString()))
         }
       })
