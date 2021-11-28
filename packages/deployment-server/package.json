@@ -11,15 +11,21 @@
     "dev": "nodemon -x node --experimental-loader esbuild-node-loader  -r dotenv/config src/index.ts",
     "start": "yarn nts src/index.ts",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "test": "tap --no-check-coverage test/*.spec.ts",
-    "test:dev": "tap -w --no-coverage-report test/*.spec.ts",
+    "test": "tap",
+    "test:dev": "tap -w --no-coverage-report",
     "typecheck": "tsc -noEmit"
   },
   "tap": {
     "node-arg": [
       "--experimental-loader=esbuild-node-loader"
     ],
-    "no-check-coverage": true
+    "no-check-coverage": true,
+    "test-env": [
+      "NODE_ENV=test"
+    ],
+    "files": [
+      "test/**/*.spec.ts"
+    ]
   },
   "prisma": {
     "seed": "yarn nts prisma/seed.ts"
