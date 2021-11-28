@@ -116,10 +116,10 @@ export class RPCClient {
     })
   }
 
-  async listAllBoards (): Promise<BoardListItem[]> {
+  async listAllBoards (filter?: string[]): Promise<BoardListItem[]> {
     const boardListAllRequest: BoardListAllRequest = {
       instance: this.instance,
-      search_args: [],
+      search_args: filter,
       include_hidden_boards: false
     }
 
