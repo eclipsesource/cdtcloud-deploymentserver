@@ -84,6 +84,7 @@ test('Responds to the websocket connection after create', async (t) => {
 })
 
 test('Receives deployment requests', async (t) => {
+  // Create a connector
   const response = await fetch(`${baseUrl}/connectors`, {
     method: 'POST'
   })
@@ -97,6 +98,7 @@ test('Receives deployment requests', async (t) => {
     }
   })
 
+  // Register a device handled by the connector
   const device = await db.device.create({
     data: {
       status: DeviceStatus.AVAILABLE,
@@ -115,11 +117,13 @@ test('Receives deployment requests', async (t) => {
 
   const socket = new WebSocket(`ws://0.0.0.0:${port}/connectors/${connectorId}/queue`)
 
+  // Simulate a deployment request once we can be sure the socket is listening
   socket.onopen = () => {
-    console.log('Socket opened')
+    // Specifically send the request only to this connector
     addDeployRequest(connectorId, device, 'http://google.com')
   }
 
+  // Check the response, close the socket
   socket.onmessage = (message) => {
     t.equal(message.data, JSON.stringify({
       type: 'deploy',
