@@ -1,18 +1,18 @@
 import { ServiceError } from '@grpc/grpc-js'
 import * as grpc from '@grpc/grpc-js'
 import * as protoLoader from '@grpc/proto-loader'
-import { ArduinoCoreServiceClient } from '../common/cc/arduino/cli/commands/v1/ArduinoCoreService'
-import { BoardListAllRequest } from '../common/cc/arduino/cli/commands/v1/BoardListAllRequest'
-import { BoardListAllResponse } from '../common/cc/arduino/cli/commands/v1/BoardListAllResponse'
-import { BoardListItem } from '../common/cc/arduino/cli/commands/v1/BoardListItem'
-import { BoardListResponse } from '../common/cc/arduino/cli/commands/v1/BoardListResponse'
-import { CreateResponse } from '../common/cc/arduino/cli/commands/v1/CreateResponse'
-import { DetectedPort } from '../common/cc/arduino/cli/commands/v1/DetectedPort'
-import { InitRequest } from '../common/cc/arduino/cli/commands/v1/InitRequest'
-import { Instance } from '../common/cc/arduino/cli/commands/v1/Instance'
-import { Port } from '../common/cc/arduino/cli/commands/v1/Port'
-import { UploadResponse } from '../common/cc/arduino/cli/commands/v1/UploadResponse'
-import { ProtoGrpcType } from '../common/commands'
+import { ArduinoCoreServiceClient } from '../../../grpc/common/cc/arduino/cli/commands/v1/ArduinoCoreService'
+import { BoardListAllRequest } from '../../../grpc/common/cc/arduino/cli/commands/v1/BoardListAllRequest'
+import { BoardListAllResponse } from '../../../grpc/common/cc/arduino/cli/commands/v1/BoardListAllResponse'
+import { BoardListItem } from '../../../grpc/common/cc/arduino/cli/commands/v1/BoardListItem'
+import { BoardListResponse } from '../../../grpc/common/cc/arduino/cli/commands/v1/BoardListResponse'
+import { CreateResponse } from '../../../grpc/common/cc/arduino/cli/commands/v1/CreateResponse'
+import { DetectedPort } from '../../../grpc/common/cc/arduino/cli/commands/v1/DetectedPort'
+import { InitRequest } from '../../../grpc/common/cc/arduino/cli/commands/v1/InitRequest'
+import { Instance } from '../../../grpc/common/cc/arduino/cli/commands/v1/Instance'
+import { Port } from '../../../grpc/common/cc/arduino/cli/commands/v1/Port'
+import { UploadResponse } from '../../../grpc/common/cc/arduino/cli/commands/v1/UploadResponse'
+import { ProtoGrpcType } from "../../../grpc/common/commands";
 
 export class RPCClient {
   address: string;
@@ -26,7 +26,7 @@ export class RPCClient {
   async init (): Promise<void> {
     const address = this.address
     const packageDefinition = protoLoader.loadSync(
-      'src/proto/cc/arduino/cli/commands/v1/commands.proto', {
+      '../grpc/proto/cc/arduino/cli/commands/v1/commands.proto', {
         keepCase: true,
         longs: String,
         enums: String,
@@ -59,6 +59,7 @@ export class RPCClient {
       if (this.client == null) {
         return reject(new Error('Client not initialized'))
       }
+
       this.client.Create({}, (err: ServiceError | null, data?: CreateResponse) => {
         if (err != null) {
           return reject(new Error(err.message))
@@ -98,11 +99,7 @@ export class RPCClient {
   }
 
   async listBoards (): Promise<DetectedPort[]> {
-    const boardListRequest: BoardListAllRequest = {
-      instance: this.instance,
-      search_args: [],
-      include_hidden_boards: false
-    }
+    const boardListRequest: BoardListAllRequest = { instance: this.instance }
 
     return await new Promise((resolve, reject) => {
       if (this.client == null) {
