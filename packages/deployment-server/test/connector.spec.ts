@@ -6,7 +6,6 @@ import { Server } from 'node:http'
 import { PrismaClient } from '@prisma/client'
 import { closeServer, createServer } from '../src/server'
 import { Connector } from '../src/connectors'
-import { once } from 'node:events'
 
 const { before, teardown, test } = tap
 
@@ -16,9 +15,8 @@ let db: PrismaClient
 
 before(async () => {
   [server,,db] = await createServer()
-  await once(server, 'listening')
   const { port } = server.address() as AddressInfo
-  baseUrl = `http://localhost:${port}`
+  baseUrl = `http://0.0.0.0:${port}`
 })
 
 teardown(async () => {

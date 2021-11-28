@@ -6,7 +6,7 @@ import logger from './util/logger'
 import connect from './util/prisma'
 import { PrismaClient } from '@prisma/client'
 import { Application } from 'express'
-import { QueueManager, stop } from './connectors/queue'
+import { QueueManager } from './connectors/queue'
 import { Signals } from 'close-with-grace'
 import { promisify } from 'util'
 import http from 'node:http'
@@ -17,7 +17,7 @@ export async function createServer (): Promise<[Server, Application, PrismaClien
     const app = createApp(db)
     const server = http.createServer(app)
     QueueManager.setServer(server)
-    server.listen(env.PORT)
+    server.listen(parseInt(env.PORT ?? '3001'), '0.0.0.0')
     await QueueManager.start()
     return [server, app, db]
   } catch (e) {
@@ -36,9 +36,7 @@ export async function closeServer (
 
   await this.db.$disconnect()
 
-  await stop()
+  await promisify(this.server.close).bind(this.server)()
 
-  await promisify(this.server.close)()
-
-  console.log(`${signal ?? 'Manual Exit'}: Closed server`)
+  logger.info(`${signal ?? 'Manual Exit'}: Closed server`)
 }

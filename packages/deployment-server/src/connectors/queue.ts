@@ -1,7 +1,6 @@
 import type { Device } from '@prisma/client'
 import * as WebSocket from 'ws'
 import type { AddressInfo, Server as WSServer } from 'ws'
-import { promisify } from 'node:util'
 import type { Server } from 'node:http'
 import { db } from '../util/prisma'
 import { Socket } from 'node:net'
@@ -71,18 +70,6 @@ export const QueueManager = {
     return this.queueMap.delete(uuid)
   },
 
-  async stop () {
-    const teardownResult = await Promise.allSettled([...this.queueMap].map(async ([_, wsServer]) => {
-      return await promisify(wsServer.close)()
-    }))
-
-    const errors = teardownResult.filter(({ status }) => status === 'rejected') as PromiseRejectedResult[]
-
-    if (errors.length > 0) {
-      throw new AggregateError(errors.map(({ reason }) => reason))
-    }
-  },
-
   // Reconnects all the queues
   async start (): Promise<WSServer[]> {
     const connectors = await db.connector.findMany()
@@ -105,10 +92,6 @@ export function getServerForConnector ({ id: connectorId }: {id: ConnectorId}): 
 
 export function getPortForConnector ({ id: connectorId }: {id: ConnectorId}): number | null {
   return (QueueManager.get(connectorId)?.address() as AddressInfo | undefined)?.port ?? null
-}
-
-export async function stop (): Promise<void> {
-  return await QueueManager.stop()
 }
 
 export async function addDeployRequest (connectorId: ConnectorId, device: Device, artifactUri: string): Promise<void> {
