@@ -11,9 +11,15 @@ jobs:
           cache: "yarn"
 
       - name: Setup Arduino CLI
-        uses: arduino/setup-arduino-cli@v1
+        uses: arduino/setup-arduino-cli@v1.1.1
         with:
           version: "0.20.0"
+
+      - name: Install platform
+        run: |
+          arduino-cli core update-index
+          arduino-cli core install "arduino:avr"
+          arduino-cli core install "arduino:sam"
 
       - name: Start Arduino CLI Daemon
         run: arduino-cli daemon &
