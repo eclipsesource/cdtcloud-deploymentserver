@@ -1,12 +1,10 @@
 import type { Device } from '@prisma/client'
-import * as WebSocket from 'ws'
+import WebSocket, { WebSocketServer } from 'ws'
 import type { AddressInfo, Server as WSServer } from 'ws'
 import type { Server } from 'node:http'
 import { db } from '../util/prisma'
 import { Socket } from 'node:net'
 import logger from '../util/logger'
-
-const WebSocketServer = ((WebSocket as any).WebSocketServer) as typeof WSServer
 
 type ConnectorId = string
 
@@ -102,7 +100,7 @@ export async function addDeployRequest (connectorId: ConnectorId, device: Device
     } else {
       queue.clients
         .forEach(client => {
-          if (client.readyState !== client.OPEN) {
+          if (client.readyState !== WebSocket.OPEN) {
             return
           }
 
