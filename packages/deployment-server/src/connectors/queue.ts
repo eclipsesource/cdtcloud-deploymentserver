@@ -1,10 +1,11 @@
-import type { Device } from '@prisma/client'
+import type { Connector, Device } from '@prisma/client'
 import WebSocket, { WebSocketServer } from 'ws'
 import type { AddressInfo, Server as WSServer } from 'ws'
 import type { Server } from 'node:http'
 import { db } from '../util/prisma'
 import { Socket } from 'node:net'
 import logger from '../util/logger'
+import { promisify } from 'node:util'
 
 type ConnectorId = string
 
@@ -91,33 +92,31 @@ export function getPortForConnector ({ id: connectorId }: {id: ConnectorId}): nu
   return (QueueManager.get(connectorId)?.address() as AddressInfo | undefined)?.port ?? null
 }
 
-export async function addDeployRequest (connectorId: ConnectorId, device: Device, artifactUri: string): Promise<void> {
-  return await new Promise((resolve, reject) => {
-    const queue = QueueManager.get(connectorId)
+export async function addDeployRequest (device: (Device & { connector: Connector }), artifactUri: string): Promise<void> {
+  const { connector: { id: connectorId } } = device
 
-    if (queue == null) {
-      return reject(new Error('Queue not found'))
-    } else {
-      queue.clients
-        .forEach(client => {
-          if (client.readyState !== WebSocket.OPEN) {
-            return
+  const queue = QueueManager.get(connectorId)
+
+  if (queue == null) {
+    throw new Error(`No queue for connector ${connectorId}`)
+  }
+
+  await Promise.all(
+    Array.from(queue.clients).map(async (client) => {
+      const send = promisify(client.send.bind(client)) as (data: string) => Promise<void>
+
+      if (client.readyState === WebSocket.OPEN) {
+        await send(JSON.stringify({
+          type: 'deploy',
+          data: {
+            device: {
+              ...device,
+              connector: undefined
+            },
+            artifactUri
           }
-
-          client.send(JSON.stringify({
-            type: 'deploy',
-            data: {
-              device,
-              artifactUri
-            }
-          }), (err) => {
-            if (err != null) {
-              return reject(err)
-            } else {
-              return resolve()
-            }
-          })
-        })
-    }
-  })
+        }))
+      }
+    })
+  )
 }

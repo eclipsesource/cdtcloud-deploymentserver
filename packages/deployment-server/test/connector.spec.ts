@@ -112,6 +112,9 @@ test('Receives deployment requests', async (t) => {
           id: connectorId
         }
       }
+    },
+    include: {
+      connector: true
     }
   })
 
@@ -120,7 +123,7 @@ test('Receives deployment requests', async (t) => {
   // Simulate a deployment request once we can be sure the socket is listening
   socket.onopen = () => {
     // Specifically send the request only to this connector
-    addDeployRequest(connectorId, device, 'http://google.com')
+    addDeployRequest(device, 'http://google.com')
   }
 
   // Check the response, close the socket
@@ -128,7 +131,10 @@ test('Receives deployment requests', async (t) => {
     t.equal(message.data, JSON.stringify({
       type: 'deploy',
       data: {
-        device,
+        device: {
+          ...device,
+          connector: undefined
+        },
         artifactUri: 'http://google.com'
       }
     }))
