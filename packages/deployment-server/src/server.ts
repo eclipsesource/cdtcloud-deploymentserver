@@ -17,7 +17,12 @@ export async function createServer (): Promise<[Server, Application, PrismaClien
     const app = createApp(db)
     const server = http.createServer(app)
     QueueManager.setServer(server)
-    const port: number | undefined = env.PORT != null ? parseInt(env.PORT, 10) : undefined
+
+    let port: number | undefined = env.PORT != null ? parseInt(env.PORT, 10) : undefined
+    if (port == null && env.NODE_ENV !== 'test') {
+      port = 3001
+    }
+
     server.listen(port, '0.0.0.0')
     await QueueManager.start()
     return [server, app, db]

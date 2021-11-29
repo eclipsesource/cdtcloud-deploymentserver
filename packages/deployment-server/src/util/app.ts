@@ -1,9 +1,11 @@
 import express, { Application } from 'express'
 import statusMessage from 'statuses'
 
+import connectorRoutes from '../connectors/routes'
 import deviceRoutes from '../devices/routes'
 import deviceTypeRoutes from '../device-types/routes'
-import connectorRoutes from '../connectors/routes'
+import deploymentRequestsRoutes from '../deployments/routes'
+import deploymentArtifactsRoutes from '../deployment-artifacts/routes'
 
 import { errorHandler } from './errorHandler'
 import { pinoHttp } from './logger'
@@ -32,6 +34,8 @@ export function createApp (db: PrismaClient): Application {
   deviceRoutes(app)
   deviceTypeRoutes(app)
   connectorRoutes(app)
+  deploymentRequestsRoutes(app)
+  deploymentArtifactsRoutes(app)
 
   app.use(errorHandler)
 

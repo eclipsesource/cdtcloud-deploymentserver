@@ -1,5 +1,8 @@
-import { Connector, DeployStatus, Device, DeviceStatus } from '@prisma/client'
+import prismaClient from '@prisma/client'
+import type { Device, Connector } from '@prisma/client'
 import { db } from '../util/prisma'
+
+const { DeployStatus, DeviceStatus } = prismaClient
 
 type DeviceWithConnector = Device & { connector: Connector }
 

@@ -1,5 +1,5 @@
 import { DeployStatus, DeployRequest } from '.prisma/client'
-import { Type } from '@sinclair/typebox'
+import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
 import { addDeployRequest } from '../connectors/queue'
 import { getAvailableDevice, getLeastLoadedDevice } from '../devices/service'
@@ -40,10 +40,10 @@ export default function deploymentRequestsRoutes (router: Router): void {
   }, { additionalProperties: false })
 
   router.post('/deploymentRequests',
-    validate<DeployRequest, {}, typeof postBody>({ body: postBody }),
+    validate<DeployRequest, {}, Static<typeof postBody>>({ body: postBody }),
     async (req, res, next) => {
       try {
-        // Find an available device
+      // Find an available device
         let device = await getAvailableDevice(req.body.deviceType)
 
         // If no device is available, get the first one with the minimal amount of in-progress deploymentRequests

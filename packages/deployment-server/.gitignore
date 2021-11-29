@@ -2,3 +2,5 @@ node_modules
 dist
 .nyc_output
 *.bak
+uploads/*
+!uploads/.keep

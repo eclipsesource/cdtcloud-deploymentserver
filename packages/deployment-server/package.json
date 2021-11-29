@@ -37,6 +37,7 @@
     "esbuild-node-loader": "^0.6.3",
     "express": "^4.17.1",
     "express-json-validator-middleware": "^2.2.1",
+    "multer": "^1.4.3",
     "pino-http": "^6.0.0",
     "prisma": "^3.5.0",
     "statuses": "^2.0.1",
@@ -45,6 +46,7 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
+    "@types/multer": "^1.4.7",
     "@types/node": "^16.11.7",
     "@types/pino-http": "^5.8.1",
     "@types/statuses": "^2.0.0",
