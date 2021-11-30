@@ -10,6 +10,7 @@ import deploymentArtifactsRoutes from '../deployment-artifacts/routes'
 import { errorHandler } from './errorHandler'
 import { pinoHttp } from './logger'
 import type { PrismaClient } from '@prisma/client'
+import cors from 'cors'
 
 export function createApp (db: PrismaClient): Application {
   const app = express()
@@ -23,6 +24,7 @@ export function createApp (db: PrismaClient): Application {
   app.disable('x-powered-by')
   app.disable('etag')
 
+  app.use(cors())
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
   app.use(pinoHttp)
