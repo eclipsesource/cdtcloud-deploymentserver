@@ -8,7 +8,7 @@ import { validate } from '../util/validate'
 
 export default function deploymentRequestsRoutes (router: Router): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.get('/deploymentRequests', async (req, res, next) => {
+  router.get('/deployments', async (req, res, next) => {
     try {
       const deploymentRequests = await req.db.deployRequest.findMany()
       return res.json(deploymentRequests)
@@ -17,7 +17,7 @@ export default function deploymentRequestsRoutes (router: Router): void {
     }
   })
 
-  router.get('/deploymentRequests/:id', validate<DeployRequest, IdParams>({ params: idParams }), async (req, res, next) => {
+  router.get('/deployments/:id', validate<DeployRequest, IdParams>({ params: idParams }), async (req, res, next) => {
     try {
       const deploymentRequest =
         await req.db.deployRequest.findUnique({
@@ -35,20 +35,20 @@ export default function deploymentRequestsRoutes (router: Router): void {
   })
 
   const postBody = Type.Object({
-    deviceType: Type.String({ format: 'uuid' }),
+    deviceTypeId: Type.String({ format: 'uuid' }),
     artifactUri: Type.String({ format: 'uri' })
   }, { additionalProperties: false })
 
-  router.post('/deploymentRequests',
+  router.post('/deployments',
     validate<DeployRequest, {}, Static<typeof postBody>>({ body: postBody }),
     async (req, res, next) => {
       try {
       // Find an available device
-        let device = await getAvailableDevice(req.body.deviceType)
+        let device = await getAvailableDevice(req.body.deviceTypeId)
 
         // If no device is available, get the first one with the minimal amount of in-progress deploymentRequests
         if (device == null) {
-          device = await getLeastLoadedDevice(req.body.deviceType)
+          device = await getLeastLoadedDevice(req.body.deviceTypeId)
         }
 
         if (device == null) {
@@ -80,7 +80,7 @@ export default function deploymentRequestsRoutes (router: Router): void {
     status: Type.Enum(DeployStatus)
   }, { additionalProperties: false })
 
-  router.put('/deploymentRequests/:id',
+  router.put('/deployments/:id',
     validate<DeployRequest, IdParams>({ body: putBody, params: idParams }),
     async (req, res, next) => {
       try {
