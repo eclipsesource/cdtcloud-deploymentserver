@@ -49,11 +49,11 @@ test('Can upload', async (t) => {
   })
   t.ok(response.ok, 'Response is ok')
 
-  const json = await response.json() as { artifactUrl: string}
+  const json = await response.json() as { artifactUri: string}
 
-  t.match(json.artifactUrl, /^http:\/\/.*\/deployment-artifacts\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/)
+  t.match(json.artifactUri, /^http:\/\/.*\/deployment-artifacts\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/)
 
-  download = json.artifactUrl
+  download = json.artifactUri
 })
 
 test('Can download', async (t) => {

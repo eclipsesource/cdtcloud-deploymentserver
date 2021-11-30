@@ -22,8 +22,8 @@ export default function deploymentArtifactsRoutes (router: Router): void {
         return res.sendStatus(400)
       }
 
-      const artifactUrl = `${req.protocol}://${req.get('host') ?? ''}${req.originalUrl}/${req.file.filename}`
-      return res.json({ artifactUrl })
+      const artifactUri = `${req.protocol}://${req.get('host') ?? ''}${req.originalUrl}/${req.file.filename}`
+      return res.json({ artifactUri })
     } catch (e) {
       console.error(e)
       next(e)
