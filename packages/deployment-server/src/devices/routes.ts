@@ -1,8 +1,11 @@
-import { Device } from '@prisma/client'
+import prisma, { Device } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
+import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
+
+const { DeviceStatus } = prisma
 
 export default function deviceRoutes (router: Router): void {
   router.get('/devices', validate<Device[]>({}), async (req, res, next) => {
@@ -28,9 +31,23 @@ export default function deviceRoutes (router: Router): void {
     }
   })
 
-  router.post('/devices', validate<Device>({}), async (req, res, next) => {
+  const postBody = Type.Object({
+    status: Type.Enum(DeviceStatus, { default: DeviceStatus.AVAILABLE }),
+    typeId: Type.String({ format: 'uuid' }),
+    connectorId: Type.String({ format: 'uuid' })
+  }, { additionalProperties: false })
+
+  router.post('/devices', validate<Device, {}, Static<typeof postBody>>({ body: postBody }), async (req, res, next) => {
     try {
-      const device = await req.db.device.create({ data: req.body })
+      const { connectorId, typeId, status } = req.body
+
+      const device = await req.db.device.create({
+        data: {
+          status,
+          connector: { connect: { id: connectorId } },
+          type: { connect: { id: typeId } }
+        }
+      })
       return res.json(device)
     } catch (e) {
       next(e)
