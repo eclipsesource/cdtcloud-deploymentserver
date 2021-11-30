@@ -54,21 +54,28 @@ export default function deviceRoutes (router: Router): void {
     }
   })
 
-  router.put('/devices/:id', validate<Device, IdParams>({ params: idParams }), async (req, res, next) => {
-    try {
-      const device = await req.db.device.update({
-        where: { id: req.params.id },
-        data: req.body
-      })
+  const putBody = Type.Object({
+    status: Type.Enum(DeviceStatus)
+  }, { additionalProperties: false })
 
-      return res.json(device)
-    } catch (e) {
-      if (e instanceof PrismaClientKnownRequestError && e.code === 'P2025') {
-        return res.sendStatus(404)
+  router.put(
+    '/devices/:id',
+    validate<Device, IdParams, Static<typeof putBody>>({ params: idParams, body: putBody }),
+    async (req, res, next) => {
+      try {
+        const device = await req.db.device.update({
+          where: { id: req.params.id },
+          data: req.body
+        })
+
+        return res.json(device)
+      } catch (e) {
+        if (e instanceof PrismaClientKnownRequestError && e.code === 'P2025') {
+          return res.sendStatus(404)
+        }
+        next(e)
       }
-      next(e)
-    }
-  })
+    })
 
   router.delete('/devices/:id', validate<Device, IdParams>({ params: idParams }), async (req, res, next) => {
     try {
