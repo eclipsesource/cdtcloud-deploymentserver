@@ -127,8 +127,6 @@ test('Can deploy', async (t) => {
   })
   const result = await response.json() as DeployRequest
 
-  console.dir(result, { depth: null })
-
   t.equal(response.status, 200)
   t.match(result.id, /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
   t.equal(result.artifactUrl, artifactUri)
