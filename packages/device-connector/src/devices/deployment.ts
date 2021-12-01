@@ -1,11 +1,11 @@
-import { Device } from "./service";
+import { Device } from './service'
 
-export type deploymentData = {
-    device: Device,
-    artifactUri: string
+export interface deploymentData {
+  device: Device
+  artifactUri: string
 }
 
-export type deploymentRequest = {
-    type: 'deploy',
-    data: deploymentData
+export interface deploymentRequest {
+  type: 'deploy'
+  data: deploymentData
 }

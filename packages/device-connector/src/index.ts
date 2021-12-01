@@ -1,5 +1,5 @@
 import { RPCClient } from './cli-rpc/client'
-import { openStream } from "./deployment-server/connection";
+import { openStream } from './deployment-server/connection'
 
 const client = await new RPCClient()
 await client.init()
@@ -11,9 +11,9 @@ const socket = await openStream()
 socket.onmessage = (e) => {
   const message = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
   if (message.type === 'deploy') {
-      client.uploadBin(message.deviceType, message.port, message.artifactUri)
-        .then(() => console.log('success'))
-        .catch((err) => console.log(err))
+    client.uploadBin(message.deviceType, message.port, message.artifactUri)
+      .then(() => console.log('success'))
+      .catch((err) => console.log(err))
   }
 }
 

@@ -195,7 +195,7 @@ export class RPCClient {
     })
   }
 
-  async boardListWatch () {
+  async boardListWatch (): Promise<void> {
     const boardListWatchRequest = { instance: this.instance, interrupt: false }
 
     return await new Promise((resolve, reject) => {
@@ -206,26 +206,27 @@ export class RPCClient {
       const stream = this.client.boardListWatch()
       stream.write(boardListWatchRequest)
       stream.on('data', (data: BoardListWatchResponse) => {
-        if (data.error) {
+        if (data.error !== '') {
           logger.error(new Error(data.error))
         }
 
         const eventType = data.event_type
         const detectedPort = data.port
         const port = detectedPort?.port
-        if (!port) {
+        if (port == null) {
           return
         }
 
-        if (detectedPort.matching_boards && detectedPort.matching_boards.length > 0) {
+        const devicePort = {
+          address: port.address,
+          label: port.label,
+          protocol: port.protocol
+        }
+
+        if (eventType === 'add' && detectedPort?.matching_boards != null && detectedPort.matching_boards.length > 0) {
           const board = detectedPort.matching_boards[0]
-          const devicePort = {
-            address: port.address,
-            label: port.label,
-            protocol: port.protocol
-          }
           const device = {
-            name: board.name,
+            name: board.name ?? 'Unknown Device',
             serialNumber: port.properties?.serialNumber,
             fqbn: board.fqbn,
             hidden: board.is_hidden,
@@ -233,16 +234,10 @@ export class RPCClient {
             port: devicePort
           }
 
-          switch (eventType) {
-            case 'add':
-              logger.info(`Board attached: ${device.name} (uid: ${device.serialNumber}, port: ${devicePort.address})`)
-              break
-            case 'remove':
-              logger.info(`Board removed: ${device.name} (uid: ${device.serialNumber}, port: ${devicePort.address})`)
-              break
-            default:
-              break
-          }
+          logger.info(`Device attached: ${device.name}`)
+        } else if (eventType === 'remove') {
+          // TODO
+          logger.info('Device removed')
         }
       })
     })
