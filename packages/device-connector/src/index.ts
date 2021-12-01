@@ -17,6 +17,7 @@ socket.onmessage = (e) => {
   }
 }
 
+await client.boardListWatch()
 /*
 await client.listAllBoards();
 const boards = await client.listBoards();

@@ -14,6 +14,8 @@ import { Instance } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1
 import { Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
 import { UploadResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadResponse'
 import { ProtoGrpcType as ArduinoProtoGrpcType } from 'arduino-cli_proto_ts/common/commands'
+import { BoardListWatchResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchResponse'
+import logger from '../util/logger'
 
 export class RPCClient {
   address: string
@@ -189,6 +191,59 @@ export class RPCClient {
       })
       stream.on('error', (err: Error) => {
         reject(new Error(err.message))
+      })
+    })
+  }
+
+  async boardListWatch () {
+    const boardListWatchRequest = { instance: this.instance, interrupt: false }
+
+    return await new Promise((resolve, reject) => {
+      if (this.client == null) {
+        return reject(new Error('Client not initialized'))
+      }
+
+      const stream = this.client.boardListWatch()
+      stream.write(boardListWatchRequest)
+      stream.on('data', (data: BoardListWatchResponse) => {
+        if (data.error) {
+          logger.error(new Error(data.error))
+        }
+
+        const eventType = data.event_type
+        const detectedPort = data.port
+        const port = detectedPort?.port
+        if (!port) {
+          return
+        }
+
+        if (detectedPort.matching_boards && detectedPort.matching_boards.length > 0) {
+          const board = detectedPort.matching_boards[0]
+          const devicePort = {
+            address: port.address,
+            label: port.label,
+            protocol: port.protocol
+          }
+          const device = {
+            name: board.name,
+            serialNumber: port.properties?.serialNumber,
+            fqbn: board.fqbn,
+            hidden: board.is_hidden,
+            platform: board.platform,
+            port: devicePort
+          }
+
+          switch (eventType) {
+            case 'add':
+              logger.info(`Board attached: ${device.name} (uid: ${device.serialNumber}, port: ${devicePort.address})`)
+              break
+            case 'remove':
+              logger.info(`Board removed: ${device.name} (uid: ${device.serialNumber}, port: ${devicePort.address})`)
+              break
+            default:
+              break
+          }
+        }
       })
     })
   }
