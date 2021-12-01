@@ -18,11 +18,11 @@ jobs:
       - name: Install platform
         run: |
           arduino-cli core update-index
-          arduino-cli core install "arduino:avr"
+          arduino-cli core install "arduino:avr@1.8.4"
           arduino-cli core install "arduino:sam"
 
       - name: Start Arduino CLI Daemon
-        run: arduino-cli daemon &
+        run: arduino-cli daemon --daemonize --port 50051 &
 
       - name: Install
         run: yarn install --ignore-scripts

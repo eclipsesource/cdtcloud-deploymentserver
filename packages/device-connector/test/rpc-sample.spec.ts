@@ -13,44 +13,10 @@ before(async () => {
   await client.initInstance()
 })
 
-test('List all supported arduino uno boards from arduino-cli', async (t) => {
-  const boards = await client.listAllBoards(['Arduino Uno'])
+test('List supported arduino uno mini boards from arduino-cli', async (t) => {
+  const boards = await client.listAllBoards(['Uno Mini'])
 
-  t.match(boards, [
-    {
-      name: 'Arduino Uno',
-      fqbn: 'arduino:avr:uno',
-      is_hidden: false,
-      platform: {
-        boards: [],
-        id: 'arduino:avr',
-        installed: '1.8.4',
-        latest: '1.8.4',
-        name: 'Arduino AVR Boards',
-        maintainer: 'Arduino',
-        website: 'http://www.arduino.cc/',
-        email: 'packages@arduino.cc',
-        manually_installed: false,
-        deprecated: false
-      }
-    },
-    {
-      name: 'Arduino Uno WiFi',
-      fqbn: 'arduino:avr:unowifi',
-      is_hidden: false,
-      platform: {
-        boards: [],
-        id: 'arduino:avr',
-        installed: '1.8.4',
-        latest: '1.8.4',
-        name: 'Arduino AVR Boards',
-        maintainer: 'Arduino',
-        website: 'http://www.arduino.cc/',
-        email: 'packages@arduino.cc',
-        manually_installed: false,
-        deprecated: false
-      }
-    },
+  t.same(boards, [
     {
       name: 'Arduino Uno Mini',
       fqbn: 'arduino:avr:unomini',
