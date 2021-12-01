@@ -1,0 +1,81 @@
+// This file is part of arduino-cli.
+//
+// Copyright 2020 ARDUINO SA (http://www.arduino.cc/)
+//
+// This software is released under the GNU General Public License version 3,
+// which covers the main part of arduino-cli.
+// The terms of this license can be found at:
+// https://www.gnu.org/licenses/gpl-3.0.en.html
+//
+// You can be released from the requirements of the above licenses by purchasing
+// a commercial license. Buying such a license is mandatory if you want to
+// modify or otherwise use the software for commercial activities involving the
+// Arduino software without disclosing the source code of your own applications.
+// To purchase a commercial license, send an email to license@arduino.cc.
+
+syntax = "proto3";
+
+package cc.arduino.cli.settings.v1;
+
+option go_package = "github.com/arduino/arduino-cli/rpc/cc/arduino/cli/settings/v1;settings";
+
+// The SettingsService provides an interface to Arduino CLI configuration
+// options
+service SettingsService {
+  // List all the settings.
+  rpc GetAll(GetAllRequest) returns (GetAllResponse);
+
+  // Set multiple settings values at once.
+  rpc Merge(MergeRequest) returns (MergeResponse);
+
+  // Get the value of a specific setting.
+  rpc GetValue(GetValueRequest) returns (GetValueResponse);
+
+  // Set the value of a specific setting.
+  rpc SetValue(SetValueRequest) returns (SetValueResponse);
+
+  // Writes to file settings currently stored in memory
+  rpc Write(WriteRequest) returns (WriteResponse);
+}
+
+message GetAllResponse {
+  // The settings, in JSON format.
+  string json_data = 1;
+}
+
+message MergeRequest {
+  // The settings, in JSON format.
+  string json_data = 1;
+}
+
+message GetValueResponse {
+  // The key of the setting.
+  string key = 1;
+  // The setting, in JSON format.
+  string json_data = 2;
+}
+
+message SetValueRequest {
+  // The key of the setting.
+  string key = 1;
+  // The setting, in JSON format.
+  string json_data = 2;
+}
+
+message GetAllRequest {}
+
+message GetValueRequest {
+  // The key of the setting.
+  string key = 1;
+}
+
+message MergeResponse {}
+
+message SetValueResponse {}
+
+message WriteRequest {
+  // Path to settings file (e.g. /path/to/arduino-cli.yaml)
+  string file_path = 1;
+}
+
+message WriteResponse {}

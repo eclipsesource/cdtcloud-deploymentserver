@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "target": "es2020",
+    "lib": ["es2020", "DOM"],
+    "module": "es2022",
+    "moduleResolution": "node",
+    "strict": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "isolatedModules": true,
+    "skipLibCheck": true
+  }
+}

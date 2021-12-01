@@ -1,0 +1,16 @@
+{
+  "name": "arduino-cli_proto_ts",
+  "version": "0.20.0",
+  "description": "",
+  "author": "",
+  "license": "GPL-3.0",
+  "scripts": {
+    "build:commands": "proto-loader-gen-types --keepCase --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js -I proto/ --outDir=common/ cc/arduino/cli/commands/v1/commands.proto",
+    "build:debug": "proto-loader-gen-types --keepCase --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js -I proto/ --outDir=common/ cc/arduino/cli/debug/v1/debug.proto",
+    "build:monitor": "proto-loader-gen-types --keepCase --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js -I proto/ --outDir=common/ cc/arduino/cli/monitor/v1/monitor.proto",
+    "build:settings": "proto-loader-gen-types --keepCase --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js -I proto/ --outDir=common/ cc/arduino/cli/settings/v1/settings.proto"
+  },
+  "dependencies": {
+    "@grpc/proto-loader": "^0.6.7"
+  }
+}
