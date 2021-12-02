@@ -2,7 +2,7 @@ import { env } from 'process'
 import { fetch } from 'undici'
 import { connectorId } from './connection'
 
-export const sendNewDeviceTypeRequest = async (fqbn: string, name: string) => {
+export const sendNewDeviceTypeRequest = async (fqbn: string, name: string): Promise<any> => {
   const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
   const url = `http://${address}/device-types`
 
@@ -20,7 +20,7 @@ export const sendNewDeviceTypeRequest = async (fqbn: string, name: string) => {
   return await resp.json()
 }
 
-export const sendNewDeviceRequest = async (typeId: string) => {
+export const sendNewDeviceRequest = async (typeId: string): Promise<any> => {
   const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
   const url = `http://${address}/devices`
 
@@ -38,7 +38,7 @@ export const sendNewDeviceRequest = async (typeId: string) => {
   return await resp.json()
 }
 
-export const setDeviceRequest = async (typeId: string) => {
+export const setDeviceRequest = async (typeId: string): Promise<any> => {
   const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
   const url = `http://${address}/devices/${typeId}`
 
@@ -56,7 +56,7 @@ export const setDeviceRequest = async (typeId: string) => {
   return await resp.json()
 }
 
-export const fetchAllDeviceTypes = async () => {
+export const fetchAllDeviceTypes = async (): Promise<any> => {
   const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
   const url = `http://${address}/device-types`
 
@@ -70,7 +70,7 @@ export const fetchAllDeviceTypes = async () => {
   return await resp.json()
 }
 
-export const fetchDeviceType = async (typeId: string) => {
+export const fetchDeviceType = async (typeId: string): Promise<any> => {
   const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
   const url = `http://${address}/device-types/${typeId}`
 
@@ -84,7 +84,7 @@ export const fetchDeviceType = async (typeId: string) => {
   return await resp.json()
 }
 
-export const deleteDeviceRequest = async (deviceId: string) => {
+export const deleteDeviceRequest = async (deviceId: string): Promise<any> => {
   const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
   const url = `http://${address}/devices/${deviceId}`
 

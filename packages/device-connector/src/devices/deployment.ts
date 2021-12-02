@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import { createWriteStream } from 'fs'
+import * as Path from 'path'
 import { Readable } from 'stream'
 import { request } from 'undici'
 import { Device } from './service'
@@ -15,13 +16,13 @@ export interface deploymentRequest {
 }
 
 export const downloadArtifact = async (uri: string): Promise<string> => {
-  const uid = crypto.randomBytes(32).toString("hex")
-  const filePath = `artifacts/${uid}.bin`
-  const outStream = createWriteStream(filePath)
+  const uid = crypto.randomBytes(32).toString('hex')
+  const file = `artifacts/${uid}.bin`
+  const outStream = createWriteStream(file)
 
   const resp = await request(uri)
   const downStream = Readable.from(resp.body)
   downStream.pipe(outStream)
 
-  return filePath
+  return Path.resolve(file)
 }

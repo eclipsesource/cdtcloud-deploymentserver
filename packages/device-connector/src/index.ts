@@ -2,6 +2,7 @@ import { RPCClient } from './cli-rpc/client'
 import { connectorId, openStream } from './deployment-server/connection'
 import { fetchAllDeviceTypes, sendNewDeviceRequest, sendNewDeviceTypeRequest } from './deployment-server/service'
 import { downloadArtifact } from './devices/deployment'
+import { Device } from './devices/service'
 
 const client = await new RPCClient()
 await client.init()
@@ -20,7 +21,7 @@ socket.onmessage = (e) => async () => {
       setInterval(() => {
         console.log('Closing Monitor Stream')
         monitorStream.end()
-      }, 3000);
+      }, 3000)
     }
   }
 }
@@ -28,40 +29,48 @@ socket.onmessage = (e) => async () => {
 await client.boardListWatch()
 
 const boards = client.getDevices()
-if (boards) {
-  const myBoard = boards[0];
-  if (myBoard) {
+if (boards.length > 0) {
+  const myBoard = boards[0]
+  if (myBoard !== undefined) {
     try {
-      const upload = await client.uploadBin(myBoard.fqbn, myBoard.port, "./tests/tests.bin")
-      socket.send(JSON.stringify({type: 'upload', success: upload}))
+      const artifactPath = await downloadArtifact('https://sanctum-dev.com/tests.bin')
+      const upload = await client.uploadBin(myBoard.fqbn, myBoard.port, artifactPath)
+      socket.send(JSON.stringify({ type: 'upload', success: upload }))
       const monitorStream = await client.monitor(myBoard.port)
-      monitorStream.on('data', ({ error, rx_data }) => {
-        if (error) {
+      monitorStream.on('data', ({ _, error, rx_data: data }) => {
+        if (error !== undefined) {
           console.log(error)
         }
-        process.stdout.write(rx_data)
-        socket.send(JSON.stringify({ type: 'monitor', rx_data }))
+        process.stdout.write(data)
+        socket.send(JSON.stringify({ type: 'monitor', data }))
       })
       setTimeout(() => {
         console.log('Closing Monitor Stream')
         monitorStream.end()
-      }, 3000);
+      }, 3000)
     } catch (e) {
-      socket.send(JSON.stringify({type: 'upload', error: e}))
+      socket.send(JSON.stringify({ type: 'upload', error: e }))
       console.log(e)
     }
   }
 }
+
 try {
   const newArduinoMegaType = await sendNewDeviceTypeRequest('arduino:avr:mega', 'Arduino Mega or Mega 2560')
   const newArduinoDueType = await sendNewDeviceTypeRequest('arduino:sam:arduino_due_x_dbg', 'Arduino Due (Programming Port)')
+  console.log(newArduinoMegaType)
+  console.log(newArduinoDueType)
 
-  const allDeviceTypes = await fetchAllDeviceTypes()
+  const allDeviceTypes: Device[] = await fetchAllDeviceTypes()
   const arduinoUnoType = allDeviceTypes.find((device) => device.fqbn === 'arduino:avr:uno')
   const arduinoMegaType = allDeviceTypes.find((device) => device.fqbn === 'arduino:avr:mega')
   const arduinoDueType = allDeviceTypes.find((device) => device.fqbn === 'arduino:sam:arduino_due_x_dbg')
+  console.log(arduinoUnoType)
+  console.log(arduinoMegaType)
+  console.log(arduinoDueType)
 
   const registerDue = await sendNewDeviceRequest(connectorId, arduinoDueType.id)
+  console.log(registerDue)
 } catch (e) {
   console.log(e)
 }

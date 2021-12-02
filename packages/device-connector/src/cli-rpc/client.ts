@@ -26,7 +26,7 @@ export class RPCClient {
   address: string
   private client: ArduinoCoreServiceClient | undefined
   instance: Instance | undefined
-  private devices = []
+  private readonly devices = []
 
   constructor (address: string = '127.0.0.1:50051') {
     this.address = address
@@ -99,7 +99,7 @@ export class RPCClient {
 
   async initInstance (i?: Instance): Promise<void> {
     const instance = i ?? this.instance
-    if (i) {
+    if (i != null) {
       this.instance = i
     }
     const initRequest: InitRequest = { instance }
@@ -279,7 +279,6 @@ export class RPCClient {
 
           this.devices.push(device)
           logger.info(`Device attached: ${device.name}`)
-
         } else if (eventType === 'remove') {
           // TODO
           logger.info('Device removed')
@@ -307,16 +306,15 @@ export class RPCClient {
       })
 
       stream.write(monitorRequest, (err: Error | null | undefined) => {
-        if (err) {
-          reject(err)
+        if (err != null) {
+          return reject(err)
         }
-        resolve(stream)
+        return resolve(stream)
       })
     })
   }
 
-  getDevices () {
+  getDevices (): Device[] {
     return this.devices
   }
 }
-
