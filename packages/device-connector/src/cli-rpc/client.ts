@@ -76,6 +76,24 @@ export class RPCClient {
     })
   }
 
+  async destroyInstance (i?: Instance): Promise<void> {
+    const instance = i ?? this.instance
+    const destroyRequest = { instance }
+
+    return await new Promise((resolve, reject) => {
+      if (this.client == null) {
+        return reject(new Error('Client not initialized'))
+      }
+
+      this.client.destroy(destroyRequest, (err: ServiceError | null) => {
+        if (err != null) {
+          return reject(new Error(err.message))
+        }
+        return resolve()
+      })
+    })
+  }
+
   async initInstance (i?: Instance): Promise<void> {
     const instance = i ?? this.instance
     if (i) {
@@ -113,7 +131,6 @@ export class RPCClient {
       }
 
       this.client.boardList(boardListRequest, (err: ServiceError | null, data?: BoardListResponse) => {
-        console.log(data)
         if (err != null) {
           return reject(new Error(err.message))
         }
@@ -257,6 +274,32 @@ export class RPCClient {
           // TODO
           logger.info('Device removed')
         }
+      })
+    })
+  }
+
+  async monitor (port: Port): Promise<grpc.ClientDuplexStream<MonitorRequest, MonitorResponse>> {
+    const monitorRequest: MonitorRequest = { instance: this.instance, port }
+
+    return await new Promise((resolve, reject) => {
+      if (this.client == null) {
+        return reject(new Error('Client not initialized'))
+      }
+
+      const stream = this.client.monitor()
+      stream.on('end', () => {
+        stream.destroy()
+      })
+
+      stream.on('error', (err: Error) => {
+        logger.error(err)
+      })
+
+      stream.write(monitorRequest, (err: Error | null | undefined) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(stream)
       })
     })
   }
