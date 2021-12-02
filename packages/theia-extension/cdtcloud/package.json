@@ -25,12 +25,14 @@
     "clean": "rimraf lib",
     "build": "tsc",
     "watch": "tsc -w",
+    "dev": "tsc -w --preserveWatchOutput",
     "test": "jest --config configs/jest.config.ts",
     "typecheck": "tsc -noEmit"
   },
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/cdtcloud-frontend-module"
+      "frontend": "lib/browser/cdtcloud-frontend-module",
+      "backend": "lib/node/cdtcloud-backend-module"
     }
   ]
 }
