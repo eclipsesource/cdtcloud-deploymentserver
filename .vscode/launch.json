@@ -8,7 +8,7 @@
       "name": "Debug Server",
       "request": "launch",
       "runtimeArgs": [
-        "--experimental-loader",
+        "--loader",
         "esbuild-node-loader",
         "-r",
         "dotenv/config",

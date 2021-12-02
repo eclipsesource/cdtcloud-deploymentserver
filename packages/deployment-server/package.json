@@ -7,8 +7,8 @@
   "license": "EPL-2.0",
   "type": "module",
   "scripts": {
-    "nts": "node --experimental-loader esbuild-node-loader",
-    "dev": "nodemon -x node --experimental-loader esbuild-node-loader  -r dotenv/config src/index.ts",
+    "nts": "node --loader esbuild-node-loader",
+    "dev": "nodemon -x node --loader esbuild-node-loader  -r dotenv/config src/index.ts",
     "start": "yarn nts src/index.ts",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "tap",
@@ -17,7 +17,7 @@
   },
   "tap": {
     "node-arg": [
-      "--experimental-loader=esbuild-node-loader"
+      "--loader=esbuild-node-loader"
     ],
     "no-check-coverage": true,
     "test-env": [
