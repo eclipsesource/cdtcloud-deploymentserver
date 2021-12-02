@@ -4,3 +4,4 @@ dist
 tests/
 .env.local
 .connection.data
+artifacts
