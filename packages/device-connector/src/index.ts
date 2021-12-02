@@ -1,8 +1,7 @@
 import { RPCClient } from './cli-rpc/client'
-import { connectorId, openStream } from './deployment-server/connection'
+import { openStream } from './deployment-server/connection'
 import { fetchAllDeviceTypes, sendNewDeviceRequest, sendNewDeviceTypeRequest } from './deployment-server/service'
 import { downloadArtifact } from './devices/deployment'
-import { Device } from './devices/service'
 
 const client = await new RPCClient()
 await client.init()
@@ -56,12 +55,18 @@ if (boards.length > 0) {
 }
 
 try {
+  interface TestDeviceType {
+    id: string
+    name: string
+    fqbn: string
+  }
+
   const newArduinoMegaType = await sendNewDeviceTypeRequest('arduino:avr:mega', 'Arduino Mega or Mega 2560')
   const newArduinoDueType = await sendNewDeviceTypeRequest('arduino:sam:arduino_due_x_dbg', 'Arduino Due (Programming Port)')
   console.log(newArduinoMegaType)
   console.log(newArduinoDueType)
 
-  const allDeviceTypes: Device[] = await fetchAllDeviceTypes()
+  const allDeviceTypes: TestDeviceType[] = await fetchAllDeviceTypes()
   const arduinoUnoType = allDeviceTypes.find((device) => device.fqbn === 'arduino:avr:uno')
   const arduinoMegaType = allDeviceTypes.find((device) => device.fqbn === 'arduino:avr:mega')
   const arduinoDueType = allDeviceTypes.find((device) => device.fqbn === 'arduino:sam:arduino_due_x_dbg')
@@ -69,8 +74,10 @@ try {
   console.log(arduinoMegaType)
   console.log(arduinoDueType)
 
-  const registerDue = await sendNewDeviceRequest(connectorId, arduinoDueType.id)
-  console.log(registerDue)
+  if (arduinoDueType?.id !== undefined) {
+    const registerDue = await sendNewDeviceRequest(arduinoDueType.id)
+    console.log(registerDue)
+  }
 } catch (e) {
   console.log(e)
 }

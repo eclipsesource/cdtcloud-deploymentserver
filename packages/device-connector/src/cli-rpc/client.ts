@@ -26,7 +26,7 @@ export class RPCClient {
   address: string
   private client: ArduinoCoreServiceClient | undefined
   instance: Instance | undefined
-  private readonly devices = []
+  private readonly devices: Device[] = []
 
   constructor (address: string = '127.0.0.1:50051') {
     this.address = address
@@ -257,23 +257,35 @@ export class RPCClient {
         const detectedPort = data.port
         const port = detectedPort?.port
         if (port == null) {
+          logger.error('Port not defined')
+          return
+        }
+
+        if (port.protocol === undefined) {
+          logger.error('Port protocol not defined')
+          return
+        }
+
+        if (port.address === undefined) {
+          logger.error('Port address not defined')
           return
         }
 
         const devicePort = {
           address: port.address,
-          label: port.label,
           protocol: port.protocol
         }
 
         if (eventType === 'add' && detectedPort?.matching_boards != null && detectedPort.matching_boards.length > 0) {
           const board = detectedPort.matching_boards[0]
+          if (board.fqbn === undefined) {
+            logger.error('Could not register device: No fqbn found')
+            return
+          }
+
           const device: Device = {
-            name: board.name ?? 'Unknown Device',
-            serialNumber: port.properties?.serialNumber,
+            name: board.name ?? 'Unknown Devicename',
             fqbn: board.fqbn,
-            hidden: board.is_hidden,
-            platform: board.platform,
             port: devicePort
           }
 
