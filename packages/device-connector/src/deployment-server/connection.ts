@@ -11,6 +11,9 @@ export interface ConnectorData {
   devices: Device[]
 }
 
+export let connectorId: string
+export const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
+
 const readConnectorData = async (): Promise<ConnectorData> => {
   let data = ''
 
@@ -31,7 +34,7 @@ const readConnectorData = async (): Promise<ConnectorData> => {
   })
 }
 
-const generateConnectorData = async (address: string): Promise<ConnectorData> => {
+const generateConnectorData = async (): Promise<ConnectorData> => {
   const registrationResponse = await fetch(`http://${address}/connectors`, {
     method: 'POST'
   })
@@ -70,19 +73,18 @@ const writeConnectorData = async (connectorData: ConnectorData): Promise<void> =
 }
 
 export const openStream = async (): Promise<WebSocket> => {
-  const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
   let connectorData: ConnectorData | undefined
   if (fs.existsSync('.connection.data')) {
     connectorData = await readConnectorData()
   }
 
   if ((connectorData == null) || connectorData.uri !== address) {
-    connectorData = await generateConnectorData(address)
+    connectorData = await generateConnectorData()
     await writeConnectorData(connectorData)
   }
 
-  const id = connectorData.id
-  const url = `ws://${address}/connectors/${id}/queue`
+  connectorId = connectorData.id
+  const url = `ws://${address}/connectors/${connectorId}/queue`
   const socket = new WebSocket(url)
 
   socket.onopen = () => {

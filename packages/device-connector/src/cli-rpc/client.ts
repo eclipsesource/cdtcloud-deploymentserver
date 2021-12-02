@@ -7,6 +7,7 @@ import { BoardListAllResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli
 import { BoardListItem } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListItem'
 import { BoardListRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListRequest'
 import { BoardListResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListResponse'
+import { BoardListWatchRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchRequest'
 import { BurnBootloaderResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BurnBootloaderResponse'
 import { CreateResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/CreateResponse'
 import { DetectedPort } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/DetectedPort'
@@ -18,12 +19,14 @@ import { Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Por
 import { UploadResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadResponse'
 import { ProtoGrpcType as ArduinoProtoGrpcType } from 'arduino-cli_proto_ts/common/commands'
 import { BoardListWatchResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchResponse'
+import { Device } from '../devices/service'
 import logger from '../util/logger'
 
 export class RPCClient {
   address: string
   private client: ArduinoCoreServiceClient | undefined
   instance: Instance | undefined
+  private devices = []
 
   constructor (address: string = '127.0.0.1:50051') {
     this.address = address
@@ -186,9 +189,11 @@ export class RPCClient {
       stream.on('end', () => {
         stream.destroy()
       })
+
       stream.on('status', (status) => {
         return status.code === 0 ? resolve(true) : reject(new Error(status.details))
       })
+
       stream.on('error', (err: Error) => {
         reject(new Error(err.message))
       })
@@ -209,12 +214,15 @@ export class RPCClient {
           reject(new Error(data.err_stream.toString()))
         }
       })
+
       stream.on('end', () => {
         stream.destroy()
       })
+
       stream.on('status', (status) => {
         return status.code === 0 ? resolve(true) : reject(new Error(status.details))
       })
+
       stream.on('error', (err: Error) => {
         reject(new Error(err.message))
       })
@@ -222,7 +230,7 @@ export class RPCClient {
   }
 
   async boardListWatch (): Promise<void> {
-    const boardListWatchRequest = { instance: this.instance, interrupt: false }
+    const boardListWatchRequest: BoardListWatchRequest = { instance: this.instance, interrupt: false }
 
     return await new Promise((resolve, reject) => {
       if (this.client == null) {
@@ -260,7 +268,7 @@ export class RPCClient {
 
         if (eventType === 'add' && detectedPort?.matching_boards != null && detectedPort.matching_boards.length > 0) {
           const board = detectedPort.matching_boards[0]
-          const device = {
+          const device: Device = {
             name: board.name ?? 'Unknown Device',
             serialNumber: port.properties?.serialNumber,
             fqbn: board.fqbn,
@@ -269,11 +277,14 @@ export class RPCClient {
             port: devicePort
           }
 
+          this.devices.push(device)
           logger.info(`Device attached: ${device.name}`)
+
         } else if (eventType === 'remove') {
           // TODO
           logger.info('Device removed')
         }
+        return resolve()
       })
     })
   }
@@ -302,6 +313,10 @@ export class RPCClient {
         resolve(stream)
       })
     })
+  }
+
+  getDevices () {
+    return this.devices
   }
 }
 
