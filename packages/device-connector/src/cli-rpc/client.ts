@@ -261,21 +261,6 @@ export class RPCClient {
           return
         }
 
-        if (port.protocol === undefined) {
-          logger.error('Port protocol not defined')
-          return
-        }
-
-        if (port.address === undefined) {
-          logger.error('Port address not defined')
-          return
-        }
-
-        const devicePort = {
-          address: port.address,
-          protocol: port.protocol
-        }
-
         if (eventType === 'add' && detectedPort?.matching_boards != null && detectedPort.matching_boards.length > 0) {
           const board = detectedPort.matching_boards[0]
           if (board.fqbn === undefined) {
@@ -286,7 +271,7 @@ export class RPCClient {
           const device: Device = {
             name: board.name ?? 'Unknown Devicename',
             fqbn: board.fqbn,
-            port: devicePort
+            port: port
           }
 
           this.devices.push(device)

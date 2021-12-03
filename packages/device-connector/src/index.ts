@@ -1,23 +1,48 @@
 import { RPCClient } from './cli-rpc/client'
 import { openStream } from './deployment-server/connection'
-import { fetchAllDeviceTypes, sendNewDeviceRequest, sendNewDeviceTypeRequest } from './deployment-server/service'
 import { downloadArtifact } from './devices/deployment'
+import { getFQBN, getPortForDevice, setDevices } from './devices/service'
 
 const client = await new RPCClient()
 await client.init()
 await client.createInstance()
 await client.initInstance()
 
+await client.boardListWatch()
+const ourDevices = await client.getDevices()
+setDevices(ourDevices)
+
 const socket = await openStream()
 
-socket.onmessage = (e) => async () => {
-  const message = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
-  if (message.type === 'deploy') {
-    const artifactPath = await downloadArtifact(message.artifactUri)
-    const uploaded = await client.uploadBin(message.deviceType, message.port, artifactPath)
+socket.onmessage = (e) => {
+  const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
+
+  deployBinary(data).then(() => {
+    console.log('done')
+  }).catch((e) => {
+    console.log(e)
+  })
+}
+
+const deployBinary = async (resp: any): Promise<void> => {
+  const type = resp.type
+  const data = resp.data
+  if (type === 'deploy') {
+    const fqbn = await getFQBN(data.device.deviceTypeId)
+    const port = await getPortForDevice(data.device.id)
+    const artifactPath = await downloadArtifact(data.artifactUri)
+    const uploaded = await client.uploadBin(fqbn, port, artifactPath)
     if (uploaded) {
-      const monitorStream = await client.monitor(message.port)
-      setInterval(() => {
+      const monitorStream = await client.monitor(port)
+      monitorStream.on('data', ({ _, error, rx_data: data }) => {
+        if (error !== undefined) {
+          console.log(error)
+        }
+
+        process.stdout.write(data)
+        socket.send(JSON.stringify({ type: 'monitor', data }))
+      })
+      await setTimeout(() => {
         console.log('Closing Monitor Stream')
         monitorStream.end()
       }, 3000)
@@ -25,8 +50,7 @@ socket.onmessage = (e) => async () => {
   }
 }
 
-await client.boardListWatch()
-
+/*
 const boards = client.getDevices()
 if (boards.length > 0) {
   const myBoard = boards[0]
@@ -81,3 +105,4 @@ try {
 } catch (e) {
   console.log(e)
 }
+ */
