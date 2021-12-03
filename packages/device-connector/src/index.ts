@@ -1,58 +1,81 @@
-import { env } from 'process'
-import WebSocket from 'ws'
 import { RPCClient } from './cli-rpc/client'
+import { openStream } from './deployment-server/connection'
+import { deployBinary, setDevices } from './devices/service'
 
 const client = await new RPCClient()
 await client.init()
 await client.createInstance()
 await client.initInstance()
 
-/* TODO
-const registrationResponse = await fetch('http://localhost:3001/connectors', {
-  method: 'POST'
-})
+await client.boardListWatch()
+const ourDevices = await client.getDevices()
+setDevices(ourDevices)
 
-const { id } = await registrationResponse.json() as any;
- */
-const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
-const id = 'd6ab2191-0366-4d6d-9943-d2c50ad4f924'
-const url = `ws://${address}/connectors/${id}/queue`
-const socket = new WebSocket(url)
-
-socket.onopen = () => {
-  console.log(`Connected to ${address}`)
-  socket.send('Hello')
-}
-
-socket.onerror = (error) => {
-  console.log(`WebSocket error: ${error.message}`)
-}
+const socket = await openStream()
 
 socket.onmessage = (e) => {
-  const message = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
-  switch (message.type) {
-    case 'deploy':
-      client.uploadBin(message.deviceType, message.port, message.artifactUri)
-        .then(() => console.log('success'))
-        .catch((err) => console.log(err))
-      break
-    default:
-      break
-  }
+  const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
+
+  deployBinary(data, client).then(() => {
+    console.log('done')
+  }).catch((e) => {
+    console.log(e)
+  })
 }
 
 /*
-await client.listAllBoards();
-const boards = await client.listBoards();
-if (boards) {
-  const myBoard = boards[0];
-  if (myBoard && myBoard.matching_boards) {
-    const fqbn = myBoard.matching_boards[0].fqbn;
-    const port = myBoard.port;
-    if (fqbn && port) {
-      const upload = await client.uploadBin(fqbn, port, "./tests/tests.bin");
-      console.log(upload ? "success" : "failed");
+const boards = client.getDevices()
+if (boards.length > 0) {
+  const myBoard = boards[0]
+  if (myBoard !== undefined) {
+    try {
+      const artifactPath = await downloadArtifact('https://sanctum-dev.com/tests.bin')
+      const upload = await client.uploadBin(myBoard.fqbn, myBoard.port, artifactPath)
+      socket.send(JSON.stringify({ type: 'upload', success: upload }))
+      const monitorStream = await client.monitor(myBoard.port)
+      monitorStream.on('data', ({ _, error, rx_data: data }) => {
+        if (error !== undefined) {
+          console.log(error)
+        }
+        process.stdout.write(data)
+        socket.send(JSON.stringify({ type: 'monitor', data }))
+      })
+      setTimeout(() => {
+        console.log('Closing Monitor Stream')
+        monitorStream.end()
+      }, 3000)
+    } catch (e) {
+      socket.send(JSON.stringify({ type: 'upload', error: e }))
+      console.log(e)
     }
   }
 }
-*/
+
+try {
+  interface TestDeviceType {
+    id: string
+    name: string
+    fqbn: string
+  }
+
+  const newArduinoMegaType = await sendNewDeviceTypeRequest('arduino:avr:mega', 'Arduino Mega or Mega 2560')
+  const newArduinoDueType = await sendNewDeviceTypeRequest('arduino:sam:arduino_due_x_dbg', 'Arduino Due (Programming Port)')
+  console.log(newArduinoMegaType)
+  console.log(newArduinoDueType)
+
+  const allDeviceTypes: TestDeviceType[] = await fetchAllDeviceTypes()
+  const arduinoUnoType = allDeviceTypes.find((device) => device.fqbn === 'arduino:avr:uno')
+  const arduinoMegaType = allDeviceTypes.find((device) => device.fqbn === 'arduino:avr:mega')
+  const arduinoDueType = allDeviceTypes.find((device) => device.fqbn === 'arduino:sam:arduino_due_x_dbg')
+  console.log(arduinoUnoType)
+  console.log(arduinoMegaType)
+  console.log(arduinoDueType)
+
+  if (arduinoDueType?.id !== undefined) {
+    const registerDue = await sendNewDeviceRequest(arduinoDueType.id)
+    console.log(registerDue)
+  }
+} catch (e) {
+  console.log(e)
+}
+ */

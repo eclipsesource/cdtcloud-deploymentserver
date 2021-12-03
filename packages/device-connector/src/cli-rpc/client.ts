@@ -1,24 +1,32 @@
-import { ServiceError } from '@grpc/grpc-js'
+import { ServiceError, StatusObject } from '@grpc/grpc-js'
 import * as grpc from '@grpc/grpc-js'
 import * as protoLoader from '@grpc/proto-loader'
 import { ArduinoCoreServiceClient } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/ArduinoCoreService'
 import { BoardListAllRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListAllRequest'
 import { BoardListAllResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListAllResponse'
 import { BoardListItem } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListItem'
+import { BoardListRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListRequest'
 import { BoardListResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListResponse'
+import { BoardListWatchRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchRequest'
 import { BurnBootloaderResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BurnBootloaderResponse'
 import { CreateResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/CreateResponse'
 import { DetectedPort } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/DetectedPort'
 import { InitRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/InitRequest'
 import { Instance } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Instance'
+import { MonitorRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorRequest'
+import { MonitorResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorResponse'
 import { Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
 import { UploadResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadResponse'
 import { ProtoGrpcType as ArduinoProtoGrpcType } from 'arduino-cli_proto_ts/common/commands'
+import { BoardListWatchResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchResponse'
+import { Device } from '../devices/service'
+import logger from '../util/logger'
 
 export class RPCClient {
   address: string
   private client: ArduinoCoreServiceClient | undefined
   instance: Instance | undefined
+  private readonly devices: Device[] = []
 
   constructor (address: string = '127.0.0.1:50051') {
     this.address = address
@@ -46,6 +54,7 @@ export class RPCClient {
         }
 
         this.client = arduinoServiceClient
+        logger.info(`Connected to ${this.address} (Arduino-CLI)`)
         return resolve()
       })
     })
@@ -70,8 +79,29 @@ export class RPCClient {
     })
   }
 
+  async destroyInstance (i?: Instance): Promise<void> {
+    const instance = i ?? this.instance
+    const destroyRequest = { instance }
+
+    return await new Promise((resolve, reject) => {
+      if (this.client == null) {
+        return reject(new Error('Client not initialized'))
+      }
+
+      this.client.destroy(destroyRequest, (err: ServiceError | null) => {
+        if (err != null) {
+          return reject(new Error(err.message))
+        }
+        return resolve()
+      })
+    })
+  }
+
   async initInstance (i?: Instance): Promise<void> {
     const instance = i ?? this.instance
+    if (i != null) {
+      this.instance = i
+    }
     const initRequest: InitRequest = { instance }
 
     return await new Promise((resolve, reject) => {
@@ -80,7 +110,7 @@ export class RPCClient {
       }
 
       const stream = this.client.Init(initRequest)
-      stream.on('status', (status) => {
+      stream.on('status', (status: StatusObject) => {
         return status.code === 0 ? resolve() : reject(new Error(status.details))
       })
 
@@ -96,13 +126,14 @@ export class RPCClient {
   }
 
   async listBoards (): Promise<DetectedPort[]> {
-    const boardListRequest: BoardListAllRequest = { instance: this.instance }
+    const boardListRequest: BoardListRequest = { instance: this.instance, timeout: 1000 }
 
     return await new Promise((resolve, reject) => {
       if (this.client == null) {
         return reject(new Error('Client not initialized'))
       }
-      this.client.BoardList(boardListRequest, (err: ServiceError | null, data?: BoardListResponse) => {
+
+      this.client.boardList(boardListRequest, (err: ServiceError | null, data?: BoardListResponse) => {
         if (err != null) {
           return reject(new Error(err.message))
         }
@@ -158,9 +189,11 @@ export class RPCClient {
       stream.on('end', () => {
         stream.destroy()
       })
+
       stream.on('status', (status) => {
         return status.code === 0 ? resolve(true) : reject(new Error(status.details))
       })
+
       stream.on('error', (err: Error) => {
         reject(new Error(err.message))
       })
@@ -181,15 +214,104 @@ export class RPCClient {
           reject(new Error(data.err_stream.toString()))
         }
       })
+
       stream.on('end', () => {
         stream.destroy()
       })
+
       stream.on('status', (status) => {
         return status.code === 0 ? resolve(true) : reject(new Error(status.details))
       })
+
       stream.on('error', (err: Error) => {
         reject(new Error(err.message))
       })
     })
+  }
+
+  async boardListWatch (): Promise<void> {
+    const boardListWatchRequest: BoardListWatchRequest = { instance: this.instance, interrupt: false }
+
+    return await new Promise((resolve, reject) => {
+      if (this.client == null) {
+        return reject(new Error('Client not initialized'))
+      }
+
+      const stream = this.client.boardListWatch()
+      stream.write(boardListWatchRequest)
+
+      stream.on('end', () => {
+        stream.destroy()
+      })
+
+      stream.on('error', (err: Error) => {
+        logger.error(err)
+      })
+
+      stream.on('data', (data: BoardListWatchResponse) => {
+        if (data.error !== '') {
+          logger.error(new Error(data.error))
+        }
+
+        const eventType = data.event_type
+        const detectedPort = data.port
+        const port = detectedPort?.port
+        if (port == null) {
+          logger.error('Port not defined')
+          return
+        }
+
+        if (eventType === 'add' && detectedPort?.matching_boards != null && detectedPort.matching_boards.length > 0) {
+          const board = detectedPort.matching_boards[0]
+          if (board.fqbn === undefined) {
+            logger.error('Could not register device: No fqbn found')
+            return
+          }
+
+          const device: Device = {
+            name: board.name ?? 'Unknown Devicename',
+            fqbn: board.fqbn,
+            port: port
+          }
+
+          this.devices.push(device)
+          logger.info(`Device attached: ${device.name}`)
+        } else if (eventType === 'remove') {
+          // TODO
+          logger.info('Device removed')
+        }
+        return resolve()
+      })
+    })
+  }
+
+  async monitor (port: Port): Promise<grpc.ClientDuplexStream<MonitorRequest, MonitorResponse>> {
+    const monitorRequest: MonitorRequest = { instance: this.instance, port }
+
+    return await new Promise((resolve, reject) => {
+      if (this.client == null) {
+        return reject(new Error('Client not initialized'))
+      }
+
+      const stream = this.client.monitor()
+      stream.on('end', () => {
+        stream.destroy()
+      })
+
+      stream.on('error', (err: Error) => {
+        logger.error(err)
+      })
+
+      stream.write(monitorRequest, (err: Error | null | undefined) => {
+        if (err != null) {
+          return reject(err)
+        }
+        return resolve(stream)
+      })
+    })
+  }
+
+  getDevices (): Device[] {
+    return this.devices
   }
 }
