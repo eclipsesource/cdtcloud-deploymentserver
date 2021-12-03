@@ -1,3 +1,4 @@
+import { env } from 'node:process'
 import pino from 'pino-http'
 
 const devTransport = {
@@ -8,7 +9,8 @@ const devTransport = {
 }
 
 export const pinoHttp = pino({
-  transport: process.env.NODE_ENV === 'production' ? undefined : devTransport
+  transport: env.NODE_ENV === 'development' ? devTransport : undefined,
+  level: env.NODE_ENV === 'test' ? 'fatal' : 'info'
 })
 
 export const logger = pinoHttp.logger
