@@ -1,9 +1,15 @@
 import { Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
 import { RPCClient } from '../cli-rpc/client'
-import { fetchAllDeviceTypes } from '../deployment-server/service'
+import {
+  fetchAllDeviceTypes,
+  sendNewDeviceRequest,
+  sendNewDeviceTypeRequest
+} from '../deployment-server/service'
+import logger from '../util/logger'
 import { downloadArtifact } from './deployment'
 
 export interface Device {
+  id: string
   name: string
   fqbn: string
   port: Port
@@ -36,13 +42,74 @@ export const getFQBN = async (typeId: string): Promise<string> => {
   })
 }
 
+export const getDeviceTypeId = async (fqbn: string, name: string): Promise<string> => {
+  let allDeviceTypes: DeviceType[]
+  try {
+    allDeviceTypes = await fetchAllDeviceTypes()
+  } catch (e) {
+    console.log(e)
+    throw e
+  }
+
+  let deviceId: string
+  const deviceType = allDeviceTypes.find((device) => device.fqbn === fqbn)
+
+  if (deviceType == null) {
+    logger.warn(`DeviceType with fqbn ${fqbn} not found.`)
+    try {
+      logger.info(`Trying to register new DeviceType ${name} with fqbn ${fqbn}`)
+      const resp = await sendNewDeviceTypeRequest(fqbn, name)
+      deviceId = resp.id
+    } catch (e) {
+      console.log(e)
+      throw e
+    }
+  } else {
+    deviceId = deviceType.id
+  }
+
+  return deviceId
+}
+
 export const getPortForDevice = async (deviceId: string): Promise<Port> => {
-  const myBoard = storedDevices[0]
-  return myBoard.port
+  const device = storedDevices.find((deviceItem) => deviceItem.id === deviceId)
+  if (device == null) {
+    // const error = new Error(`No Port for device with id ${deviceId} found`)
+    // logger.error(error)
+    // return Promise.reject(error)
+    return storedDevices[0].port
+  }
+
+  return device.port
 }
 
 export const setDevices = (devices: Device[]): void => {
   storedDevices = devices
+}
+
+export const registerNewDevice = async (fqbn: string, name: string): Promise<string> => {
+  const typeId = await getDeviceTypeId(fqbn, name)
+
+  try {
+    const resp = await sendNewDeviceRequest(typeId)
+
+    return resp.id
+  } catch (e) {
+    console.log(e)
+    throw e
+  }
+}
+
+export const getAttachedDeviceOnPort = async (portAddress: string, protocol: string = 'serial'): Promise<Device> => {
+  const device = storedDevices.find((device) => device.port.address === portAddress && device.port.protocol === protocol)
+
+  if (device == null) {
+    const error = new Error(`Device on ${protocol} Port ${portAddress} not attached`)
+    logger.error(error)
+    return await Promise.reject(error)
+  }
+
+  return device
 }
 
 export const deployBinary = async (resp: any, client: RPCClient): Promise<void> => {
@@ -56,8 +123,8 @@ export const deployBinary = async (resp: any, client: RPCClient): Promise<void> 
     if (uploaded) {
       const monitorStream = await client.monitor(port)
       monitorStream.on('data', ({ _, error, rx_data: data }) => {
-        if (error !== undefined) {
-          console.log(error)
+        if (error !== '') {
+          logger.error(error)
         }
 
         process.stdout.write(data)

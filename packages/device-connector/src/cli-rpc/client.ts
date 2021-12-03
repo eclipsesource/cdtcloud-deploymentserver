@@ -19,14 +19,20 @@ import { Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Por
 import { UploadResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadResponse'
 import { ProtoGrpcType as ArduinoProtoGrpcType } from 'arduino-cli_proto_ts/common/commands'
 import { BoardListWatchResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchResponse'
-import { Device } from '../devices/service'
+import { deleteDeviceRequest } from '../deployment-server/service'
+import {
+  Device,
+  getAttachedDeviceOnPort,
+  registerNewDevice,
+  setDevices as setStoredDevices
+} from '../devices/service'
 import logger from '../util/logger'
 
 export class RPCClient {
   address: string
   private client: ArduinoCoreServiceClient | undefined
   instance: Instance | undefined
-  private readonly devices: Device[] = []
+  private devices: Device[] = []
 
   constructor (address: string = '127.0.0.1:50051') {
     this.address = address
@@ -232,57 +238,74 @@ export class RPCClient {
   async boardListWatch (): Promise<void> {
     const boardListWatchRequest: BoardListWatchRequest = { instance: this.instance, interrupt: false }
 
-    return await new Promise((resolve, reject) => {
-      if (this.client == null) {
-        return reject(new Error('Client not initialized'))
-      }
+    if (this.client == null) {
+      const error = new Error('Client not initialized')
+      logger.error(error)
+      return
+    }
 
-      const stream = this.client.boardListWatch()
-      stream.write(boardListWatchRequest)
+    const stream = this.client.boardListWatch()
+    stream.write(boardListWatchRequest)
 
-      stream.on('end', () => {
-        stream.destroy()
-      })
+    stream.on('end', () => {
+      stream.destroy()
+    })
 
-      stream.on('error', (err: Error) => {
+    stream.on('error', (err: Error) => {
+      logger.error(err)
+    })
+
+    stream.on('data', (resp: BoardListWatchResponse) => {
+      onNewDevice(resp).catch((err) => {
         logger.error(err)
       })
+    })
 
-      stream.on('data', (data: BoardListWatchResponse) => {
-        if (data.error !== '') {
-          logger.error(new Error(data.error))
-        }
+    const onNewDevice = async (data: BoardListWatchResponse): Promise<void> => {
+      if (data.error !== '') {
+        logger.error(new Error(data.error))
+      }
 
-        const eventType = data.event_type
-        const detectedPort = data.port
-        const port = detectedPort?.port
-        if (port == null) {
-          logger.error('Port not defined')
+      const eventType = data.event_type
+      const detectedPort = data.port
+      const port = detectedPort?.port
+      if (port == null) {
+        logger.error('Port not defined')
+        return
+      }
+
+      if (eventType === 'add' && detectedPort?.matching_boards != null && detectedPort.matching_boards.length > 0) {
+        const board = detectedPort.matching_boards[0]
+        if (board.fqbn == null) {
+          logger.error('Could not register device: No fqbn found')
           return
         }
 
-        if (eventType === 'add' && detectedPort?.matching_boards != null && detectedPort.matching_boards.length > 0) {
-          const board = detectedPort.matching_boards[0]
-          if (board.fqbn === undefined) {
-            logger.error('Could not register device: No fqbn found')
-            return
-          }
+        const id = await registerNewDevice(board.fqbn, board.name ?? 'Unknown Device Name')
 
-          const device: Device = {
-            name: board.name ?? 'Unknown Devicename',
-            fqbn: board.fqbn,
-            port: port
-          }
-
-          this.devices.push(device)
-          logger.info(`Device attached: ${device.name}`)
-        } else if (eventType === 'remove') {
-          // TODO
-          logger.info('Device removed')
+        const device: Device = {
+          id,
+          name: board.name ?? 'Unknown Device Name',
+          fqbn: board.fqbn,
+          port: port
         }
-        return resolve()
-      })
-    })
+
+        this.devices.push(device)
+        logger.info(`Device attached: ${device.name}`)
+      } else if (eventType === 'remove') {
+        if (port.address == null || port.address === '') {
+          logger.warn('Removed device could not be unregistered: Unknown port')
+          return
+        }
+
+        const removed = await getAttachedDeviceOnPort(port.address, port.protocol ?? 'serial')
+        if (removed == null) {
+          return
+        }
+
+        await this.removeDevice(removed)
+      }
+    }
   }
 
   async monitor (port: Port): Promise<grpc.ClientDuplexStream<MonitorRequest, MonitorResponse>> {
@@ -313,5 +336,18 @@ export class RPCClient {
 
   getDevices (): Device[] {
     return this.devices
+  }
+
+  setDevices (devices: Device[]): void {
+    this.devices = devices
+  }
+
+  async removeDevice (device: Device): Promise<void> {
+    const newDeviceList = this.devices.filter((deviceItem) => deviceItem !== device)
+    this.setDevices(newDeviceList)
+    setStoredDevices(this.devices)
+
+    logger.info(`Device removed: ${device.name}`)
+    await deleteDeviceRequest(device.id)
   }
 }
