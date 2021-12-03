@@ -9,5 +9,8 @@
     "start:browser": "yarn rebuild:browser && yarn --cwd browser-app start",
     "start:electron": "yarn rebuild:electron && yarn --cwd electron-app start",
     "watch": "lerna run --parallel watch"
+  },
+  "dependencies": {
+    "react-select": "^5.2.1"
   }
 }
