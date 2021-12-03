@@ -16,7 +16,7 @@
     "test": "lerna run --parallel test",
     "typecheck": "lerna run --parallel typecheck",
     "lint": "lerna run --parallel lint",
-    "dev": "concurrently \"lerna run --parallel dev\" \"yarn start:browser\"",
+    "dev": "concurrently \"lerna run --parallel dev\" \"yarn start:browser\" \"yarn --cwd packages/deployment-server tsc -w --preserveWatchOutput\"",
     "prepare": "lerna run prepare",
     "rebuild:browser": "yarn theia rebuild:browser",
     "rebuild:electron": "yarn theia rebuild:electron",
@@ -24,7 +24,7 @@
     "start:electron": "yarn rebuild:electron && yarn --cwd=packages/theia-extension/electron-app start"
   },
   "dependencies": {
-    "@theia/cli": "latest",
+    "@theia/cli": "^1.20.0",
     "concurrently": "^6.4.0",
     "lerna": "^4.0.0"
   }
