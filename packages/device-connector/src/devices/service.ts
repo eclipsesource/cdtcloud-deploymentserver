@@ -45,7 +45,7 @@ export const setDevices = (devices: Device[]): void => {
   storedDevices = devices
 }
 
-export const deployBinary = async (resp: any, client: RPCClient) => {
+export const deployBinary = async (resp: any, client: RPCClient): Promise<void> => {
   const type = resp.type
   const data = resp.data
   if (type === 'deploy') {
