@@ -1,5 +1,7 @@
 import { Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
+import { RPCClient } from '../cli-rpc/client'
 import { fetchAllDeviceTypes } from '../deployment-server/service'
+import { downloadArtifact } from './deployment'
 
 export interface Device {
   name: string
@@ -41,4 +43,29 @@ export const getPortForDevice = async (deviceId: string): Promise<Port> => {
 
 export const setDevices = (devices: Device[]): void => {
   storedDevices = devices
+}
+
+export const deployBinary = async (resp: any, client: RPCClient) => {
+  const type = resp.type
+  const data = resp.data
+  if (type === 'deploy') {
+    const fqbn = await getFQBN(data.device.deviceTypeId)
+    const port = await getPortForDevice(data.device.id)
+    const artifactPath = await downloadArtifact(data.artifactUri)
+    const uploaded = await client.uploadBin(fqbn, port, artifactPath)
+    if (uploaded) {
+      const monitorStream = await client.monitor(port)
+      monitorStream.on('data', ({ _, error, rx_data: data }) => {
+        if (error !== undefined) {
+          console.log(error)
+        }
+
+        process.stdout.write(data)
+      })
+      await setTimeout(() => {
+        console.log('Closing Monitor Stream')
+        monitorStream.end()
+      }, 3000)
+    }
+  }
 }

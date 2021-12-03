@@ -1,7 +1,6 @@
 import { RPCClient } from './cli-rpc/client'
 import { openStream } from './deployment-server/connection'
-import { downloadArtifact } from './devices/deployment'
-import { getFQBN, getPortForDevice, setDevices } from './devices/service'
+import { deployBinary, setDevices } from './devices/service'
 
 const client = await new RPCClient()
 await client.init()
@@ -17,37 +16,11 @@ const socket = await openStream()
 socket.onmessage = (e) => {
   const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
 
-  deployBinary(data).then(() => {
+  deployBinary(data, client).then(() => {
     console.log('done')
   }).catch((e) => {
     console.log(e)
   })
-}
-
-const deployBinary = async (resp: any): Promise<void> => {
-  const type = resp.type
-  const data = resp.data
-  if (type === 'deploy') {
-    const fqbn = await getFQBN(data.device.deviceTypeId)
-    const port = await getPortForDevice(data.device.id)
-    const artifactPath = await downloadArtifact(data.artifactUri)
-    const uploaded = await client.uploadBin(fqbn, port, artifactPath)
-    if (uploaded) {
-      const monitorStream = await client.monitor(port)
-      monitorStream.on('data', ({ _, error, rx_data: data }) => {
-        if (error !== undefined) {
-          console.log(error)
-        }
-
-        process.stdout.write(data)
-        socket.send(JSON.stringify({ type: 'monitor', data }))
-      })
-      await setTimeout(() => {
-        console.log('Closing Monitor Stream')
-        monitorStream.end()
-      }, 3000)
-    }
-  }
 }
 
 /*
