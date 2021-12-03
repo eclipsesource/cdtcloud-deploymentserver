@@ -1,16 +1,24 @@
-import { DeployStatus, Device, DeviceStatus } from '@prisma/client'
+import prismaClient from '@prisma/client'
+import type { Device, Connector } from '@prisma/client'
 import { db } from '../util/prisma'
 
-export async function getAvailableDevice (deviceType: string): Promise<Device | null> {
+const { DeployStatus, DeviceStatus } = prismaClient
+
+type DeviceWithConnector = Device & { connector: Connector }
+
+export async function getAvailableDevice (deviceType: string): Promise<DeviceWithConnector | null> {
   return await db.device.findFirst({
     where: {
       deviceTypeId: deviceType,
       status: DeviceStatus.AVAILABLE
+    },
+    include: {
+      connector: true
     }
   })
 }
 
-export async function getLeastLoadedDevice (deviceType: string): Promise<Device | null> {
+export async function getLeastLoadedDevice (deviceType: string): Promise<DeviceWithConnector | null> {
   return await db.device.findFirst({
     where: {
       deviceTypeId: deviceType,
@@ -25,6 +33,9 @@ export async function getLeastLoadedDevice (deviceType: string): Promise<Device 
           }
         }
       }
+    },
+    include: {
+      connector: true
     },
     orderBy: {
       deployRequests: {

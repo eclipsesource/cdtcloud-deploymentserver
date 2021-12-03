@@ -28,9 +28,8 @@ model Device {
   connector      Connector       @relation(fields: [connectorId], references: [id])
   type           DeviceType      @relation(fields: [deviceTypeId], references: [id])
   deployRequests DeployRequest[]
-
-  connectorId  String @db.Uuid
-  deviceTypeId String @db.Uuid
+  connectorId    String          @db.Uuid
+  deviceTypeId   String          @db.Uuid
 }
 
 enum DeviceStatus {
@@ -45,8 +44,7 @@ model DeployRequest {
   device      Device       @relation(fields: [deviceId], references: [id])
   status      DeployStatus @default(PENDING)
   artifactUrl String?
-
-  deviceId String @db.Uuid
+  deviceId    String       @db.Uuid
 }
 
 enum DeployStatus {

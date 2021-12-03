@@ -6,29 +6,43 @@ import logger from './util/logger'
 import connect from './util/prisma'
 import { PrismaClient } from '@prisma/client'
 import { Application } from 'express'
+import { QueueManager } from './connectors/queue'
+import { Signals } from 'close-with-grace'
+import { promisify } from 'util'
+import http from 'node:http'
 
 export async function createServer (): Promise<[Server, Application, PrismaClient]> {
-  const db = await connect()
-  const app = createApp(db)
-  return [app.listen(env.PORT), app, db]
+  try {
+    const db = await connect()
+    const app = createApp(db)
+    const server = http.createServer(app)
+    QueueManager.setServer(server)
+
+    let port: number | undefined = env.PORT != null ? parseInt(env.PORT, 10) : undefined
+    if (port == null && env.NODE_ENV !== 'test') {
+      port = 3001
+    }
+
+    server.listen(port, '0.0.0.0')
+    await QueueManager.start()
+    return [server, app, db]
+  } catch (e) {
+    logger.error(e)
+    throw e
+  }
 }
 
-export async function closeServer (this: {server: Server, db: PrismaClient}, { err }: { err?: Error } = { }): Promise<void> {
+export async function closeServer (
+  this: {server: Server, db: PrismaClient},
+  { err, signal }: { err?: Error, signal?: Signals | string } = { }
+): Promise<void> {
   if (err != null) {
     logger.error(err)
   }
 
   await this.db.$disconnect()
 
-  await new Promise<void>((resolve, reject) => {
-    this.server.close((err) => {
-      if (err != null) {
-        reject(err)
-      } else {
-        resolve()
-      }
-    })
-  })
+  await promisify(this.server.close).bind(this.server)()
 
-  logger.info('Closed server')
+  logger.info(`${signal ?? 'Manual Exit'}: Closed server`)
 }

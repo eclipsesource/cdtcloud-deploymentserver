@@ -1,4 +1,5 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
+import { registerConnector, unregisterConnector } from './queue'
 import { idParams, IdParams } from '../util/idParams'
 import { validate } from '../util/validate'
 
@@ -28,7 +29,7 @@ export default function connectorRoutes (router: Router): void {
           }
         })
 
-        // TODO: registerConnector(connector)
+        registerConnector(connector)
 
         return res.json({
           ...connector
@@ -42,7 +43,7 @@ export default function connectorRoutes (router: Router): void {
     validate<never, IdParams>({ params: idParams }),
     async (req, res, next) => {
       try {
-        // TODO: unregisterConnector({ id: req.params.id })
+        unregisterConnector({ id: req.params.id })
         await req.db.connector.delete({ where: { id: req.params.id } })
 
         return res.sendStatus(204)

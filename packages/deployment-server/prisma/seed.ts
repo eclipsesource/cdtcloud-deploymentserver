@@ -29,7 +29,7 @@ const boards = [
   { name: 'Arduino Yún Mini', fqbn: 'arduino:avr:yunmini' },
   { name: 'LilyPad Arduino', fqbn: 'arduino:avr:lilypad' },
   { name: 'LilyPad Arduino USB', fqbn: 'arduino:avr:LilyPadUSB' },
-  { name: 'Linino One', fqbn: 'arduino:avr:one ' }
+  { name: 'Linino One', fqbn: 'arduino:avr:one' }
 ]
 
 try {

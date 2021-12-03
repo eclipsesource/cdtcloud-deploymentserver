@@ -1,13 +1,14 @@
 import { DeployStatus, DeployRequest } from '.prisma/client'
-import { Type } from '@sinclair/typebox'
+import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
+import { addDeployRequest } from '../connectors/queue'
 import { getAvailableDevice, getLeastLoadedDevice } from '../devices/service'
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
 
 export default function deploymentRequestsRoutes (router: Router): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.get('/deploymentRequests', async (req, res, next) => {
+  router.get('/deployments', async (req, res, next) => {
     try {
       const deploymentRequests = await req.db.deployRequest.findMany()
       return res.json(deploymentRequests)
@@ -16,7 +17,7 @@ export default function deploymentRequestsRoutes (router: Router): void {
     }
   })
 
-  router.get('/deploymentRequests/:id', validate<DeployRequest, IdParams>({ params: idParams }), async (req, res, next) => {
+  router.get('/deployments/:id', validate<DeployRequest, IdParams>({ params: idParams }), async (req, res, next) => {
     try {
       const deploymentRequest =
         await req.db.deployRequest.findUnique({
@@ -34,20 +35,20 @@ export default function deploymentRequestsRoutes (router: Router): void {
   })
 
   const postBody = Type.Object({
-    deviceType: Type.String({ format: 'uuid' }),
+    deviceTypeId: Type.String({ format: 'uuid' }),
     artifactUri: Type.String({ format: 'uri' })
   }, { additionalProperties: false })
 
-  router.post('/deploymentRequests',
-    validate<DeployRequest, {}, typeof postBody>({ body: postBody }),
+  router.post('/deployments',
+    validate<DeployRequest, {}, Static<typeof postBody>>({ body: postBody }),
     async (req, res, next) => {
       try {
-        // Find an available device
-        let device = await getAvailableDevice(req.body.deviceType)
+      // Find an available device
+        let device = await getAvailableDevice(req.body.deviceTypeId)
 
         // If no device is available, get the first one with the minimal amount of in-progress deploymentRequests
         if (device == null) {
-          device = await getLeastLoadedDevice(req.body.deviceType)
+          device = await getLeastLoadedDevice(req.body.deviceTypeId)
         }
 
         if (device == null) {
@@ -66,7 +67,8 @@ export default function deploymentRequestsRoutes (router: Router): void {
           }
         })
 
-        // TODO: Send deploymentRequest to device
+        // Send deploymentRequest to device
+        await addDeployRequest(device, req.body.artifactUri)
 
         return res.json(deploymentRequest)
       } catch (e) {
@@ -78,7 +80,7 @@ export default function deploymentRequestsRoutes (router: Router): void {
     status: Type.Enum(DeployStatus)
   }, { additionalProperties: false })
 
-  router.put('/deploymentRequests/:id',
+  router.put('/deployments/:id',
     validate<DeployRequest, IdParams>({ body: putBody, params: idParams }),
     async (req, res, next) => {
       try {

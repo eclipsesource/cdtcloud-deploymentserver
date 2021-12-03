@@ -9,10 +9,16 @@ export let db: PrismaClient
 try {
   const [server, , prismaClient] = await createServer()
   db = prismaClient
+
   logger.info('Listening')
 
-  closeWithGrace({ delay: 500 }, closeServer.bind({ server, db }))
+  const handler = closeWithGrace({ delay: 1000 }, closeServer.bind({ server, db }))
+
+  // Nodemon sends SIGUSR2 when it restarts
+  process.once('SIGUSR2', () => {
+    handler.close()
+  })
 } catch (err) {
-  logger.error(err)
+  console.error(err)
   exit(1)
 }

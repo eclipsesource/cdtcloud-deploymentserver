@@ -1,7 +1,7 @@
-import { Type } from '@sinclair/typebox'
+import { Static, Type } from '@sinclair/typebox'
 
 export const idParams = Type.Object({
   id: Type.String({ format: 'uuid' })
 })
 
-export type IdParams = typeof idParams
+export type IdParams = Static<typeof idParams>
