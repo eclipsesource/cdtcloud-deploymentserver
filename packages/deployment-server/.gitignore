@@ -4,3 +4,4 @@ dist
 *.bak
 uploads/*
 !uploads/.keep
+!uploads/example/

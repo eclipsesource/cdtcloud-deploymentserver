@@ -1,0 +1,7 @@
+node_modules
+dist
+.nyc_output
+tests/
+.env.local
+.connection.data
+artifacts
