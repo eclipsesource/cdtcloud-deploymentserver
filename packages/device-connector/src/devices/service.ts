@@ -26,7 +26,7 @@ let storedDevices: Device[] = []
 export const getFQBN = async (typeId: string): Promise<string> => {
   let allDeviceTypes: DeviceType[]
   try {
-    allDeviceTypes = await fetchAllDeviceTypes()
+    allDeviceTypes = await fetchAllDeviceTypes() // sollte einfach nur den einene DeviceType fetchen
   } catch (e) {
     console.log(e)
     throw e
@@ -120,6 +120,10 @@ export const deployBinary = async (resp: any, client: RPCClient): Promise<void> 
     const fqbn = await getFQBN(data.device.deviceTypeId)
     const port = await getPortForDevice(data.device.id)
     const artifactPath = await downloadArtifact(data.artifactUri)
+    if (fqbn.startsWith('arduino:avr')) {
+      await downloadArtifact(data.artifactUri, true)
+    }
+
     const uploaded = await client.uploadBin(fqbn, port, artifactPath)
     if (uploaded) {
       const monitorStream = await client.monitor(port)

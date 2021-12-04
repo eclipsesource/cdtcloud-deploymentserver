@@ -15,14 +15,25 @@ export interface deploymentRequest {
   data: deploymentData
 }
 
-export const downloadArtifact = async (uri: string): Promise<string> => {
-  const uid = crypto.randomBytes(32).toString('hex')
-  const file = `artifacts/${uid}.bin`
+export const downloadFile = async (uri: string, fileName: string, extension: string): Promise<string> => {
+  const file = `artifacts/${fileName}.${extension}`
   const outStream = createWriteStream(file)
-
   const resp = await request(uri)
   const downStream = Readable.from(resp.body)
+
   downStream.pipe(outStream)
+
+  return file
+}
+
+export const downloadArtifact = async (uri: string, withBootloader: boolean = false): Promise<string> => {
+  const uid = crypto.randomBytes(32).toString('hex')
+  const file = await downloadFile(uri, uid, 'bin')
+
+  if (withBootloader) {
+    const hexURI = uri.replace(/\.[^/.]+$/, '.hex')
+    await downloadFile(hexURI, uid, 'hex')
+  }
 
   return Path.resolve(file)
 }
