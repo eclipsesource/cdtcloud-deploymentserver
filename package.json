@@ -21,7 +21,7 @@
     "rebuild:browser": "yarn theia rebuild:browser",
     "rebuild:electron": "yarn theia rebuild:electron",
     "start:browser": "yarn rebuild:browser && yarn --cwd=packages/theia-extension/browser-app start",
-    "start:electron": "yarn rebuild:electron && yarn --cwd=packages/theia-extension/electron-app start"
+    "start:electron": "yarn --cwd=packages/theia-extension/electron-app rebuild && yarn --cwd=packages/theia-extension/electron-app start"
   },
   "dependencies": {
     "@theia/cli": "^1.20.0",
