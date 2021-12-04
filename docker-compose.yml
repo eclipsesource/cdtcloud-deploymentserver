@@ -1,6 +1,7 @@
 version: "3"
 volumes:
   postgresdb:
+  arduino:
 
 services:
   db:
@@ -14,3 +15,16 @@ services:
     volumes:
       - postgresdb:/var/lib/postgresql/data
     restart: always
+
+  arduino:
+    image: solarbotics/arduino-cli-arduino-avr:1.8.4-0.20.0-node16.13
+    command: >
+      bash -c "arduino-cli core update-index &&
+               arduino-cli core install arduino:sam@1.6.12 &&
+               arduino-cli daemon --port 50051 --daemonize --verbose"
+    ports:
+      - "50051:50051"
+    volumes:
+      - arduino:/arduino
+    restart: always
+
