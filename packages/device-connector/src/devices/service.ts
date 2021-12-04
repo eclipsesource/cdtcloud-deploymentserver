@@ -103,13 +103,14 @@ export const registerNewDevice = async (fqbn: string, name: string): Promise<str
 export const getAttachedDeviceOnPort = async (portAddress: string, protocol: string = 'serial'): Promise<Device> => {
   const device = storedDevices.find((device) => device.port.address === portAddress && device.port.protocol === protocol)
 
-  if (device == null) {
-    const error = new Error(`Device on ${protocol} Port ${portAddress} not attached`)
-    logger.error(error)
-    return await Promise.reject(error)
-  }
+  return await new Promise((resolve, reject) => {
+    if (device == null) {
+      const error = new Error(`Device on ${protocol} Port ${portAddress} not attached`)
+      return reject(error)
+    }
 
-  return device
+    return resolve(device)
+  })
 }
 
 export const deployBinary = async (resp: any, client: RPCClient): Promise<void> => {
@@ -132,7 +133,7 @@ export const deployBinary = async (resp: any, client: RPCClient): Promise<void> 
       await setTimeout(() => {
         console.log('Closing Monitor Stream')
         monitorStream.end()
-      }, 3000)
+      }, 5000)
     }
   }
 }

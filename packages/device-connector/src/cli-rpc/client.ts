@@ -16,6 +16,7 @@ import { Instance } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1
 import { MonitorRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorRequest'
 import { MonitorResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorResponse'
 import { Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
+import { UploadRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadRequest'
 import { UploadResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadResponse'
 import { ProtoGrpcType as ArduinoProtoGrpcType } from 'arduino-cli_proto_ts/common/commands'
 import { BoardListWatchResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchResponse'
@@ -179,7 +180,7 @@ export class RPCClient {
   }
 
   async uploadBin (fqbn: string, port: Port, file: string, verify: boolean = false): Promise<boolean> {
-    const uploadRequest = { instance: this.instance, fqbn, port, import_file: file, verify }
+    const uploadRequest: UploadRequest = { instance: this.instance, fqbn, port, import_file: file, verify }
 
     return await new Promise((resolve, reject) => {
       if (this.client == null) {
@@ -196,7 +197,7 @@ export class RPCClient {
         stream.destroy()
       })
 
-      stream.on('status', (status) => {
+      stream.on('status', (status: StatusObject) => {
         return status.code === 0 ? resolve(true) : reject(new Error(status.details))
       })
 
@@ -257,7 +258,9 @@ export class RPCClient {
 
     stream.on('data', (resp: BoardListWatchResponse) => {
       onNewDevice(resp).catch((err) => {
-        logger.error(err)
+        if (err != null) {
+          logger.error(err)
+        }
       })
     })
 
