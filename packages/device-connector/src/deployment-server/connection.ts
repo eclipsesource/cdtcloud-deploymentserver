@@ -3,12 +3,10 @@ import WebSocket from 'ws'
 import fs, { createReadStream, createWriteStream } from 'fs'
 import { fetch } from 'undici'
 import logger from '../util/logger'
-import { Device } from '../devices/service'
 
 export interface ConnectorData {
   id: string
   uri: string
-  devices: Device[]
 }
 
 export let connectorId: string
@@ -47,8 +45,7 @@ const generateConnectorData = async (): Promise<ConnectorData> => {
 
     const connectorData: ConnectorData = {
       id: id,
-      uri: address,
-      devices: []
+      uri: address
     }
 
     resolve(connectorData)

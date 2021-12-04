@@ -10,7 +10,7 @@ await client.initInstance()
 const socket = await openStream()
 
 await client.boardListWatch()
-const ourDevices = await client.getDevices()
+const ourDevices = client.getDevices()
 setDevices(ourDevices)
 
 socket.onmessage = (e) => {
