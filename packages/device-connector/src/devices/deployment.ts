@@ -26,14 +26,10 @@ export const downloadFile = async (uri: string, fileName: string, extension: str
   return file
 }
 
-export const downloadArtifact = async (uri: string, withBootloader: boolean = false): Promise<string> => {
+export const downloadArtifact = async (uri: string): Promise<string> => {
   const uid = crypto.randomBytes(32).toString('hex')
-  const file = await downloadFile(uri, uid, 'bin')
-
-  if (withBootloader) {
-    const hexURI = uri.replace(/\.[^/.]+$/, '.hex')
-    await downloadFile(hexURI, uid, 'hex')
-  }
+  const extension = Path.extname(uri)
+  const file = await downloadFile(uri, uid, extension)
 
   return Path.resolve(file)
 }
