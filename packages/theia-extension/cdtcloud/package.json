@@ -9,28 +9,34 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "latest"
+    "@theia/core": "^1.20.0",
+    "@theia/editor": "^1.20.0",
+    "@theia/filesystem": "^1.20.0",
+    "@theia/workspace": "^1.20.0",
+    "axios": "^0.24.0"
   },
   "devDependencies": {
-    "rimraf": "latest",
-    "typescript": "latest",
     "@testing-library/react": "^11.2.7",
     "@types/jest": "^26.0.20",
     "jest": "^26.6.3",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.5.6",
     "ts-node": "^9.1.1",
-    "ts-jest": "^26.5.6"
+    "typescript": "^4.5.0"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
     "build": "tsc",
     "watch": "tsc -w",
+    "dev": "tsc -w --preserveWatchOutput",
     "test": "jest --config configs/jest.config.ts",
     "typecheck": "tsc -noEmit"
   },
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/cdtcloud-frontend-module"
+      "frontend": "lib/browser/cdtcloud-frontend-module",
+      "backend": "lib/node/cdtcloud-backend-module"
     }
   ]
 }
