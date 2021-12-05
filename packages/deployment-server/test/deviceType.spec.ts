@@ -3,9 +3,12 @@ import tap from 'tap'
 import { fetch } from './util/fetch'
 import type { AddressInfo } from 'node:net'
 import { Server } from 'node:http'
-import { DeviceType, PrismaClient } from '@prisma/client'
+import dbClient, { DeviceType, PrismaClient } from '@prisma/client'
 import { closeServer, createServer } from '../src/server'
 import { randomUUID } from 'node:crypto'
+import { stringify } from 'node:querystring'
+
+const { DeviceStatus } = dbClient
 
 const { before, teardown, test } = tap
 
@@ -15,7 +18,7 @@ let server: Server
 let db: PrismaClient
 
 before(async () => {
-  [server,,db] = await createServer()
+  [server, , db] = await createServer()
   const address = server.address() as AddressInfo
   port = address.port
   baseUrl = `http://0.0.0.0:${port}`
@@ -44,9 +47,9 @@ test('Retrieves all deviceTypes', async (t) => {
 
   t.equal(response.status, 200)
 
-  const body = await response.json() as DeviceType[]
+  const body = (await response.json()) as DeviceType[]
 
-  t.ok(body.filter(x => x.id === deviceType.id))
+  t.ok(body.some((x) => x.id === deviceType.id))
 })
 
 // Test that adding a connector
@@ -61,9 +64,84 @@ test('Adds a device type', async (t) => {
       name: 'Test device type'
     })
   })
-  const body = await response.json() as DeviceType
+  const body = (await response.json()) as DeviceType
 
   t.equal(response.status, 200)
 
   t.ok(body.id)
+})
+
+test('Can filter for potentially viable deviceTypes', async (t) => {
+  const { id: emptyDeviceTypeId } = await db.deviceType.create({
+    data: {
+      name: 'test',
+      fqbn: randomUUID()
+    }
+  })
+
+  // Create a running device
+  const { deviceTypeId: runningDeviceTypeId } = await db.device.create({
+    data: {
+      type: {
+        create: {
+          name: 'test',
+          fqbn: randomUUID()
+        }
+      },
+      connector: {
+        create: {
+
+        }
+      },
+      status: DeviceStatus.RUNNING
+    }
+  })
+
+  const { deviceTypeId: unavailableDeviceTypeId } = await db.device.create({
+    data: {
+      type: {
+        create: {
+          name: 'test',
+          fqbn: randomUUID()
+        }
+      },
+      connector: {
+        create: {}
+      },
+      status: DeviceStatus.UNAVAILABLE
+    }
+  })
+
+  // Should be able to contain only the running device's type
+  const response = await fetch(
+    `${baseUrl}/device-types?${stringify({
+      deployable: true
+    })}`,
+    {
+      method: 'GET'
+    }
+  )
+
+  t.ok(response.ok)
+  t.equal(response.status, 200)
+
+  const body = (await response.json()) as DeviceType[]
+
+  t.ok(
+    body.some(
+      (x) => x.id === runningDeviceTypeId
+    )
+  )
+
+  t.notOk(
+    body.some(
+      (x) => x.id === emptyDeviceTypeId
+    )
+  )
+
+  t.notOk(
+    body.some(
+      (x) => x.id === unavailableDeviceTypeId
+    )
+  )
 })

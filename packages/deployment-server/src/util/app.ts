@@ -39,6 +39,10 @@ export function createApp (db: PrismaClient): Application {
   deploymentRequestsRoutes(app)
   deploymentArtifactsRoutes(app)
 
+  app.use(function notFoundResponse (_req, res) {
+    res.sendStatus(404)
+  })
+
   app.use(errorHandler)
 
   return app

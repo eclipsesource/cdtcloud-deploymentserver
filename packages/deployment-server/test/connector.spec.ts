@@ -49,7 +49,7 @@ test('Retrieves all connectors', async (t) => {
 
   const body = await response.json() as Connector[]
 
-  t.ok(body.filter(x => x.id === connector.id))
+  t.ok(body.some(x => x.id === connector.id))
 })
 
 // Test that adding a connector
