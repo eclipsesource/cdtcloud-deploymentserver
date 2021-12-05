@@ -9,8 +9,6 @@ import { CreateResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/comma
 import { InitRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/InitRequest';
 import { Instance } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Instance';
 import { join } from 'path';
-
-
 export class RPCClient {
   address: string;
   private client: ArduinoCoreServiceClient | undefined;
@@ -99,7 +97,8 @@ export class RPCClient {
     const compileRequest: CompileRequest = {
         instance: this.instance,
         fqbn: fqbn,
-        sketch_path: sketchPath
+        sketch_path: sketchPath,
+        build_path: "C:\\Users\\kevin\\Documents\\Arduino\\Light_Project_1"
     }
 
     return await new Promise((resolve, reject) => {
