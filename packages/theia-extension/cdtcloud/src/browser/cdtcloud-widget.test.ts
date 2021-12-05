@@ -28,8 +28,8 @@ describe('CdtcloudWidget', () => {
     });
 
     it('should inject \'MessageService\'', () => {
-        const spy = jest.spyOn(widget as any, 'displayMessage')
-        widget['displayMessage']();
+        const spy = jest.spyOn(widget as any, 'deployOnBoard')
+        widget['deployOnBoard']();
         expect(spy).toBeCalled();
     });
 
