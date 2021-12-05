@@ -6,13 +6,16 @@ import { pipeline } from 'stream/promises'
 import { validate } from '../util/validate'
 import multer from 'multer'
 import { CreateArtifactResponseBody } from '.'
+import { extname, join } from 'path'
+
+const destination = 'uploads/'
 
 export default function deploymentArtifactsRoutes (router: Router): void {
   const upload = multer({
     storage: multer.diskStorage({
-      destination: 'uploads/',
-      filename: (_req, _file, cb) => {
-        cb(null, randomUUID())
+      destination,
+      filename: (_req, file, cb) => {
+        cb(null, randomUUID() + extname(file.originalname))
       }
     })
   })
@@ -45,7 +48,7 @@ export default function deploymentArtifactsRoutes (router: Router): void {
   )
 
   const params = Type.Object({
-    artifactId: Type.String({ format: 'uuid' })
+    artifactId: Type.String()
   }, { additionalProperties: false })
 
   router.get(
@@ -54,9 +57,11 @@ export default function deploymentArtifactsRoutes (router: Router): void {
     async (req, res, next) => {
       try {
         const filename = req.params.artifactId
+        const filePath = join(destination, filename)
 
-        // validation rejects escape attempts
-        const filePath = `uploads/${filename}`
+        if (filePath.indexOf(destination) !== 0) {
+          return res.sendStatus(404)
+        }
 
         return await pipeline(createReadStream(filePath), res)
       } catch (e) {
