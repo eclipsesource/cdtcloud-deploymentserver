@@ -6,6 +6,16 @@ export const DEVICE_TYPES_PATH = "/services/device-types";
 export interface DeviceTypeService {
   getDeviceList(): Promise<any[]>;
 }
+
+export const CompilationService = Symbol("Compilation");
+export const COMPILATION_PATH = "/services/compilation";
+export interface CompilationService {
+  binaryFile: string;
+  binaryFileContent: Buffer;
+  artifactUrl: string;
+  compile(fqbn:string, id:string, sketchPath:string): Promise<void>;
+}
+
 export const HelloBackendWithClientService = Symbol("BackendWithClient");
 export const HELLO_BACKEND_WITH_CLIENT_PATH = "/services/withClient";
 

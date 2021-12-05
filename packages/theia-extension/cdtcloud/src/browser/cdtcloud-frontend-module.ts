@@ -13,6 +13,8 @@ import { CdtCloudCommandContribution } from "./cdtcloud-command-contribution";
 import { CommandContribution } from "@theia/core";
 import {
   BackendClient,
+  CompilationService,
+  COMPILATION_PATH,
   DeviceTypeService,
   DEVICE_TYPES_PATH,
   HelloBackendWithClientService,
@@ -39,6 +41,13 @@ export default new ContainerModule((bind) => {
       return connection.createProxy<DeviceTypeService>(DEVICE_TYPES_PATH);
     })
     .inSingletonScope();
+
+  bind(CompilationService)
+  .toDynamicValue((ctx) => {
+    const connection = ctx.container.get(WebSocketConnectionProvider);
+    return connection.createProxy<CompilationService>(COMPILATION_PATH);
+  })
+  .inSingletonScope();
 
   bind(HelloBackendWithClientService)
     .toDynamicValue((ctx) => {

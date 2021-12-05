@@ -19,10 +19,12 @@ export class CdtcloudWidget extends ReactWidget {
 
   constructor(
     @inject(DeviceTypeService)
-    private readonly deviceTypeService: DeviceTypeService
+    private readonly deviceTypeService: DeviceTypeService, 
+   
   ) {
     super();
   }
+
 
   @postConstruct()
   protected async init(): Promise<void> {
@@ -55,6 +57,6 @@ export class CdtcloudWidget extends ReactWidget {
   protected async displayMessage(): Promise<void> {
     this.deviceTypeService.getDeviceList().then((result) => {
       this.messageService.info(JSON.stringify(result[0]));
-    });
+    });    
   }
 }

@@ -6,8 +6,11 @@ import {
   DeviceTypeService,
   DEVICE_TYPES_PATH,
   HELLO_BACKEND_WITH_CLIENT_PATH,
+  CompilationService,
+  COMPILATION_PATH,
 } from "../common/protocol";
 import { HelloBackendWithClientServiceImpl } from "./hello-backend-with-client-service";
+import { CompilationServiceImpl } from "./compilation-service";
 import { DeviceTypeServiceImpl } from "./device-types-service";
 
 export default new ContainerModule((bind) => {
@@ -17,6 +20,16 @@ export default new ContainerModule((bind) => {
       (ctx) =>
         new JsonRpcConnectionHandler(DEVICE_TYPES_PATH, () => {
           return ctx.container.get<DeviceTypeService>(DeviceTypeService);
+        })
+    )
+    .inSingletonScope();
+
+    bind(CompilationService).to(CompilationServiceImpl).inSingletonScope();
+  bind(ConnectionHandler)
+    .toDynamicValue(
+      (ctx) =>
+        new JsonRpcConnectionHandler(COMPILATION_PATH, () => {
+          return ctx.container.get<CompilationService>(CompilationService);
         })
     )
     .inSingletonScope();
