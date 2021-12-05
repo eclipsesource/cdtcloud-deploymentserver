@@ -1,5 +1,4 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
     "target": "es2021",
@@ -13,6 +12,7 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "incremental": true
+    "incremental": true,
+    "rootDir": "."
   }
 }

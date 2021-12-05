@@ -10,7 +10,8 @@
     "packages/device-connector",
     "packages/theia-extension/browser-app",
     "packages/theia-extension/electron-app",
-    "packages/theia-extension/cdtcloud"
+    "packages/theia-extension/cdtcloud",
+    "packages/grpc"
   ],
   "scripts": {
     "test": "lerna run --parallel test",
