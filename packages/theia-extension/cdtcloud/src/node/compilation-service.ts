@@ -50,19 +50,24 @@ export class CompilationServiceImpl implements CompilationService {
         console.log(json)
         this.artifactUrl = json.artifactUrl
         */
-        this.artifactUrl = response.data.artifactUrl
+        this.artifactUrl = response.data.artifactUri
 
 
         console.log(this.artifactUrl)
 
-      form.append('artifactUrl', this.artifactUrl)
-      form.append('id', id)
+      form = new FormData();
+      form.append('artifactUri', this.artifactUrl)
+      form.append('deviceTypeId', id)
+
+      /* const resp = await axios.post(`http://localhost:3001/deployments`, form, {headers:{"Content-Type": "multipart/form-data"}})
+      console.log(resp) */
+
 
       /*const res = await fetch(`http://localhost:3001/deploymentRequests`, {
           method: 'POST',
           body: form
         })
         const data = await response.json() as { artifactUri: string}
-      */
+        */
   }
 }

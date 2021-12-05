@@ -10,6 +10,7 @@
         "strictNullChecks": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+        "esModuleInterop": true,
         "downlevelIteration": true,
         "resolveJsonModule": true,
         "module": "commonjs",

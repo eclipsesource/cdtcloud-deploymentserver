@@ -97,8 +97,8 @@ export class RPCClient {
     const compileRequest: CompileRequest = {
         instance: this.instance,
         fqbn: fqbn,
+        export_binaries: {value: true},
         sketch_path: sketchPath,
-        build_path: "C:\\Users\\kevin\\Documents\\Arduino\\Light_Project_1"
     }
 
     return await new Promise((resolve, reject) => {
@@ -108,12 +108,12 @@ export class RPCClient {
 
       const response = this.client.Compile(compileRequest)
       response.on('data', (data: CompileResponse) => {
-        console.log(data)
         if (data.err_stream && data.err_stream.length > 0) {
-          reject(new Error(data.err_stream.toString()))
+          return reject(new Error(data.err_stream.toString()))
+
         }
-        if(!data.build_path) {
-          reject(new Error('No build path found'))
+        if(!data.out_stream && !data.build_path) {
+          return reject(new Error('No build path found'))
         }
         this.buildPath = data.build_path
       })
@@ -124,11 +124,11 @@ export class RPCClient {
       response.on('status', (status) => {
         if (status.code === 0){
           if(this.buildPath != null)
-          resolve(this.buildPath)
+          return resolve(this.buildPath)
          } else reject(new Error(status.details))
       })
       response.on('error', (err: Error) => {
-        reject(new Error(err.message))
+        return reject(new Error(err.message))
       })
     })
   }
