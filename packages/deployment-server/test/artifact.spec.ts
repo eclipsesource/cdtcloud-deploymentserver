@@ -37,7 +37,7 @@ const filePath = join(dirname(fileURLToPath(import.meta.url)), './fixtures/artif
 const buffer = Buffer.from(await readFile(filePath))
 const arraybuffer = Uint8Array.from(buffer)
 const formData = new FormData()
-const file = new File([arraybuffer], 'artifact', { type: 'text/plain' })
+const file = new File([arraybuffer], 'artifact.txt', { type: 'text/plain' })
 let download: string
 
 test('Can upload', async (t) => {
@@ -51,7 +51,7 @@ test('Can upload', async (t) => {
 
   const json = await response.json() as { artifactUri: string}
 
-  t.match(json.artifactUri, /^http:\/\/.*\/deployment-artifacts\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/)
+  t.match(json.artifactUri, /^http:\/\/.*\/deployment-artifacts\/[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}.txt/)
 
   download = json.artifactUri
 })
@@ -66,4 +66,15 @@ test('Can download', async (t) => {
 
   t.equal(body.size, file.size, 'Size is correct')
   t.equal(body.arrayBuffer, file.arrayBuffer, 'Content is correct')
+})
+
+test('prevents traversal', async (t) => {
+  const response = await fetch(`${baseUrl}/deployment-artifacts/` + encodeURIComponent('../package.json'), {
+    method: 'GET'
+  })
+
+  const body = await response.json()
+
+  t.notOk(response.ok, 'Response is ok')
+  t.same(body, { message: 'Not Found' })
 })
