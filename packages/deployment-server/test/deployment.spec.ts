@@ -29,7 +29,7 @@ before(async () => {
   [server,,db] = await createServer()
   const address = server.address() as AddressInfo
   port = address.port
-  baseUrl = `http://0.0.0.0:${port}`
+  baseUrl = `http://localhost:${port}`
 })
 
 teardown(async () => {
@@ -94,7 +94,7 @@ test('Can deploy', async (t) => {
 
   const device = await deviceResponse.json() as Device
 
-  const socket = new WebSocket(`ws://0.0.0.0:${port}/connectors/${connectorId}/queue`)
+  const socket = new WebSocket(`ws://localhost:${port}/connectors/${connectorId}/queue`)
 
   // Register the listener
   socket.onmessage = (message) => {

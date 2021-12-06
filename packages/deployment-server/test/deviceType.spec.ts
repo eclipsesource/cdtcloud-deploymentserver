@@ -18,7 +18,7 @@ before(async () => {
   [server,,db] = await createServer()
   const address = server.address() as AddressInfo
   port = address.port
-  baseUrl = `http://0.0.0.0:${port}`
+  baseUrl = `http://localhost:${port}`
 })
 
 teardown(async () => {
