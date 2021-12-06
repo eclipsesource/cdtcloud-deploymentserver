@@ -16,10 +16,16 @@
 ### Device Connector
 
 1. Download the arduino-cli v0.20.0 from [arduino-cli releases](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
-2. Start the arduino-cli daemon: `arduino-cli daemon`
-3. Install dependencies: `yarn install`
-4. Make sure the deployment server is running
-5. Start the device connector: `yarn --cwd=packages/device-connector run dev`
+2. Install the required arduino core dependencies for your board:
+    ```bash
+    arduino-cli core update-index
+    arduino-cli core install arduino:avr
+    arduino-cli core install arduino:sam
+    ```
+3. Start the arduino-cli daemon: `arduino-cli daemon`
+4. Install dependencies: `yarn install`
+5. Make sure the deployment server is running
+6. Start the device connector: `yarn --cwd=packages/device-connector run dev`
 
 #### Edit configuration (optional)
 You can use the `packages/device-connector/.env` file to edit the node_env environment and deployment server uri
