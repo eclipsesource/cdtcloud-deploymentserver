@@ -24,7 +24,8 @@ services:
                arduino-cli daemon --port 50051 --daemonize --verbose"
     ports:
       - "50051:50051"
+    network_mode: host
+    privileged: true
     volumes:
       - arduino:/arduino
     restart: always
-
