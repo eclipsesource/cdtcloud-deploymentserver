@@ -24,7 +24,7 @@ before(async () => {
   [server,,db] = await createServer()
   const address = server.address() as AddressInfo
   port = address.port
-  baseUrl = `http://0.0.0.0:${port}`
+  baseUrl = `http://localhost:${port}`
 })
 
 teardown(async () => {
@@ -49,7 +49,7 @@ test('Retrieves all connectors', async (t) => {
 
   const body = await response.json() as Connector[]
 
-  t.ok(body.filter(x => x.id === connector.id))
+  t.ok(body.some(x => x.id === connector.id))
 })
 
 // Test that adding a connector
@@ -73,7 +73,7 @@ test('Responds to the websocket connection after create', async (t) => {
 
   const { id } = await response.json() as Connector
 
-  const socket = new WebSocket(`ws://0.0.0.0:${port}/connectors/${id}/queue`)
+  const socket = new WebSocket(`ws://localhost:${port}/connectors/${id}/queue`)
 
   socket.onopen = () => {
     t.pass('Socket opened')
@@ -118,7 +118,7 @@ test('Receives deployment requests', async (t) => {
     }
   })
 
-  const socket = new WebSocket(`ws://0.0.0.0:${port}/connectors/${connectorId}/queue`)
+  const socket = new WebSocket(`ws://localhost:${port}/connectors/${connectorId}/queue`)
 
   // Simulate a deployment request once we can be sure the socket is listening
   socket.onopen = () => {

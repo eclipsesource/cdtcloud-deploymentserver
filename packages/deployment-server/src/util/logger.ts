@@ -1,5 +1,5 @@
 import { env } from 'node:process'
-import pino from 'pino-http'
+import pino, { HttpLogger } from 'pino-http'
 
 const devTransport = {
   target: 'pino-pretty',
@@ -13,6 +13,6 @@ export const pinoHttp = pino({
   level: env.NODE_ENV === 'test' ? 'fatal' : 'info'
 })
 
-export const logger = pinoHttp.logger
+export const logger: HttpLogger['logger'] = pinoHttp.logger
 
 export default logger

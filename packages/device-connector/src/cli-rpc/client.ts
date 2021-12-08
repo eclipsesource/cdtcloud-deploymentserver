@@ -193,6 +193,7 @@ export class RPCClient {
           reject(new Error(data.err_stream.toString()))
         }
       })
+
       stream.on('end', () => {
         stream.destroy()
       })
