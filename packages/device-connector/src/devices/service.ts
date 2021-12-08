@@ -101,16 +101,9 @@ export const deployBinary = async (resp: any, client: RPCClient): Promise<void> 
     const port = await getPortForDevice(data.device.id)
     const artifactPath = await downloadArtifact(data.artifactUri)
     await client.uploadBin(fqbn, port, artifactPath)
-    logger.info('Deployment finished')
 
     const monitorStream = await client.monitor(port)
-    logger.info('Monitoring output')
     monitorStream.on('data', monitorCallback)
-
-    setTimeout(() => {
-      logger.info('Closing monitoring')
-      monitorStream.end()
-    }, 5000)
   }
 }
 

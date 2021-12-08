@@ -118,16 +118,16 @@ export class RPCClient {
 
       const stream = this.client.Init(initRequest)
       stream.on('status', (status: StatusObject) => {
-        return status.code === 0 ? resolve() : reject(new Error(status.details))
+        return status.code === 0 ? resolve() : reject(status)
       })
 
       stream.on('end', () => {
         stream.destroy()
       })
 
-      stream.on('error', (err: Error) => {
+      stream.on('error', (err: StatusObject) => {
         stream.destroy()
-        return reject(new Error(err.message))
+        return reject(err)
       })
     })
   }
@@ -199,11 +199,16 @@ export class RPCClient {
       })
 
       stream.on('status', (status: StatusObject) => {
-        return status.code === 0 ? resolve() : reject(new Error(status.details))
+        if (status.code === 0) {
+          logger.info(`Deployment finished with code ${status.code}`)
+          return resolve()
+        }
+
+        return reject(status)
       })
 
-      stream.on('error', (err: Error) => {
-        reject(new Error(err.message))
+      stream.on('error', (err: StatusObject) => {
+        reject(err)
       })
     })
   }
@@ -227,12 +232,12 @@ export class RPCClient {
         stream.destroy()
       })
 
-      stream.on('status', (status) => {
-        return status.code === 0 ? resolve(true) : reject(new Error(status.details))
+      stream.on('status', (status: StatusObject) => {
+        return status.code === 0 ? resolve(true) : reject(status)
       })
 
-      stream.on('error', (err: Error) => {
-        reject(new Error(err.message))
+      stream.on('error', (err: StatusObject) => {
+        reject(err)
       })
     })
   }
@@ -253,7 +258,7 @@ export class RPCClient {
       stream.destroy()
     })
 
-    stream.on('error', (err: Error) => {
+    stream.on('error', (err: StatusObject) => {
       logger.error(err)
     })
 
@@ -305,13 +310,23 @@ export class RPCClient {
         return reject(new Error('Client not initialized'))
       }
 
-      const stream = this.client.monitor()
+      const deadline = new Date()
+      deadline.setSeconds(deadline.getSeconds() + 10)
+      const stream = this.client.monitor({ deadline })
+      stream.once('readable', () => {
+        logger.info('Monitoring output')
+      })
+
       stream.on('end', () => {
+        logger.info('Closing monitoring')
         stream.destroy()
       })
 
-      stream.on('error', (err: Error) => {
-        logger.error(err)
+      stream.on('error', (err: StatusObject) => {
+        if (err.code !== 4) {
+          logger.error(err)
+        }
+        stream.end()
       })
 
       stream.write(monitorRequest, (err: Error | null | undefined) => {
