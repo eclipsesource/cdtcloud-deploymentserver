@@ -272,32 +272,17 @@ export class RPCClient {
 
       const eventType = data.event_type
       const detectedPort = data.port
-      const port = detectedPort?.port
-      if (port == null) {
-        logger.error('Port not defined')
-        return
-      }
 
       if (eventType === 'add' && detectedPort?.matching_boards != null && detectedPort.matching_boards.length > 0) {
-        const board = detectedPort.matching_boards[0]
-        if (board.fqbn == null) {
-          logger.error('Could not register device: No fqbn found')
+        await this.addDevice(detectedPort)
+      } else if (eventType === 'remove') {
+        const port = detectedPort?.port
+        if (port == null) {
+          logger.warn('Port not defined')
           return
         }
 
-        const id = await registerNewDevice(board.fqbn, board.name ?? 'Unknown Device Name')
-
-        const device: Device = {
-          id,
-          name: board.name ?? 'Unknown Device Name',
-          fqbn: board.fqbn,
-          port: port
-        }
-
-        this.devices.push(device)
-        logger.info(`Device attached: ${device.name}`)
-      } else if (eventType === 'remove') {
-        if (port.address == null || port.address === '') {
+        if (port.address === undefined || port.address === '') {
           logger.warn('Removed device could not be unregistered: Unknown port')
           return
         }
@@ -336,6 +321,52 @@ export class RPCClient {
         return resolve(stream)
       })
     })
+  }
+
+  private async addDevice (detectedPort: DetectedPort): Promise<void> {
+    if (detectedPort.port == null) {
+      logger.warn('Port not defined')
+      return
+    }
+
+    if (detectedPort?.matching_boards === undefined || detectedPort.matching_boards.length === 0) {
+      return
+    }
+
+    const board = detectedPort.matching_boards[0]
+    if (board.fqbn == null) {
+      logger.warn('Could not register device: No fqbn found')
+      return
+    }
+
+    const existingDevice = this.devices.find((device) => device.port === detectedPort.port)
+
+    if (existingDevice !== undefined) {
+      if (existingDevice.fqbn === board.fqbn) {
+        return
+      }
+
+      await this.removeDevice(existingDevice)
+    }
+
+    const id = await registerNewDevice(board.fqbn, board.name ?? 'Unknown Device Name')
+
+    const device: Device = {
+      id,
+      name: board.name ?? 'Unknown Device Name',
+      fqbn: board.fqbn,
+      port: detectedPort.port
+    }
+
+    this.devices.push(device)
+    logger.info(`Device attached: ${device.name}`)
+  }
+
+  async initializeDevices (): Promise<void> {
+    const boards = await this.listBoards()
+    for (const detectedPort of boards) {
+      await this.addDevice(detectedPort)
+    }
   }
 
   getDevices (): Device[] {

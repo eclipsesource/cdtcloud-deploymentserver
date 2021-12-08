@@ -19,7 +19,7 @@ const connectCli = async (): Promise<RPCClient> => {
   return client
 }
 
-const watchDevices = async (client: RPCClient): Promise<void> => {
+const registerDevices = async (client: RPCClient): Promise<void> => {
   await client.boardListWatch()
   const devices = client.getDevices()
 
@@ -30,7 +30,7 @@ export const createConnector = async (): Promise<DeviceConnector> => {
   const client = await connectCli()
   const socket = await openStream()
 
-  await watchDevices(client)
+  await registerDevices(client)
 
   socket.onmessage = (e: MessageEvent) => {
     const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
