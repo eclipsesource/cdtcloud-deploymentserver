@@ -24,7 +24,7 @@ export default new ContainerModule((bind) => {
     )
     .inSingletonScope();
 
-    bind(CompilationService).to(CompilationServiceImpl).inSingletonScope();
+  bind(CompilationService).to(CompilationServiceImpl).inSingletonScope();
   bind(ConnectionHandler)
     .toDynamicValue(
       (ctx) =>

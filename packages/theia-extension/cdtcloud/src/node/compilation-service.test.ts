@@ -10,7 +10,7 @@ describe('CompilationServiceImpl', () => {
     });
 
     it('should log three strings in console', async () => {
-        try { await compilationServiceImpl.compile("arduino:avr:circuitplay32u4cat", "aa8083dd-4f36-4eeb-8fa3-9ac3c867f55e", "C:\\Users\\kevin\\Documents\\Arduino\\Light_Project_1")
+        try { await compilationServiceImpl.compile("arduino:avr:mega", "e8665d51-4221-4d3c-b892-a672a2af37a2", "C:\\Users\\kevin\\Documents\\Arduino\\Light_Project_1\\Light_Project_1.ino")
     } catch (err){
         console.error(err)
     }

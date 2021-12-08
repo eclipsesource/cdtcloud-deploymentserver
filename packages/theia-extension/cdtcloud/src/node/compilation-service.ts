@@ -6,13 +6,12 @@ import { RPCClient } from "./rpc-client";
 import 'reflect-metadata';
 
 
-
 @injectable()
 export class CompilationServiceImpl implements CompilationService {
   
   binaryFile: string;
   binaryFileContent: Buffer;
-  artifactUrl: string;
+  artifactUri: string;
 
   async compile(fqbn:string, id: string, sketchPath: string): Promise<void> {
     const client = new RPCClient()
@@ -34,14 +33,12 @@ export class CompilationServiceImpl implements CompilationService {
       }) 
 
       console.log('binary file: ' + this.binaryFile)
-
       this.binaryFileContent = await readFile(this.binaryFile)
 
-      console.log(this.binaryFileContent)
       const arraybuffer = Uint8Array.from(this.binaryFileContent)
       const artifact = new File([arraybuffer], 'artifact', { type: 'text/plain' })
       let form = new FormData();
-
+      console.log(artifact)
       form.append('file', artifact)
 
       const response = await axios.post(`http://localhost:3001/deployment-artifacts`, form, {headers:{"Content-Type": "multipart/form-data"}})
@@ -50,24 +47,31 @@ export class CompilationServiceImpl implements CompilationService {
         console.log(json)
         this.artifactUrl = json.artifactUrl
         */
-        this.artifactUrl = response.data.artifactUri
+        this.artifactUri = response.data.artifactUri
 
 
-        console.log(this.artifactUrl)
+        console.log(this.artifactUri)
 
-      form = new FormData();
-      form.append('artifactUri', this.artifactUrl)
+      /* form = new FormData();
+      form.append('artifactUri', this.artifactUri)
       form.append('deviceTypeId', id)
 
-      /* const resp = await axios.post(`http://localhost:3001/deployments`, form, {headers:{"Content-Type": "multipart/form-data"}})
-      console.log(resp) */
+      console.log('geschafft: ' + form) */
+
+      const data = {'deviceTypeId': id, 'artifactUri': this.artifactUri}
+
+      const resp = await axios.post(`http://localhost:3001/deployments`, data, {headers:{"Content-Type": "application/json"}})
+      console.log(resp)
 
 
-      /*const res = await fetch(`http://localhost:3001/deploymentRequests`, {
+      /* const data = {'deviceTypeId': id, 'artifactUri': this.artifactUri}
+
+      const res = await fetch(`http://localhost:3001/deployments`, {
           method: 'POST',
-          body: form
+          body: JSON.stringify(data)
         })
-        const data = await response.json() as { artifactUri: string}
-        */
+      console.log(res) */
+      //  const data = await response.json() as { artifactUri: string}
+      
   }
 }

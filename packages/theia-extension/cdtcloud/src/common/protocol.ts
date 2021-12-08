@@ -12,7 +12,7 @@ export const COMPILATION_PATH = "/services/compilation";
 export interface CompilationService {
   binaryFile: string;
   binaryFileContent: Buffer;
-  artifactUrl: string;
+  artifactUri: string;
   compile(fqbn:string, id:string, sketchPath:string): Promise<void>;
 }
 
