@@ -89,17 +89,8 @@ export const registerNewDevice = async (fqbn: string, name: string): Promise<str
   }
 }
 
-export const getAttachedDeviceOnPort = async (portAddress: string, protocol: string = 'serial'): Promise<Device> => {
-  const device = storedDevices.find((device) => device.port.address === portAddress && device.port.protocol === protocol)
-
-  return await new Promise((resolve, reject) => {
-    if (device == null) {
-      const error = new Error(`Device on ${protocol} Port ${portAddress} not attached`)
-      return reject(error)
-    }
-
-    return resolve(device)
-  })
+export const getAttachedDeviceOnPort = async (portAddress: string, protocol: string = 'serial'): Promise<Device | undefined> => {
+  return storedDevices.find((device) => device.port.address === portAddress && device.port.protocol === protocol)
 }
 
 export const deployBinary = async (resp: any, client: RPCClient): Promise<void> => {

@@ -288,7 +288,7 @@ export class RPCClient {
         }
 
         const removed = await getAttachedDeviceOnPort(port.address, port.protocol ?? 'serial')
-        if (removed == null) {
+        if (removed === undefined) {
           return
         }
 
