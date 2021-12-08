@@ -179,7 +179,7 @@ export class RPCClient {
     })
   }
 
-  async uploadBin (fqbn: string, port: Port, file: string, verify: boolean = false): Promise<boolean> {
+  async uploadBin (fqbn: string, port: Port, file: string, verify: boolean = false): Promise<void> {
     const uploadRequest: UploadRequest = { instance: this.instance, fqbn, port, import_file: file, verify }
 
     return await new Promise((resolve, reject) => {
@@ -199,7 +199,7 @@ export class RPCClient {
       })
 
       stream.on('status', (status: StatusObject) => {
-        return status.code === 0 ? resolve(true) : reject(new Error(status.details))
+        return status.code === 0 ? resolve() : reject(new Error(status.details))
       })
 
       stream.on('error', (err: Error) => {
@@ -353,5 +353,22 @@ export class RPCClient {
 
     logger.info(`Device removed: ${device.name}`)
     await deleteDeviceRequest(device.id)
+  }
+
+  async removeAllDevices (): Promise<void> {
+    for (const device of this.devices) {
+      try {
+        await deleteDeviceRequest(device.id)
+      } catch {}
+    }
+
+    this.setDevices([])
+    setStoredDevices(this.devices)
+
+    logger.info('All devices unregistered')
+  }
+
+  closeClient (): void {
+    this.client?.close()
   }
 }

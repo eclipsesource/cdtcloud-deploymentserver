@@ -8,6 +8,7 @@ import {
 } from '../deployment-server/service'
 import logger from '../util/logger'
 import { downloadArtifact } from './deployment'
+import { MonitorResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorResponse'
 
 export interface Device {
   id: string
@@ -108,21 +109,29 @@ export const deployBinary = async (resp: any, client: RPCClient): Promise<void> 
     const fqbn = await getFQBN(data.device.deviceTypeId)
     const port = await getPortForDevice(data.device.id)
     const artifactPath = await downloadArtifact(data.artifactUri)
-    const uploaded = await client.uploadBin(fqbn, port, artifactPath)
+    await client.uploadBin(fqbn, port, artifactPath)
+    logger.info('Deployment finished')
 
-    if (uploaded) {
-      const monitorStream = await client.monitor(port)
-      monitorStream.on('data', ({ _, error, rx_data: data }) => {
-        if (error !== '') {
-          logger.error(error)
-        }
-        process.stdout.write(data)
-      })
+    const monitorStream = await client.monitor(port)
+    logger.info('Monitoring output')
+    monitorStream.on('data', monitorCallback)
 
-      setTimeout(() => {
-        console.log('Closing Monitor Stream')
-        monitorStream.end()
-      }, 5000)
-    }
+    setTimeout(() => {
+      logger.info('Closing monitoring')
+      monitorStream.end()
+    }, 5000)
   }
+}
+
+const monitorCallback = (monitorResponse: MonitorResponse): void => {
+  const { error, rx_data: data } = monitorResponse
+  if (error !== undefined && error !== '') {
+    logger.error(error)
+  }
+
+  if (data === undefined) {
+    return
+  }
+
+  process.stdout.write(data)
 }
