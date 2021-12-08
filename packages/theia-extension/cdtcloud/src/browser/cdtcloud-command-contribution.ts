@@ -38,7 +38,7 @@ export class CdtCloudCommandContribution implements CommandContribution {
     registry.registerCommand(SayHelloViaBackendCommandWithCallBack, {
       execute: () => {
         // Get the currently opened path
-        console.log(this.workspaceService.workspace?.resource.withFragment);
+        console.log(this.workspaceService.workspace?.resource);
         this.helloBackendWithClientService.greet().then((r) => console.log(r));
       },
     });
@@ -48,7 +48,8 @@ export class CdtCloudCommandContribution implements CommandContribution {
         console.log("This is: " + currentEditor?.editor.document.uri);
         // Get the currently opened path
         //console.log(this.workspaceService.workspace?.resource);
-        this.compilationService.compile('arduino:avr:circuitplay32u4cat', 'aa8083dd-4f36-4eeb-8fa3-9ac3c867f55e', 'C:/Users/kevin/Documents/Arduino/Light_Project_1')
+        
+        this.compilationService.compile("arduino:avr:circuitplay32u4cat", "aa8083dd-4f36-4eeb-8fa3-9ac3c867f55e", "C:\\Users\\kevin\\Documents\\Arduino\\Light_Project_1")
       },
     });
   }
