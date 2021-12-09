@@ -15,5 +15,5 @@ describe('CompilationServiceImpl', () => {
         console.error(err)
     }
         expect(true).toBe(false)
-    }, 15000);
+    }, 20000);
 });

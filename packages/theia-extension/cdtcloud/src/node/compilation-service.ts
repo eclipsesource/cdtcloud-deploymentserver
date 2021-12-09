@@ -35,8 +35,8 @@ export class CompilationServiceImpl implements CompilationService {
       console.log('binary file: ' + this.binaryFile)
       this.binaryFileContent = await readFile(this.binaryFile)
 
-      const arraybuffer = Uint8Array.from(this.binaryFileContent)
-      const artifact = new File([arraybuffer], 'artifact', { type: 'text/plain' })
+      //const arraybuffer = Uint8Array.from(this.binaryFileContent)
+      const artifact = new File([this.binaryFileContent], 'artifact', { type: 'text/plain' })
       let form = new FormData();
       console.log(artifact)
       form.append('file', artifact)
