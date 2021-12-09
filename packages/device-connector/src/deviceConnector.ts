@@ -57,5 +57,5 @@ export async function closeConnector (
 
   this.socket.close()
 
-  logger.info(`${signal ?? 'Manual Exit'}: Closed server`)
+  logger.info(`${signal ?? 'Manual Exit'}: Closed service`)
 }

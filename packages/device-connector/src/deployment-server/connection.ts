@@ -1,5 +1,5 @@
 import { env } from 'process'
-import WebSocket from 'ws'
+import WebSocket, { CloseEvent, ErrorEvent } from 'ws'
 import fs, { createReadStream, createWriteStream } from 'fs'
 import { fetch } from 'undici'
 import logger from '../util/logger'
@@ -89,8 +89,13 @@ export const openStream = async (): Promise<WebSocket> => {
     socket.send('Hello-World')
   }
 
-  socket.onerror = (error) => {
-    logger.error(`WebSocket error: ${error.message}`)
+  socket.onerror = (error: ErrorEvent) => {
+    logger.error(`WebSocket: ${error.message}`)
+  }
+
+  socket.onclose = async (event: CloseEvent) => {
+    logger.warn(`Unable to connect to Deployment-Server (Code: ${event.code}) - Reconnecting`)
+    return await openStream()
   }
 
   return socket

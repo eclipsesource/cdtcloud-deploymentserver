@@ -1,5 +1,5 @@
-import { ServiceError, StatusObject } from '@grpc/grpc-js'
 import * as grpc from '@grpc/grpc-js'
+import { ChannelOptions, ServiceError, StatusObject } from '@grpc/grpc-js'
 import * as protoLoader from '@grpc/proto-loader'
 import { ArduinoCoreServiceClient } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/ArduinoCoreService'
 import { BoardListAllRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListAllRequest'
@@ -8,6 +8,7 @@ import { BoardListItem } from 'arduino-cli_proto_ts/common/cc/arduino/cli/comman
 import { BoardListRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListRequest'
 import { BoardListResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListResponse'
 import { BoardListWatchRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchRequest'
+import { BoardListWatchResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchResponse'
 import { BurnBootloaderResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BurnBootloaderResponse'
 import { CreateResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/CreateResponse'
 import { DetectedPort } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/DetectedPort'
@@ -19,14 +20,8 @@ import { Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Por
 import { UploadRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadRequest'
 import { UploadResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadResponse'
 import { ProtoGrpcType as ArduinoProtoGrpcType } from 'arduino-cli_proto_ts/common/commands'
-import { BoardListWatchResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchResponse'
 import { deleteDeviceRequest } from '../deployment-server/service'
-import {
-  Device,
-  getAttachedDeviceOnPort,
-  registerNewDevice,
-  setDevices as setStoredDevices
-} from '../devices/service'
+import { Device, getAttachedDeviceOnPort, registerNewDevice, setDevices as setStoredDevices } from '../devices/service'
 import logger from '../util/logger'
 
 export class RPCClient {
@@ -48,16 +43,21 @@ export class RPCClient {
       oneofs: true
     })
 
+    const options: ChannelOptions = {
+      'grpc.keepalive_permit_without_calls': 1
+    }
+
     const deadline = new Date()
     deadline.setSeconds(deadline.getSeconds() + 5)
 
-    return await new Promise((resolve, reject) => {
+    return await new Promise((resolve) => {
       const arduinoGrpcObject = grpc.loadPackageDefinition(loadedProto) as unknown as ArduinoProtoGrpcType
 
-      const arduinoServiceClient = new arduinoGrpcObject.cc.arduino.cli.commands.v1.ArduinoCoreService(this.address, grpc.credentials.createInsecure())
+      const arduinoServiceClient = new arduinoGrpcObject.cc.arduino.cli.commands.v1.ArduinoCoreService(this.address, grpc.credentials.createInsecure(), options)
       arduinoServiceClient.waitForReady(deadline, (error: Error | undefined) => {
-        if (error != null) {
-          return reject(new Error(error.message))
+        if (error !== undefined) {
+          logger.error(`Arduino-CLI: ${error.message} - retrying`)
+          return resolve(this.init())
         }
 
         this.client = arduinoServiceClient
@@ -77,9 +77,11 @@ export class RPCClient {
         if (err != null) {
           return reject(new Error(err.message))
         }
-        if ((data == null) || (data.instance == null)) {
+
+        if ((data === undefined) || (data.instance == null)) {
           return reject(new Error('No Instance created'))
         }
+
         this.instance = data.instance
         return resolve()
       })
@@ -179,8 +181,8 @@ export class RPCClient {
     })
   }
 
-  async uploadBin (fqbn: string, port: Port, file: string, verify: boolean = false): Promise<void> {
-    const uploadRequest: UploadRequest = { instance: this.instance, fqbn, port, import_file: file, verify }
+  async uploadBin (fqbn: string, port: Port, file: string, verify: boolean = false, dryRun: boolean = false): Promise<void> {
+    const uploadRequest: UploadRequest = { instance: this.instance, fqbn, port, import_file: file, verify, dry_run: dryRun }
 
     return await new Promise((resolve, reject) => {
       if (this.client == null) {
@@ -388,13 +390,8 @@ export class RPCClient {
     return this.devices
   }
 
-  setDevices (devices: Device[]): void {
-    this.devices = devices
-  }
-
   async removeDevice (device: Device): Promise<void> {
-    const newDeviceList = this.devices.filter((deviceItem) => deviceItem !== device)
-    this.setDevices(newDeviceList)
+    this.devices = this.devices.filter((deviceItem) => deviceItem !== device)
     setStoredDevices(this.devices)
 
     logger.info(`Device removed: ${device.name}`)
@@ -408,10 +405,8 @@ export class RPCClient {
       } catch {}
     }
 
-    this.setDevices([])
+    this.devices = []
     setStoredDevices(this.devices)
-
-    logger.info('All devices unregistered')
   }
 
   closeClient (): void {
