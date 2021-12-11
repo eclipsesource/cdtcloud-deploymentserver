@@ -46,10 +46,12 @@ export class CdtCloudCommandContribution implements CommandContribution {
       execute: () => {
         const currentEditor = this.editorManager.currentEditor;
         console.log("This is: " + currentEditor?.editor.document.uri);
-        // Get the currently opened path
-        //console.log(this.workspaceService.workspace?.resource);
+        const sketchPath = currentEditor?.editor.document.uri
         
-        this.compilationService.compile("arduino:avr:mega", "e8665d51-4221-4d3c-b892-a672a2af37a2", "C:\\Users\\kevin\\Documents\\Arduino\\Light_Project_1\\Light_Project_1.ino")
+        if (!sketchPath) {
+          return new Error('No Sketch is open in the editor.')
+        }
+        this.compilationService.compile("arduino:avr:mega", "e8665d51-4221-4d3c-b892-a672a2af37a2", sketchPath)
       },
     });
   }
