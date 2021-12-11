@@ -13,15 +13,14 @@ import { fileURLToPath } from 'node:url'
 const { test, before, teardown } = tap
 
 let baseUrl: string
-let port: number
+let address: AddressInfo
 let server: Server
 let db: PrismaClient
 
 before(async () => {
   [server,,db] = await createServer()
-  const address = server.address() as AddressInfo
-  port = address.port
-  baseUrl = `http://localhost:${port}`
+  address = server.address() as AddressInfo
+  baseUrl = `http://${address.address}:${address.port}`
 })
 
 teardown(async () => {

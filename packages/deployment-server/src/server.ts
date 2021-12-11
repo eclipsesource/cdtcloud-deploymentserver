@@ -6,25 +6,29 @@ import logger from './util/logger'
 import connect from './util/prisma'
 import { PrismaClient } from '@prisma/client'
 import { Application } from 'express'
-import { QueueManager } from './connectors/queue'
+import { QueueManager as ConnectorQueue } from './connectors/queue'
 import { Signals } from 'close-with-grace'
 import { promisify } from 'util'
 import http from 'node:http'
+import { registerDeviceStreamRoutes } from './deployments/service'
 
 export async function createServer (): Promise<[Server, Application, PrismaClient]> {
   try {
     const db = await connect()
     const app = createApp(db)
     const server = http.createServer(app)
-    QueueManager.setServer(server)
+    ConnectorQueue.setServer(server)
+    registerDeviceStreamRoutes(server)
 
-    let port: number | undefined = env.PORT != null ? parseInt(env.PORT, 10) : undefined
+    const { HOST, PORT } = env
+
+    let port: number | undefined = PORT != null ? parseInt(PORT, 10) : undefined
     if (port == null && env.NODE_ENV !== 'test') {
       port = 3001
     }
 
-    server.listen(port, 'localhost')
-    await QueueManager.start()
+    server.listen(port, HOST)
+    await ConnectorQueue.start()
     return [server, app, db]
   } catch (e) {
     logger.error(e)

@@ -5,6 +5,7 @@ import { addDeployRequest } from '../connectors/queue'
 import { getAvailableDevice, getLeastLoadedDevice } from '../devices/service'
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
+import { closeDeploymentStream, createDeploymentStream } from './service'
 
 export default function deploymentRequestsRoutes (router: Router): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -67,6 +68,9 @@ export default function deploymentRequestsRoutes (router: Router): void {
           }
         })
 
+        // Open a websocket for the connector to pipe the output/error to
+        createDeploymentStream(deploymentRequest)
+
         // Send deploymentRequest to device
         await addDeployRequest(device, req.body.artifactUri)
 
@@ -88,6 +92,18 @@ export default function deploymentRequestsRoutes (router: Router): void {
           where: { id: req.params.id },
           data: req.body
         })
+
+        const finalStates: readonly DeployStatus[] =
+          Object.freeze([
+            DeployStatus.SUCCESS,
+            DeployStatus.FAILED,
+            DeployStatus.TERMINATED
+          ])
+
+        if (finalStates.includes(deploymentRequest.status)) {
+          await closeDeploymentStream(deploymentRequest)
+        }
+
         return res.json(deploymentRequest)
       } catch (e) {
         next(e)

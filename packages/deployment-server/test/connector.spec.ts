@@ -16,15 +16,14 @@ const { DeviceStatus } = dbClient
 const { before, teardown, test } = tap
 
 let baseUrl: string
-let port: number
+let address: AddressInfo
 let server: Server
 let db: PrismaClient
 
 before(async () => {
   [server,,db] = await createServer()
-  const address = server.address() as AddressInfo
-  port = address.port
-  baseUrl = `http://localhost:${port}`
+  address = server.address() as AddressInfo
+  baseUrl = `http://${address.address}:${address.port}`
 })
 
 teardown(async () => {
@@ -73,7 +72,7 @@ test('Responds to the websocket connection after create', async (t) => {
 
   const { id } = await response.json() as Connector
 
-  const socket = new WebSocket(`ws://localhost:${port}/connectors/${id}/queue`)
+  const socket = new WebSocket(`ws://${address.address}:${address.port}/connectors/${id}/queue`)
 
   socket.onopen = () => {
     t.pass('Socket opened')
@@ -118,7 +117,8 @@ test('Receives deployment requests', async (t) => {
     }
   })
 
-  const socket = new WebSocket(`ws://localhost:${port}/connectors/${connectorId}/queue`)
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const socket = new WebSocket(`ws://${address.address}:${address.port}/connectors/${connectorId}/queue`)
 
   // Simulate a deployment request once we can be sure the socket is listening
   socket.onopen = () => {
