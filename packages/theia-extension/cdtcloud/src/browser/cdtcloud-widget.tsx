@@ -9,6 +9,7 @@ import { ReactWidget } from "@theia/core/lib/browser/widgets/react-widget";
 import { MessageService } from "@theia/core";
 import { DeviceTypeService } from "../common/protocol";
 
+
 @injectable()
 export class CdtcloudWidget extends ReactWidget {
   static readonly ID = "cdtcloud:widget";

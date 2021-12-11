@@ -2,7 +2,15 @@
   "name": "theia-extension",
   "version": "0.0.0",
   "private": true,
-  "scripts": {},
-  "devDependencies": {},
-  "dependencies": {}
+  "scripts": {
+    "prepare": "lerna run prepare",
+    "rebuild:browser": "theia rebuild:browser",
+    "rebuild:electron": "theia rebuild:electron",
+    "start:browser": "yarn rebuild:browser && yarn --cwd browser-app start",
+    "start:electron": "yarn rebuild:electron && yarn --cwd electron-app start",
+    "watch": "lerna run --parallel watch"
+  },
+  "dependencies": {
+    "react-select": "^5.2.1"
+  }
 }

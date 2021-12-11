@@ -23,7 +23,7 @@ export async function createServer (): Promise<[Server, Application, PrismaClien
       port = 3001
     }
 
-    server.listen(port, '0.0.0.0')
+    server.listen(port, 'localhost')
     await QueueManager.start()
     return [server, app, db]
   } catch (e) {
