@@ -11,7 +11,6 @@ export const CompilationService = Symbol("Compilation");
 export const COMPILATION_PATH = "/services/compilation";
 export interface CompilationService {
   binaryFile: string;
-  binaryFileContent: Buffer;
   artifactUri: string;
   compile(fqbn:string, id:string, sketchPath:string): Promise<void>;
 }

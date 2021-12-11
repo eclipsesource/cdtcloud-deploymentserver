@@ -13,7 +13,6 @@ import got from "got";
 export class CompilationServiceImpl implements CompilationService {
 
   binaryFile: string;
-  binaryFileContent: Buffer;
   artifactUri: string;
 
   async compile(fqbn:string, id: string, sketchPath: string): Promise<void> {
@@ -24,9 +23,6 @@ export class CompilationServiceImpl implements CompilationService {
 
       const buildPath = await client.getBuildPath(fqbn, sketchPath)
 
-
-      console.log(buildPath)
-
       const files = await readdir(buildPath)
 
       files.forEach((file) => {
@@ -34,7 +30,6 @@ export class CompilationServiceImpl implements CompilationService {
               this.binaryFile = join(buildPath, file)
           }
       })
-
 
       let form = new FormData();
       const content = createReadStream(this.binaryFile)
@@ -50,21 +45,16 @@ export class CompilationServiceImpl implements CompilationService {
           responseType: 'json'
         })
 
-        const artifactUri = uploadResponse.body.artifactUri
+      const artifactUri = uploadResponse.body.artifactUri
 
-        const deploymentResponse =
-          await got.post(`http://localhost:3001/deployments`, {
-            headers:{
-              "Content-Type": "application/json"
-            },
-            responseType: 'json',
-            body: JSON.stringify({
-              artifactUri,
-              deviceTypeId: id
-          })})
-
-
-        console.log(deploymentResponse.body)
-
+      await got.post(`http://localhost:3001/deployments`, {
+        headers:{
+          "Content-Type": "application/json"
+        },
+        responseType: 'json',
+        body: JSON.stringify({
+          artifactUri,
+          deviceTypeId: id
+      })})
   }
 }
