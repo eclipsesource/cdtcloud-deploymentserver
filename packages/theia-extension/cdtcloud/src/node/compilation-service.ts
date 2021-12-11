@@ -1,9 +1,12 @@
 import { injectable } from "inversify";
 import { CompilationService } from "../common/protocol";
-import { readFile, readdir } from 'fs/promises';
+import { readdir } from 'fs/promises';
+import { createReadStream } from 'fs';
 import axios from 'axios';
 import { RPCClient } from "./rpc-client";
 import 'reflect-metadata';
+import FormData from 'form-data';
+import { join } from 'path';
 
 
 @injectable()
@@ -26,52 +29,34 @@ export class CompilationServiceImpl implements CompilationService {
   
       const files = await readdir(buildPath)
 
-      files.forEach((file: any) => {
+      files.forEach((file) => {
           if(file.endsWith('.bin')){
-              this.binaryFile = buildPath + "/" + file
+              this.binaryFile = join(buildPath, file)
           }
       }) 
 
       console.log('binary file: ' + this.binaryFile)
-      this.binaryFileContent = await readFile(this.binaryFile)
 
-      //const arraybuffer = Uint8Array.from(this.binaryFileContent)
-      const artifact = new File([this.binaryFileContent], 'artifact', { type: 'text/plain' })
       let form = new FormData();
-      console.log(artifact)
-      form.append('file', artifact)
+      const content = createReadStream(this.binaryFile)
+      form.append('file', content)
+      const formHeaders = form.getHeaders();
+      console.log(formHeaders)
 
-      const response = await axios.post(`http://localhost:3001/deployment-artifacts`, form, {headers:{"Content-Type": "multipart/form-data"}})
-        console.log(response)
-        /*const json = await response.json() as { artifactUrl: string}
-        console.log(json)
-        this.artifactUrl = json.artifactUrl
-        */
-        this.artifactUri = response.data.artifactUri
+      await new Promise<void>((resolve, reject) => {
+          form.getLength(async (err, length) => {
+          const response = await axios.post(`http://localhost:3001/deployment-artifacts`, form, {headers: {...formHeaders, "Content-Length": "" + 261657}, validateStatus:  () => true})
+          
+          console.log(response.data)
+          this.artifactUri = response.data.artifactUri
 
-
-        console.log(this.artifactUri)
-
-      /* form = new FormData();
-      form.append('artifactUri', this.artifactUri)
-      form.append('deviceTypeId', id)
-
-      console.log('geschafft: ' + form) */
-
-      const data = {'deviceTypeId': id, 'artifactUri': this.artifactUri}
-
-      const resp = await axios.post(`http://localhost:3001/deployments`, data, {headers:{"Content-Type": "application/json"}})
-      console.log(resp)
-
-
-      /* const data = {'deviceTypeId': id, 'artifactUri': this.artifactUri}
-
-      const res = await fetch(`http://localhost:3001/deployments`, {
-          method: 'POST',
-          body: JSON.stringify(data)
+          console.log(this.artifactUri)
+          const data = {'deviceTypeId': id, 'artifactUri': this.artifactUri}
+          const resp = await axios.post(`http://localhost:3001/deployments`, data, {headers:{"Content-Type": "application/json"}})
+          console.log(resp) 
+          resolve()
         })
-      console.log(res) */
-      //  const data = await response.json() as { artifactUri: string}
-      
+      })
+           
   }
 }

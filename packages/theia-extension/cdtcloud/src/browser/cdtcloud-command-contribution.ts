@@ -49,7 +49,7 @@ export class CdtCloudCommandContribution implements CommandContribution {
         // Get the currently opened path
         //console.log(this.workspaceService.workspace?.resource);
         
-        this.compilationService.compile("arduino:avr:circuitplay32u4cat", "aa8083dd-4f36-4eeb-8fa3-9ac3c867f55e", "C:\\Users\\kevin\\Documents\\Arduino\\Light_Project_1")
+        this.compilationService.compile("arduino:avr:mega", "e8665d51-4221-4d3c-b892-a672a2af37a2", "C:\\Users\\kevin\\Documents\\Arduino\\Light_Project_1\\Light_Project_1.ino")
       },
     });
   }

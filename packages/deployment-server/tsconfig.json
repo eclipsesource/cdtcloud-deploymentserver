@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "incremental": true,
-    "rootDir": "."
+    "rootDir": ".",
+    "emitDeclarationOnly": true
   }
 }

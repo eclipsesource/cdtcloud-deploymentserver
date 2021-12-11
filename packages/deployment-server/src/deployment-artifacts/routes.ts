@@ -5,7 +5,6 @@ import { createReadStream } from 'fs'
 import { pipeline } from 'stream/promises'
 import { validate } from '../util/validate'
 import multer from 'multer'
-import { CreateArtifactResponseBody } from '.'
 import { extname, join } from 'path'
 
 const destination = 'uploads/'
@@ -23,10 +22,10 @@ export default function deploymentArtifactsRoutes (router: Router): void {
   router.post(
     '/deployment-artifacts',
     upload.single('file'),
-    validate<CreateArtifactResponseBody>({}),
     async (req, res, next) => {
       try {
         if (req.file == null) {
+          console.log(req.file)
           return res.sendStatus(400)
         }
 
