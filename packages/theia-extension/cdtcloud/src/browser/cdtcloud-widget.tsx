@@ -6,9 +6,11 @@ import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { MessageService } from '@theia/core';
 import { CompilationService, DeviceTypeService } from "../common/protocol";
 import { EditorManager } from '@theia/editor/lib/browser/editor-manager';
+import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
 
 @injectable()
 export class CdtcloudWidget extends ReactWidget {
+  deviceList: any[] = [];
   options: any[] = [];
   selected: {label: string, value: string};
   static readonly ID = 'cdtcloud:widget';
@@ -24,6 +26,8 @@ export class CdtcloudWidget extends ReactWidget {
     private readonly compilationService: CompilationService, 
     @inject(EditorManager)
     protected readonly editorManager: EditorManager,
+    @inject(WorkspaceService)
+  protected readonly workspaceService: WorkspaceService,
   ) {
     super()
   }
@@ -64,10 +68,10 @@ export class CdtcloudWidget extends ReactWidget {
 
       <h2> Select a Board to deploy your code on from this list</h2>
       <this.Selector/>
-      <Select 
+      {/* <Select 
       options={this.options} 
       />
-      <button className='theia-button secondary' title='Display Message' onClick={_a => this.deployOnBoard(this.selected)}>Deploy on Board</button>
+      <button className='theia-button secondary' title='Display Message' onClick={_a => this.deployOnBoard(this.selected)}>Deploy on Board</button> */}
     </div>
   }
 
@@ -78,7 +82,8 @@ export class CdtcloudWidget extends ReactWidget {
 
   protected async getDeviceList(): Promise<void> {
     try {
-      this.options = (await this.deviceTypeService.getDeviceList()).map(({id, name}) => ({label: name, value: id}))
+      this.deviceList = await this.deviceTypeService.getDeviceList()
+      this.options = this.deviceList.map(({id, name}) => ({label: name, value: id}))
       this.update()
     }catch (err) {
       console.error(err)
@@ -88,31 +93,25 @@ export class CdtcloudWidget extends ReactWidget {
   }
 
   protected async deployOnBoard(board: any): Promise<void> {
-
-    const data = { deviceTypeId: '37dcb3ab-071d-43e1-935a-1e70403e4720', artifactUri: 'https://sanctum-dev.com/tests.bin' };
-    
+    const selectedBoard = this.deviceList.find(obj => {
+      return obj.id === board.value
+    })
+    console.log(selectedBoard)
     const currentEditor = this.editorManager.currentEditor;
         console.log("This is: " + currentEditor?.editor.document.uri);
-        const sketchPath = currentEditor?.editor.document.uri
-        console.log(board.value)
+        //const sketchPath = currentEditor?.editor.document.uri
+
+        const workspaceService = this.workspaceService;
+        console.log(workspaceService)
+        const sketchPath = "" + workspaceService.workspace?.resource.path
+        console.log(sketchPath)
+
         if (sketchPath) {
-          this.compilationService.compile("arduino:avr:mega", board.value, sketchPath).then((result) =>{
+          this.compilationService.compile(selectedBoard.fqbn, board.value, "C:/Users/kevin/Documents/Arduino/Light_Project_1").then((result) =>{
               //Todo: Handle result
               console.log(result)
         });
         }
-        
-    
-    try {
-      await fetch('http://127.0.0.1:3001/deployments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-    }
-    catch { }
 
     this.messageService.info('Deployment Request send.');
   }

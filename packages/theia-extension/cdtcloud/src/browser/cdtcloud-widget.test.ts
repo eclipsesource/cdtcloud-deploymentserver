@@ -23,7 +23,7 @@ describe('CdtcloudWidget', () => {
 
     it('should inject \'MessageService\'', () => {
         const spy = jest.spyOn(widget as any, 'deployOnBoard')
-        widget['deployOnBoard']();
+        widget['deployOnBoard']({ deviceTypeId: '37dcb3ab-071d-43e1-935a-1e70403e4720', artifactUri: 'https://sanctum-dev.com/tests.bin' });
         expect(spy).toBeCalled();
     });
 
