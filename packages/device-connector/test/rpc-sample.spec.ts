@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import tap from 'tap'
-import { RPCClient } from '../src/cli-rpc/client'
+import { RPCClient } from '../src/arduino-cli/client'
 
 const { before, test } = tap
 
