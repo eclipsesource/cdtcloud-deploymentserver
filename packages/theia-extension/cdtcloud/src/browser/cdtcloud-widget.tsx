@@ -12,7 +12,7 @@ import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service
 export class CdtcloudWidget extends ReactWidget {
   deviceList: any[] = [];
   options: any[] = [];
-  selected: {label: string, value: string};
+  selected: { label: string, value: string };
   static readonly ID = 'cdtcloud:widget';
   static readonly LABEL = 'Cdtcloud Widget';
 
@@ -23,11 +23,11 @@ export class CdtcloudWidget extends ReactWidget {
     @inject(DeviceTypeService)
     private readonly deviceTypeService: DeviceTypeService,
     @inject(CompilationService)
-    private readonly compilationService: CompilationService, 
+    private readonly compilationService: CompilationService,
     @inject(EditorManager)
     protected readonly editorManager: EditorManager,
     @inject(WorkspaceService)
-  protected readonly workspaceService: WorkspaceService,
+    protected readonly workspaceService: WorkspaceService,
   ) {
     super()
   }
@@ -44,34 +44,30 @@ export class CdtcloudWidget extends ReactWidget {
   }
 
   Selector = () => {
-    let [board, setBoard] = React.useState({label: "No board Selected", value: ""});
+    let [board, setBoard] = React.useState({ label: "No board Selected", value: "" });
     return (<div>
-       <Select 
-      value= {board} 
-      options={this.options} 
-      onChange = {e => {
-        if (!e) return
-        const newBoard = {label: e.label, value: e.value}
-        setBoard(newBoard);
+      <Select
+        value={board}
+        options={this.options}
+        onChange={e => {
+          if (!e) return
+          const newBoard = { label: e.label, value: e.value }
+          setBoard(newBoard);
         }}
       />
       <button className='theia-button secondary' title='Display Message' onClick={_a => this.deployOnBoard(board)}>Deploy on Board</button>
     </div>)
   }
-  
+
 
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> {
     const header = `This widget enables you to deploy your code on a remote (Arduino-)board.`;
-    //hier availableDevices einfügen
+    
     return <div id='widget-container'>
       <AlertMessage type='INFO' header={header} />
 
       <h2> Select a Board to deploy your code on from this list</h2>
-      <this.Selector/>
-      {/* <Select 
-      options={this.options} 
-      />
-      <button className='theia-button secondary' title='Display Message' onClick={_a => this.deployOnBoard(this.selected)}>Deploy on Board</button> */}
+      <this.Selector />
     </div>
   }
 
@@ -83,12 +79,12 @@ export class CdtcloudWidget extends ReactWidget {
   protected async getDeviceList(): Promise<void> {
     try {
       this.deviceList = await this.deviceTypeService.getDeviceList()
-      this.options = this.deviceList.map(({id, name}) => ({label: name, value: id}))
+      this.options = this.deviceList.map(({ id, name }) => ({ label: name, value: id }))
       this.update()
-    }catch (err) {
+    } catch (err) {
       console.error(err)
     }
-    
+
 
   }
 
@@ -96,22 +92,21 @@ export class CdtcloudWidget extends ReactWidget {
     const selectedBoard = this.deviceList.find(obj => {
       return obj.id === board.value
     })
-    console.log(selectedBoard)
+
     const currentEditor = this.editorManager.currentEditor;
-        console.log("This is: " + currentEditor?.editor.document.uri);
-        //const sketchPath = currentEditor?.editor.document.uri
+    console.log("This is: " + currentEditor?.editor.document.uri);
 
-        const workspaceService = this.workspaceService;
-        console.log(workspaceService)
-        const sketchPath = "" + workspaceService.workspace?.resource.path
-        console.log(sketchPath)
+    const workspaceService = this.workspaceService;
+    console.log(workspaceService)
+    const sketchPath = "" + workspaceService.workspace?.resource.path
+    console.log(sketchPath)
 
-        if (sketchPath) {
-          this.compilationService.compile(selectedBoard.fqbn, board.value, "C:/Users/kevin/Documents/Arduino/Light_Project_1").then((result) =>{
-              //Todo: Handle result
-              console.log(result)
-        });
-        }
+    if (sketchPath) {
+      this.compilationService.compile(selectedBoard.fqbn, board.value, "C:/Users/kevin/Documents/Arduino/Light_Project_1").then((result) => {
+        //Todo: Handle result
+        console.log(result)
+      });
+    }
 
     this.messageService.info('Deployment Request send.');
   }

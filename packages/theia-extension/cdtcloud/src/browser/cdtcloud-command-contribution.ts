@@ -47,7 +47,8 @@ export class CdtCloudCommandContribution implements CommandContribution {
         const currentEditor = this.editorManager.currentEditor;
         console.log("This is: " + currentEditor?.editor.document.uri);
         const sketchPath = currentEditor?.editor.document.uri
-        
+        const workspaceService = this.workspaceService;
+        console.log(workspaceService.workspace?.name)
         if (!sketchPath) {
           return new Error('No Sketch is open in the editor.')
         }

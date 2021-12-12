@@ -8,7 +8,6 @@ import FormData from 'form-data';
 import { join } from 'path';
 import got from "got";
 
-
 @injectable()
 export class CompilationServiceImpl implements CompilationService {
 
@@ -22,7 +21,7 @@ export class CompilationServiceImpl implements CompilationService {
       await client.initInstance()
 
       const buildPath = await client.getBuildPath(fqbn, sketchPath)
-
+      console.log(buildPath)
       const files = await readdir(buildPath)
 
       files.forEach((file) => {
@@ -44,6 +43,8 @@ export class CompilationServiceImpl implements CompilationService {
           body: form,
           responseType: 'json'
         })
+
+        console.log(uploadResponse.body.artifactUri)
 
       const artifactUri = uploadResponse.body.artifactUri
 

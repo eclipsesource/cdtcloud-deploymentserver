@@ -8,12 +8,12 @@ describe("CompilationServiceImpl", () => {
     compilationServiceImpl = new CompilationServiceImpl();
   });
 
-  it("should log three strings in console", async () => {
+  it("should make 2 requests to server", async () => {
     try {
       await compilationServiceImpl.compile(
         "arduino:avr:mega",
         "e8665d51-4221-4d3c-b892-a672a2af37a2",
-        "C:\\Users\\kevin\\Documents\\Arduino\\Light_Project_1\\Light_Project_1.ino"
+        "C:/Users/kevin/Documents/Arduino/Light_Project_1"
       );
     } catch (err) {
       console.error(err);
