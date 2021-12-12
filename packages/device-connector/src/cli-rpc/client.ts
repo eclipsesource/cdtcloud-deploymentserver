@@ -124,6 +124,8 @@ export class RPCClient {
       }
 
       const stream = this.client.Init(initRequest)
+      // TODO
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       stream.on('status', (status: StatusObject) => {
         switch (status.code) {
           case Status.OK:
@@ -136,7 +138,9 @@ export class RPCClient {
             })
           case Status.UNAVAILABLE:
             if (this.connected) {
-              return setTimeout(() => resolve(this.initInstance()), 3000)
+              return setTimeout(() => {
+                resolve(this.initInstance())
+              }, 3000)
             }
             return reject(status)
           default:
@@ -291,7 +295,10 @@ export class RPCClient {
       logger.error(err)
 
       setTimeout(() => {
-        this.initInstance().finally(() => this.boardListWatch())
+        this.initInstance().finally(() => {
+          this.boardListWatch().catch(() => {
+          })
+        })
       }, 3000)
     })
 
