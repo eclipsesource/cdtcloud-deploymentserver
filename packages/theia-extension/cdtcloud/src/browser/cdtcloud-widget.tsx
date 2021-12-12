@@ -72,7 +72,6 @@ export class CdtcloudWidget extends ReactWidget {
   }
 
   protected handleChange(option: { label: string; value: string }): void {
-    console.log(option)
     this.selected = option
   }
 
@@ -82,7 +81,7 @@ export class CdtcloudWidget extends ReactWidget {
       this.options = this.deviceList.map(({ id, name }) => ({ label: name, value: id }))
       this.update()
     } catch (err) {
-      console.error(err)
+      console.log(err)
     }
 
 
@@ -92,23 +91,14 @@ export class CdtcloudWidget extends ReactWidget {
     const selectedBoard = this.deviceList.find(obj => {
       return obj.id === board.value
     })
-
-    const currentEditor = this.editorManager.currentEditor;
-    console.log("This is: " + currentEditor?.editor.document.uri);
-
     const workspaceService = this.workspaceService;
-    console.log(workspaceService)
-    const sketchPath = "" + workspaceService.workspace?.resource.path
+    let sketchPath = "" + workspaceService.workspace?.resource.path
+    sketchPath = sketchPath.substring(sketchPath.indexOf('/') + 1);
     console.log(sketchPath)
-
     if (sketchPath) {
-      this.compilationService.compile(selectedBoard.fqbn, board.value, "C:/Users/kevin/Documents/Arduino/Light_Project_1").then((result) => {
-        //Todo: Handle result
-        console.log(result)
-      });
+      this.compilationService.compile(selectedBoard.fqbn, board.value, sketchPath)
     }
 
     this.messageService.info('Deployment Request send.');
   }
-
 }
