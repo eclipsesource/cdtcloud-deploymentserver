@@ -32,7 +32,6 @@
     "build": "tsc",
     "watch": "tsc -w",
     "dev": "tsc -w --preserveWatchOutput",
-    "test": "jest --config configs/jest.config.ts",
     "typecheck": "tsc -noEmit"
   },
   "theiaExtensions": [
