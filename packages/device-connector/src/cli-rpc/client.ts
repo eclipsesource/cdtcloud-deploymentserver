@@ -1,5 +1,6 @@
 import * as grpc from '@grpc/grpc-js'
 import { ChannelOptions, ServiceError, StatusObject } from '@grpc/grpc-js'
+import { Status } from '@grpc/grpc-js/build/src/constants'
 import * as protoLoader from '@grpc/proto-loader'
 import { ArduinoCoreServiceClient } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/ArduinoCoreService'
 import { BoardListAllRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListAllRequest'
@@ -29,6 +30,7 @@ export class RPCClient {
   private client: ArduinoCoreServiceClient | undefined
   instance: Instance | undefined
   private devices: Device[] = []
+  private connected: boolean = false
 
   constructor (address: string = '127.0.0.1:50051') {
     this.address = address
@@ -61,7 +63,6 @@ export class RPCClient {
         }
 
         this.client = arduinoServiceClient
-        logger.info(`Connected to ${this.address} (Arduino-CLI)`)
         return resolve()
       })
     })
@@ -113,6 +114,10 @@ export class RPCClient {
     }
     const initRequest: InitRequest = { instance }
 
+    if (this.devices.length > 0) {
+      await this.removeAllDevices()
+    }
+
     return await new Promise((resolve, reject) => {
       if ((instance == null) || (this.client == null)) {
         return reject(new Error('Client not connected'))
@@ -120,7 +125,23 @@ export class RPCClient {
 
       const stream = this.client.Init(initRequest)
       stream.on('status', (status: StatusObject) => {
-        return status.code === 0 ? resolve() : reject(status)
+        switch (status.code) {
+          case Status.OK:
+            this.connected = true
+            logger.info(`Connected to ${this.address} (Arduino-CLI)`)
+            return resolve()
+          case Status.INVALID_ARGUMENT:
+            return this.createInstance().then(() => {
+              resolve(this.initInstance())
+            })
+          case Status.UNAVAILABLE:
+            if (this.connected) {
+              return setTimeout(() => resolve(this.initInstance()), 3000)
+            }
+            return reject(status)
+          default:
+            return reject(status)
+        }
       })
 
       stream.on('end', () => {
@@ -128,8 +149,7 @@ export class RPCClient {
       })
 
       stream.on('error', (err: StatusObject) => {
-        stream.destroy()
-        return reject(err)
+        logger.error(err)
       })
     })
   }
@@ -182,7 +202,14 @@ export class RPCClient {
   }
 
   async uploadBin (fqbn: string, port: Port, file: string, verify: boolean = false, dryRun: boolean = false): Promise<void> {
-    const uploadRequest: UploadRequest = { instance: this.instance, fqbn, port, import_file: file, verify, dry_run: dryRun }
+    const uploadRequest: UploadRequest = {
+      instance: this.instance,
+      fqbn,
+      port,
+      import_file: file,
+      verify,
+      dry_run: dryRun
+    }
 
     return await new Promise((resolve, reject) => {
       if (this.client == null) {
@@ -262,6 +289,10 @@ export class RPCClient {
 
     stream.on('error', (err: StatusObject) => {
       logger.error(err)
+
+      setTimeout(() => {
+        this.initInstance().finally(() => this.boardListWatch())
+      }, 3000)
     })
 
     stream.on('data', (resp: BoardListWatchResponse) => {
@@ -402,7 +433,8 @@ export class RPCClient {
     for (const device of this.devices) {
       try {
         await deleteDeviceRequest(device.id)
-      } catch {}
+      } catch {
+      }
     }
 
     this.devices = []
