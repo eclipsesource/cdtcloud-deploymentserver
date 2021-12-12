@@ -14,48 +14,46 @@ export class CompilationServiceImpl implements CompilationService {
   binaryFile: string;
   artifactUri: string;
 
-  async compile(fqbn:string, id: string, sketchPath: string): Promise<void> {
+  async compile(fqbn: string, id: string, sketchPath: string): Promise<void> {
     const client = new RPCClient()
-      await client.init()
-      await client.createInstance()
-      await client.initInstance()
+    await client.init()
+    await client.createInstance()
+    await client.initInstance()
 
-      const buildPath = await client.getBuildPath(fqbn, sketchPath)
-      console.log(buildPath)
-      const files = await readdir(buildPath)
+    const buildPath = await client.getBuildPath(fqbn, sketchPath)
+    const files = await readdir(buildPath)
 
-      files.forEach((file) => {
-          if(file.endsWith('.bin')){
-              this.binaryFile = join(buildPath, file)
-          }
+    files.forEach((file) => {
+      if (file.endsWith('.bin')) {
+        this.binaryFile = join(buildPath, file)
+      }
+    })
+
+    let form = new FormData();
+    const content = createReadStream(this.binaryFile)
+    form.append('file', content)
+    const formHeaders = form.getHeaders();
+
+    const uploadResponse =
+      await got.post<{ artifactUri: string }>(`http://localhost:3001/deployment-artifacts`, {
+        headers: {
+          ...formHeaders
+        },
+        body: form,
+        responseType: 'json'
       })
 
-      let form = new FormData();
-      const content = createReadStream(this.binaryFile)
-      form.append('file', content)
-      const formHeaders = form.getHeaders();
+    const artifactUri = uploadResponse.body.artifactUri
 
-      const uploadResponse =
-        await got.post<{artifactUri: string}>(`http://localhost:3001/deployment-artifacts`, {
-          headers: {
-            ...formHeaders
-          },
-          body: form,
-          responseType: 'json'
-        })
-
-        console.log(uploadResponse.body.artifactUri)
-
-      const artifactUri = uploadResponse.body.artifactUri
-
-      await got.post(`http://localhost:3001/deployments`, {
-        headers:{
-          "Content-Type": "application/json"
-        },
-        responseType: 'json',
-        body: JSON.stringify({
-          artifactUri,
-          deviceTypeId: id
-      })})
+    await got.post(`http://localhost:3001/deployments`, {
+      headers: {
+        "Content-Type": "application/json"
+      },
+      responseType: 'json',
+      body: JSON.stringify({
+        artifactUri,
+        deviceTypeId: id
+      })
+    })
   }
 }

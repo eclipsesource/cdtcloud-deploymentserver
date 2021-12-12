@@ -25,7 +25,6 @@ export default function deploymentArtifactsRoutes (router: Router): void {
     async (req, res, next) => {
       try {
         if (req.file == null) {
-          console.log(req.file)
           return res.sendStatus(400)
         }
 
