@@ -22,7 +22,7 @@ export class RPCClient {
   async init (): Promise<void> {
     const address = this.address
     const packageDefinition = protoLoader.loadSync(
-      join(__dirname, 'arduino-cli_proto_ts/proto/cc/arduino/cli/commands/v1/commands.proto'), {
+      join(__dirname, '../../../../grpc/proto/cc/arduino/cli/commands/v1/commands.proto'), {
         keepCase: true,
         longs: String,
         enums: String,
