@@ -17,7 +17,7 @@ export interface deploymentRequest {
 }
 
 export const downloadFile = async (uri: string, fileName: string, extension: string): Promise<string> => {
-  const file = `artifacts/${fileName}.${extension}`
+  const file = `artifacts/${fileName}${extension}`
   const outStream = createWriteStream(file)
   const resp = await request(uri)
   const downStream = Readable.from(resp.body)
