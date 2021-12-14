@@ -7,6 +7,7 @@ import 'reflect-metadata';
 import FormData from 'form-data';
 import { join } from 'path';
 import got from "got";
+import * as Path from "path";
 
 @injectable()
 export class CompilationServiceImpl implements CompilationService {
