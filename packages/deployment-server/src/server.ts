@@ -18,7 +18,7 @@ export async function createServer (): Promise<[Server, Application, PrismaClien
     const app = createApp(db)
     const server = http.createServer(app)
     ConnectorQueue.setServer(server)
-    registerDeviceStreamRoutes(server)
+    //registerDeviceStreamRoutes(server)
 
     const { HOST, PORT } = env
 
