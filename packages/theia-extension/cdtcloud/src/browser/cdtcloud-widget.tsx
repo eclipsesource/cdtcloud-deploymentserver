@@ -7,6 +7,7 @@ import { MessageService } from '@theia/core';
 import { CompilationService, DeviceTypeService } from "../common/protocol";
 import { EditorManager } from '@theia/editor/lib/browser/editor-manager';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
+import { FileUri } from "@theia/core/lib/node/file-uri";
 
 @injectable()
 export class CdtcloudWidget extends ReactWidget {
