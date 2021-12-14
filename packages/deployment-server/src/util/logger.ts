@@ -4,7 +4,8 @@ import pino, { HttpLogger } from 'pino-http'
 const devTransport = {
   target: 'pino-pretty',
   options: {
-    colorize: true
+    colorize: true,
+    translateTime: 'SYS:yyyy-mm-dd HH:MM:ss.l'
   }
 }
 
