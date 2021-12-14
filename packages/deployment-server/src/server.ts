@@ -10,7 +10,6 @@ import { QueueManager as ConnectorQueue } from './connectors/queue'
 import { Signals } from 'close-with-grace'
 import { promisify } from 'util'
 import http from 'node:http'
-import { registerDeviceStreamRoutes } from './deployments/service'
 
 export async function createServer (): Promise<[Server, Application, PrismaClient]> {
   try {
@@ -18,7 +17,7 @@ export async function createServer (): Promise<[Server, Application, PrismaClien
     const app = createApp(db)
     const server = http.createServer(app)
     ConnectorQueue.setServer(server)
-    registerDeviceStreamRoutes(server)
+    //registerDeviceStreamRoutes(server)
 
     const { HOST, PORT } = env
 
