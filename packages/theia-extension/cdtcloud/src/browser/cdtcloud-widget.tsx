@@ -92,14 +92,12 @@ export class CdtcloudWidget extends ReactWidget {
     const selectedBoard = this.deviceList.find(obj => {
       return obj.id === board.value
     })
-    const workspaceService = this.workspaceService;
-    let sketchPath = "" + workspaceService.workspace?.resource.path
-    sketchPath = sketchPath.substring(sketchPath.indexOf('/') + 1);
-    console.log(sketchPath)
-    if (sketchPath) {
-      this.compilationService.compile(selectedBoard.fqbn, board.value, sketchPath)
+    const sketchUri = this.workspaceService.workspace?.resource
+    if (sketchUri === undefined) {
+      throw new Error('No Sketch found')
     }
-
-    this.messageService.info('Deployment Request send.');
+    const sketchPath = FileUri.fsPath(sketchUri)
+    await this.compilationService.compile(selectedBoard.fqbn, board.value, sketchPath)
+    await this.messageService.info('Deployment Request sent.');
   }
 }
