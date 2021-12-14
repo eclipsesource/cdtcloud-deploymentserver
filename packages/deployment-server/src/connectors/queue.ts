@@ -14,10 +14,10 @@ export const QueueManager = {
 
   setServer (server: Server) {
     server.on('upgrade', (request, socket, head) => {
-      const match = request.url?.match(/^\/connectors\/(.+)\/queue$/)
+      const match = request.url?.match(/^\/connectors\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/queue$/)
 
       if (match == null) {
-        return socket.destroy()
+        return
       }
 
       const id = match[1]

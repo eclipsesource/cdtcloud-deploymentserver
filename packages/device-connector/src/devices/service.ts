@@ -1,5 +1,5 @@
 import { Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
-import { RPCClient } from '../cli-rpc/client'
+import { RPCClient } from '../arduino-cli/client'
 import {
   fetchAllDeviceTypes,
   fetchDeviceType,
@@ -8,6 +8,7 @@ import {
 } from '../deployment-server/service'
 import logger from '../util/logger'
 import { downloadArtifact } from './deployment'
+import { MonitorResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorResponse'
 
 export interface Device {
   id: string
@@ -88,17 +89,8 @@ export const registerNewDevice = async (fqbn: string, name: string): Promise<str
   }
 }
 
-export const getAttachedDeviceOnPort = async (portAddress: string, protocol: string = 'serial'): Promise<Device> => {
-  const device = storedDevices.find((device) => device.port.address === portAddress && device.port.protocol === protocol)
-
-  return await new Promise((resolve, reject) => {
-    if (device == null) {
-      const error = new Error(`Device on ${protocol} Port ${portAddress} not attached`)
-      return reject(error)
-    }
-
-    return resolve(device)
-  })
+export const getAttachedDeviceOnPort = async (portAddress: string, protocol: string = 'serial'): Promise<Device | undefined> => {
+  return storedDevices.find((device) => device.port.address === portAddress && device.port.protocol === protocol)
 }
 
 export const deployBinary = async (resp: any, client: RPCClient): Promise<void> => {
@@ -108,21 +100,22 @@ export const deployBinary = async (resp: any, client: RPCClient): Promise<void> 
     const fqbn = await getFQBN(data.device.deviceTypeId)
     const port = await getPortForDevice(data.device.id)
     const artifactPath = await downloadArtifact(data.artifactUri)
-    const uploaded = await client.uploadBin(fqbn, port, artifactPath)
+    await client.uploadBin(fqbn, port, artifactPath)
 
-    if (uploaded) {
-      const monitorStream = await client.monitor(port)
-      monitorStream.on('data', ({ _, error, rx_data: data }) => {
-        if (error !== '') {
-          logger.error(error)
-        }
-        process.stdout.write(data)
-      })
-
-      setTimeout(() => {
-        console.log('Closing Monitor Stream')
-        monitorStream.end()
-      }, 5000)
-    }
+    const monitorStream = await client.monitor(port)
+    monitorStream.on('data', monitorCallback)
   }
+}
+
+const monitorCallback = (monitorResponse: MonitorResponse): void => {
+  const { error, rx_data: data } = monitorResponse
+  if (error !== undefined && error !== '') {
+    logger.error(error)
+  }
+
+  if (data === undefined) {
+    return
+  }
+
+  process.stdout.write(data)
 }

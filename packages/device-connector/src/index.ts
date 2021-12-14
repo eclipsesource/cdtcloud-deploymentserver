@@ -1,24 +1,22 @@
-import { RPCClient } from './cli-rpc/client'
-import { openStream } from './deployment-server/connection'
-import { deployBinary, setDevices } from './devices/service'
+import { closeConnector, createConnector, DeviceConnector } from './deviceConnector'
+import { exit } from 'node:process'
+import closeWithGrace from 'close-with-grace'
 
-const client = await new RPCClient()
-await client.init()
-await client.createInstance()
-await client.initInstance()
+try {
+  const connector: DeviceConnector = await createConnector()
 
-const socket = await openStream()
+  const handler = closeWithGrace({ delay: 1000 }, closeConnector.bind(connector))
 
-await client.boardListWatch()
-const ourDevices = client.getDevices()
-setDevices(ourDevices)
-
-socket.onmessage = (e) => {
-  const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
-
-  deployBinary(data, client).then(() => {
-    console.log('done')
-  }).catch((e) => {
-    console.log(e)
+  // Nodemon sends SIGUSR2 when it restarts
+  process.once('SIGUSR2', () => {
+    handler.close()
   })
+
+  // Process SIGINT signal
+  process.once('SIGINT', () => {
+    handler.close()
+  })
+} catch (err) {
+  console.error(err)
+  exit(1)
 }

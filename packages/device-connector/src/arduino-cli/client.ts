@@ -1,5 +1,6 @@
-import { ServiceError, StatusObject } from '@grpc/grpc-js'
 import * as grpc from '@grpc/grpc-js'
+import { ChannelOptions, ServiceError, StatusObject } from '@grpc/grpc-js'
+import { Status } from '@grpc/grpc-js/build/src/constants'
 import * as protoLoader from '@grpc/proto-loader'
 import { ArduinoCoreServiceClient } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/ArduinoCoreService'
 import { BoardListAllRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListAllRequest'
@@ -8,6 +9,7 @@ import { BoardListItem } from 'arduino-cli_proto_ts/common/cc/arduino/cli/comman
 import { BoardListRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListRequest'
 import { BoardListResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListResponse'
 import { BoardListWatchRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchRequest'
+import { BoardListWatchResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchResponse'
 import { BurnBootloaderResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BurnBootloaderResponse'
 import { CreateResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/CreateResponse'
 import { DetectedPort } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/DetectedPort'
@@ -19,14 +21,8 @@ import { Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Por
 import { UploadRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadRequest'
 import { UploadResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadResponse'
 import { ProtoGrpcType as ArduinoProtoGrpcType } from 'arduino-cli_proto_ts/common/commands'
-import { BoardListWatchResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/BoardListWatchResponse'
 import { deleteDeviceRequest } from '../deployment-server/service'
-import {
-  Device,
-  getAttachedDeviceOnPort,
-  registerNewDevice,
-  setDevices as setStoredDevices
-} from '../devices/service'
+import { Device, getAttachedDeviceOnPort, registerNewDevice, setDevices as setStoredDevices } from '../devices/service'
 import logger from '../util/logger'
 
 export class RPCClient {
@@ -34,6 +30,7 @@ export class RPCClient {
   private client: ArduinoCoreServiceClient | undefined
   instance: Instance | undefined
   private devices: Device[] = []
+  private connected: boolean = false
 
   constructor (address: string = '127.0.0.1:50051') {
     this.address = address
@@ -48,20 +45,24 @@ export class RPCClient {
       oneofs: true
     })
 
+    const options: ChannelOptions = {
+      'grpc.keepalive_permit_without_calls': 1
+    }
+
     const deadline = new Date()
     deadline.setSeconds(deadline.getSeconds() + 5)
 
-    return await new Promise((resolve, reject) => {
+    return await new Promise((resolve) => {
       const arduinoGrpcObject = grpc.loadPackageDefinition(loadedProto) as unknown as ArduinoProtoGrpcType
 
-      const arduinoServiceClient = new arduinoGrpcObject.cc.arduino.cli.commands.v1.ArduinoCoreService(this.address, grpc.credentials.createInsecure())
+      const arduinoServiceClient = new arduinoGrpcObject.cc.arduino.cli.commands.v1.ArduinoCoreService(this.address, grpc.credentials.createInsecure(), options)
       arduinoServiceClient.waitForReady(deadline, (error: Error | undefined) => {
         if (error != null) {
-          return reject(new Error(error.message))
+          logger.error(`Arduino-CLI: ${error.message} - retrying`)
+          return resolve(this.init())
         }
 
         this.client = arduinoServiceClient
-        logger.info(`Connected to ${this.address} (Arduino-CLI)`)
         return resolve()
       })
     })
@@ -77,9 +78,11 @@ export class RPCClient {
         if (err != null) {
           return reject(new Error(err.message))
         }
-        if ((data == null) || (data.instance == null)) {
+
+        if ((data === undefined) || (data.instance == null)) {
           return reject(new Error('No Instance created'))
         }
+
         this.instance = data.instance
         return resolve()
       })
@@ -111,23 +114,46 @@ export class RPCClient {
     }
     const initRequest: InitRequest = { instance }
 
+    if (this.devices.length > 0) {
+      await this.removeAllDevices()
+    }
+
     return await new Promise((resolve, reject) => {
       if ((instance == null) || (this.client == null)) {
         return reject(new Error('Client not connected'))
       }
 
       const stream = this.client.Init(initRequest)
+      // TODO
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       stream.on('status', (status: StatusObject) => {
-        return status.code === 0 ? resolve() : reject(new Error(status.details))
+        switch (status.code) {
+          case Status.OK:
+            this.connected = true
+            logger.info(`Connected to ${this.address} (Arduino-CLI)`)
+            return resolve()
+          case Status.INVALID_ARGUMENT:
+            return this.createInstance().then(() => {
+              resolve(this.initInstance())
+            })
+          case Status.UNAVAILABLE:
+            if (this.connected) {
+              return setTimeout(() => {
+                resolve(this.initInstance())
+              }, 3000)
+            }
+            return reject(status)
+          default:
+            return reject(status)
+        }
       })
 
       stream.on('end', () => {
         stream.destroy()
       })
 
-      stream.on('error', (err: Error) => {
-        stream.destroy()
-        return reject(new Error(err.message))
+      stream.on('error', (err: StatusObject) => {
+        logger.error(err)
       })
     })
   }
@@ -179,8 +205,15 @@ export class RPCClient {
     })
   }
 
-  async uploadBin (fqbn: string, port: Port, file: string, verify: boolean = false): Promise<boolean> {
-    const uploadRequest: UploadRequest = { instance: this.instance, fqbn, port, import_file: file, verify }
+  async uploadBin (fqbn: string, port: Port, file: string, verify: boolean = false, dryRun: boolean = false): Promise<void> {
+    const uploadRequest: UploadRequest = {
+      instance: this.instance,
+      fqbn,
+      port,
+      import_file: file,
+      verify,
+      dry_run: dryRun
+    }
 
     return await new Promise((resolve, reject) => {
       if (this.client == null) {
@@ -199,11 +232,16 @@ export class RPCClient {
       })
 
       stream.on('status', (status: StatusObject) => {
-        return status.code === 0 ? resolve(true) : reject(new Error(status.details))
+        if (status.code === 0) {
+          logger.info(`Deployment finished with code ${status.code}`)
+          return resolve()
+        }
+
+        return reject(status)
       })
 
-      stream.on('error', (err: Error) => {
-        reject(new Error(err.message))
+      stream.on('error', (err: StatusObject) => {
+        reject(err)
       })
     })
   }
@@ -227,12 +265,12 @@ export class RPCClient {
         stream.destroy()
       })
 
-      stream.on('status', (status) => {
-        return status.code === 0 ? resolve(true) : reject(new Error(status.details))
+      stream.on('status', (status: StatusObject) => {
+        return status.code === 0 ? resolve(true) : reject(status)
       })
 
-      stream.on('error', (err: Error) => {
-        reject(new Error(err.message))
+      stream.on('error', (err: StatusObject) => {
+        reject(err)
       })
     })
   }
@@ -253,8 +291,17 @@ export class RPCClient {
       stream.destroy()
     })
 
-    stream.on('error', (err: Error) => {
+    stream.on('error', (err: StatusObject) => {
       logger.error(err)
+
+      setTimeout(() => {
+        this.initInstance().finally(() => {
+          this.boardListWatch().catch(() => {
+            // Should never happen
+            logger.error('Watch devices finally failed')
+          })
+        })
+      }, 3000)
     })
 
     stream.on('data', (resp: BoardListWatchResponse) => {
@@ -272,38 +319,23 @@ export class RPCClient {
 
       const eventType = data.event_type
       const detectedPort = data.port
-      const port = detectedPort?.port
-      if (port == null) {
-        logger.error('Port not defined')
-        return
-      }
 
       if (eventType === 'add' && detectedPort?.matching_boards != null && detectedPort.matching_boards.length > 0) {
-        const board = detectedPort.matching_boards[0]
-        if (board.fqbn == null) {
-          logger.error('Could not register device: No fqbn found')
+        await this.addDevice(detectedPort)
+      } else if (eventType === 'remove') {
+        const port = detectedPort?.port
+        if (port == null) {
+          logger.warn('Port not defined')
           return
         }
 
-        const id = await registerNewDevice(board.fqbn, board.name ?? 'Unknown Device Name')
-
-        const device: Device = {
-          id,
-          name: board.name ?? 'Unknown Device Name',
-          fqbn: board.fqbn,
-          port: port
-        }
-
-        this.devices.push(device)
-        logger.info(`Device attached: ${device.name}`)
-      } else if (eventType === 'remove') {
         if (port.address == null || port.address === '') {
           logger.warn('Removed device could not be unregistered: Unknown port')
           return
         }
 
         const removed = await getAttachedDeviceOnPort(port.address, port.protocol ?? 'serial')
-        if (removed == null) {
+        if (removed === undefined) {
           return
         }
 
@@ -320,13 +352,23 @@ export class RPCClient {
         return reject(new Error('Client not initialized'))
       }
 
-      const stream = this.client.monitor()
+      const deadline = new Date()
+      deadline.setSeconds(deadline.getSeconds() + 10)
+      const stream = this.client.monitor({ deadline })
+      stream.once('readable', () => {
+        logger.info('Monitoring output')
+      })
+
       stream.on('end', () => {
+        logger.info('Closing monitoring')
         stream.destroy()
       })
 
-      stream.on('error', (err: Error) => {
-        logger.error(err)
+      stream.on('error', (err: StatusObject) => {
+        if (err.code !== 4) {
+          logger.error(err)
+        }
+        stream.end()
       })
 
       stream.write(monitorRequest, (err: Error | null | undefined) => {
@@ -338,20 +380,78 @@ export class RPCClient {
     })
   }
 
+  private async addDevice (detectedPort: DetectedPort): Promise<void> {
+    if (detectedPort.port == null) {
+      logger.warn('Port not defined')
+      return
+    }
+
+    if (detectedPort?.matching_boards === undefined || detectedPort.matching_boards.length === 0) {
+      return
+    }
+
+    const board = detectedPort.matching_boards[0]
+    if (board.fqbn == null) {
+      logger.warn('Could not register device: No fqbn found')
+      return
+    }
+
+    const existingDevice = this.devices.find((device) => device.port === detectedPort.port)
+
+    if (existingDevice !== undefined) {
+      if (existingDevice.fqbn === board.fqbn) {
+        return
+      }
+
+      await this.removeDevice(existingDevice)
+    }
+
+    const id = await registerNewDevice(board.fqbn, board.name ?? 'Unknown Device Name')
+
+    const device: Device = {
+      id,
+      name: board.name ?? 'Unknown Device Name',
+      fqbn: board.fqbn,
+      port: detectedPort.port
+    }
+
+    this.devices.push(device)
+    logger.info(`Device attached: ${device.name}`)
+  }
+
+  async initializeDevices (): Promise<void> {
+    const boards = await this.listBoards()
+    for (const detectedPort of boards) {
+      await this.addDevice(detectedPort)
+    }
+  }
+
   getDevices (): Device[] {
     return this.devices
   }
 
-  setDevices (devices: Device[]): void {
-    this.devices = devices
-  }
-
   async removeDevice (device: Device): Promise<void> {
-    const newDeviceList = this.devices.filter((deviceItem) => deviceItem !== device)
-    this.setDevices(newDeviceList)
+    this.devices = this.devices.filter((deviceItem) => deviceItem !== device)
     setStoredDevices(this.devices)
 
     logger.info(`Device removed: ${device.name}`)
     await deleteDeviceRequest(device.id)
+  }
+
+  async removeAllDevices (): Promise<void> {
+    for (const device of this.devices) {
+      try {
+        await deleteDeviceRequest(device.id)
+      } catch {
+        logger.warn(`Failed to deregister device with id ${device.id}`)
+      }
+    }
+
+    this.devices = []
+    setStoredDevices(this.devices)
+  }
+
+  closeClient (): void {
+    this.client?.close()
   }
 }
