@@ -5,6 +5,8 @@ import { Readable } from 'stream'
 import { request } from 'undici'
 import { Device } from './service'
 import { promisify } from 'util'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
 
 export interface deploymentData {
   device: Device
@@ -17,12 +19,18 @@ export interface deploymentRequest {
 }
 
 export const downloadFile = async (uri: string, fileName: string, extension: string): Promise<string> => {
-  const file = `artifacts/${fileName}${extension}`
+  // const file = `artifacts/${fileName}${extension}`
+  const file = Path.join(dirname(fileURLToPath(import.meta.url)), '../../artifacts', `${fileName}${extension}`)
   const outStream = createWriteStream(file)
-  const resp = await request(uri)
+  const url = new URL(uri)
+  const resp = await request(url)
   const downStream = Readable.from(resp.body)
 
   downStream.pipe(outStream)
+
+  downStream.on('data', (data) => {
+    console.log(data.toString())
+  })
 
   await promisify<'close'>(outStream.on).bind(outStream)('close')
 

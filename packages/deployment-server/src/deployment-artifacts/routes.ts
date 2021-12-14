@@ -6,8 +6,9 @@ import { pipeline } from 'stream/promises'
 import { validate } from '../util/validate'
 import multer from 'multer'
 import { extname, join } from 'path'
+import { fileURLToPath } from 'url'
 
-const destination = 'uploads/'
+const destination = join(fileURLToPath(import.meta.url), '../../../uploads')
 
 export default function deploymentArtifactsRoutes (router: Router): void {
   const upload = multer({
