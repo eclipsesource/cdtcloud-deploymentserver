@@ -21,14 +21,42 @@ export class CompilationServiceImpl implements CompilationService {
     await client.createInstance()
     await client.initInstance()
 
+    // Method to determine required extension
+    const getRequiredExtension = async (fqbn: string): Promise<string> => {
+      if (fqbn.startsWith('arduino')) {
+        const segments = fqbn.split(':')
+        switch (segments[1]) {
+          case 'avr':
+            return '.hex'
+          case 'sam':
+            return '.bin'
+          case 'mbed_edge':
+          case 'mbed_nano':
+          case 'mbed_nicla':
+          case 'mbed_portenta':
+          case 'mbed_rp2040':
+          case 'megaavr':
+          case 'nrf52':
+          case 'samd':
+          case 'mbed':
+            throw new Error('No extension specified')
+          default:
+            throw new Error('Unknown arduino board core')
+        }
+      }
+      throw new Error('Unknown device')
+    }
+
     const buildPath = await client.getBuildPath(fqbn, sketchPath)
     const files = await readdir(buildPath)
+    const ext = await getRequiredExtension(fqbn)
 
     files.forEach((file) => {
-      if (file.endsWith('.bin')) {
+      if (Path.extname(file) === ext && !file.endsWith(`with_bootloader${ext}`)) {
         this.binaryFile = join(buildPath, file)
       }
     })
+
 
     let form = new FormData();
     const content = createReadStream(this.binaryFile)
