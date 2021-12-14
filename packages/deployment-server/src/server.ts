@@ -10,15 +10,21 @@ import { QueueManager as ConnectorQueue } from './connectors/queue'
 import { Signals } from 'close-with-grace'
 import { promisify } from 'util'
 import http from 'node:http'
-import { registerDeviceStreamRoutes } from './deployments/service'
+import * as DeploymentStream from './deployments/service'
 
 export async function createServer (): Promise<[Server, Application, PrismaClient]> {
   try {
     const db = await connect()
     const app = createApp(db)
     const server = http.createServer(app)
-    ConnectorQueue.setServer(server)
-    registerDeviceStreamRoutes(server)
+    ConnectorQueue.registerConnectorQueueRoutes(server)
+    DeploymentStream.registerDeviceStreamRoutes(server)
+
+    server.on('upgrade', (request, socket, _head) => {
+      if (!ConnectorQueue.handles(request.url) && !DeploymentStream.handles(request.url)) {
+        return socket.destroy()
+      }
+    })
 
     const { HOST, PORT } = env
 
