@@ -57,7 +57,7 @@ export class RPCClient {
 
       const arduinoServiceClient = new arduinoGrpcObject.cc.arduino.cli.commands.v1.ArduinoCoreService(this.address, grpc.credentials.createInsecure(), options)
       arduinoServiceClient.waitForReady(deadline, (error: Error | undefined) => {
-        if (error !== undefined) {
+        if (error != null) {
           logger.error(`Arduino-CLI: ${error.message} - retrying`)
           return resolve(this.init())
         }
@@ -297,6 +297,8 @@ export class RPCClient {
       setTimeout(() => {
         this.initInstance().finally(() => {
           this.boardListWatch().catch(() => {
+            // Should never happen
+            logger.error('Watch devices finally failed')
           })
         })
       }, 3000)
@@ -327,7 +329,7 @@ export class RPCClient {
           return
         }
 
-        if (port.address === undefined || port.address === '') {
+        if (port.address == null || port.address === '') {
           logger.warn('Removed device could not be unregistered: Unknown port')
           return
         }
@@ -441,6 +443,7 @@ export class RPCClient {
       try {
         await deleteDeviceRequest(device.id)
       } catch {
+        logger.warn(`Failed to deregister device with id ${device.id}`)
       }
     }
 
