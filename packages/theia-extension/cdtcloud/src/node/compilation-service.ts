@@ -14,7 +14,7 @@ export class CompilationServiceImpl implements CompilationService {
 
   binaryFile: string;
   artifactUri: string;
-
+  
   async compile(fqbn: string, id: string, sketchPath: string): Promise<void> {
     const client = new RPCClient()
     await client.init()
