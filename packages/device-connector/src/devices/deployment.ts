@@ -19,7 +19,6 @@ export interface deploymentRequest {
 }
 
 export const downloadFile = async (uri: string, fileName: string, extension: string): Promise<string> => {
-  // const file = `artifacts/${fileName}${extension}`
   const file = Path.join(dirname(fileURLToPath(import.meta.url)), '../../artifacts', `${fileName}${extension}`)
   const outStream = createWriteStream(file)
   const url = new URL(uri)
