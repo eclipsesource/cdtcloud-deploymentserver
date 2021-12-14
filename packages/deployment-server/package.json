@@ -17,11 +17,14 @@
   },
   "tap": {
     "node-arg": [
+      "--no-warnings",
       "--loader=esbuild-node-loader"
     ],
     "no-check-coverage": true,
     "test-env": [
-      "NODE_ENV=test"
+      "NODE_ENV=test",
+      "DATABASE_URL=postgresql://postgres:dev@0.0.0.0:5432/deploymentdb?schema=public",
+      "HOST=localhost"
     ],
     "files": [
       "test/**/*.spec.ts"
