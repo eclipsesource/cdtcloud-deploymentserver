@@ -25,8 +25,8 @@ model DeviceType {
 model Device {
   id             String          @unique @default(uuid()) @db.Uuid
   status         DeviceStatus    @default(UNAVAILABLE)
-  connector      Connector       @relation(fields: [connectorId], references: [id])
-  type           DeviceType      @relation(fields: [deviceTypeId], references: [id])
+  connector      Connector       @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+  type           DeviceType      @relation(fields: [deviceTypeId], references: [id], onDelete: Cascade)
   deployRequests DeployRequest[]
   connectorId    String          @db.Uuid
   deviceTypeId   String          @db.Uuid
@@ -41,7 +41,7 @@ enum DeviceStatus {
 
 model DeployRequest {
   id          String       @unique @default(uuid()) @db.Uuid
-  device      Device       @relation(fields: [deviceId], references: [id])
+  device      Device       @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   status      DeployStatus @default(PENDING)
   artifactUrl String?
   deviceId    String       @db.Uuid
