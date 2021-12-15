@@ -11,10 +11,15 @@ type ConnectorId = string
 
 export const QueueManager = {
   queueMap: new Map<ConnectorId, WSServer>(),
+  test: /^\/connectors\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/queue$/,
 
-  setServer (server: Server) {
+  handles (url?: string): boolean {
+    return ((url?.match(this.test)) != null)
+  },
+
+  registerConnectorQueueRoutes (server: Server) {
     server.on('upgrade', (request, socket, head) => {
-      const match = request.url?.match(/^\/connectors\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/queue$/)
+      const match = request.url?.match(this.test)
 
       if (match == null) {
         return
