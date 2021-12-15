@@ -5,10 +5,11 @@ import { createReadStream } from 'fs'
 import { pipeline } from 'stream/promises'
 import { validate } from '../util/validate'
 import multer from 'multer'
-import { CreateArtifactResponseBody } from '.'
 import { extname, join } from 'path'
+import { fileURLToPath } from 'url'
+import { CreateArtifactResponseBody } from '.'
 
-const destination = 'uploads/'
+const destination = join(fileURLToPath(import.meta.url), '../../../uploads')
 const TWENTY_FIVE_MEGABYTES = 26_214_400
 
 export default function deploymentArtifactsRoutes (router: Router): void {

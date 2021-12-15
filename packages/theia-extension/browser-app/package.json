@@ -18,12 +18,13 @@
     "react-select": "^5.2.1"
   },
   "devDependencies": {
-    "@theia/cli": "latest"
+    "@theia/cli": "^1.20.0"
   },
   "scripts": {
     "prepare": "theia build --mode development",
     "start": "theia start",
-    "watch": "theia build --watch --mode development"
+    "watch": "theia build --watch --mode development",
+    "dev": "theia build --watch --mode development"
   },
   "theia": {
     "target": "browser"

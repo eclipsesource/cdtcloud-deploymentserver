@@ -6,15 +6,27 @@
   "license": "EPL-2.0",
   "private": true,
   "workspaces": [
-    "packages/*",
-    "packages/theia-extension/*"
+    "packages/deployment-server",
+    "packages/device-connector",
+    "packages/theia-extension/browser-app",
+    "packages/theia-extension/electron-app",
+    "packages/theia-extension/cdtcloud",
+    "packages/grpc"
   ],
   "scripts": {
     "test": "lerna run --parallel test",
     "typecheck": "lerna run --parallel typecheck",
-    "lint": "lerna run --parallel lint"
+    "lint": "lerna run --parallel lint",
+    "dev": "concurrently \"lerna run --parallel dev\" \"yarn start:browser\" \"yarn --cwd packages/deployment-server tsc -w --preserveWatchOutput\"",
+    "prepare": "lerna run prepare",
+    "rebuild:browser": "yarn theia rebuild:browser",
+    "rebuild:electron": "yarn theia rebuild:electron",
+    "start:browser": "yarn rebuild:browser && yarn --cwd=packages/theia-extension/browser-app start",
+    "start:electron": "yarn --cwd=packages/theia-extension/electron-app rebuild && yarn --cwd=packages/theia-extension/electron-app start"
   },
   "dependencies": {
+    "@theia/cli": "^1.20.0",
+    "concurrently": "^6.4.0",
     "lerna": "^4.0.0"
   }
 }
