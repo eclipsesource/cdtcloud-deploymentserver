@@ -3,6 +3,7 @@ import WebSocket, { CloseEvent, ErrorEvent } from 'ws'
 import fs, { createReadStream, createWriteStream } from 'fs'
 import { fetch } from 'undici'
 import logger from '../util/logger'
+import { setTimeout } from 'timers/promises'
 
 export interface ConnectorData {
   id: string
@@ -94,7 +95,8 @@ export const openStream = async (): Promise<WebSocket> => {
   }
 
   socket.onclose = async (event: CloseEvent) => {
-    logger.warn(`Unable to connect to Deployment-Server (Code: ${event.code}) - Reconnecting`)
+    logger.error(`Connection to Deployment-Server failed (Code: ${event.code}) - Trying to reconnect`)
+    await setTimeout(3000)
     return await openStream()
   }
 
