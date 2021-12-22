@@ -11,8 +11,8 @@
     "dev": "nodemon -x node --loader esbuild-node-loader  -r dotenv/config src/index.ts",
     "start": "yarn nts src/index.ts",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "test": "tap",
-    "test:dev": "tap -w --no-coverage-report",
+    "test": "c8 tap",
+    "test:dev": "tap -w",
     "typecheck": "tsc -noEmit"
   },
   "tap": {
@@ -20,7 +20,7 @@
       "--no-warnings",
       "--loader=esbuild-node-loader"
     ],
-    "no-check-coverage": true,
+    "no-coverage-report": true,
     "test-env": [
       "NODE_ENV=test",
       "DATABASE_URL=postgresql://postgres:dev@0.0.0.0:5432/deploymentdb?schema=public",
@@ -58,6 +58,7 @@
     "@types/ws": "^8.2.0",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
+    "c8": "^7.10.0",
     "dotenv": "^10.0.0",
     "eslint": "^8.2.0",
     "eslint-config-standard": "^16.0.3",
