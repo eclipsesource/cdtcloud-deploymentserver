@@ -3,12 +3,17 @@ import prisma, { DeployRequest, Device, PrismaClient } from '@prisma/client'
 import type { Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import tap from 'tap'
+import { getLeastLoadedDevice } from '../src/devices/service'
 import { closeServer, createServer } from '../src/server'
-import { createConnector, createDevice, createDeviceType } from './util/factory'
+import {
+  createConnector,
+  createDevice,
+  createDeviceType
+} from './util/factory'
 import { fetch } from './util/fetch'
 
 const { before, teardown, test } = tap
-const { DeviceStatus } = prisma
+const { DeviceStatus, DeployStatus } = prisma
 
 let baseUrl: string
 let address: AddressInfo
@@ -65,7 +70,7 @@ test('Can be retrieved', async (t) => {
 
   t.ok(response.ok, 'Response is ok')
 
-  const responseBody = await response.json() as Device[]
+  const responseBody = (await response.json()) as Device[]
 
   const deviceMatch = responseBody.find((d) => d.id === device.id)
 
@@ -145,4 +150,147 @@ test('Removes related deployments', async (t) => {
   })
 
   t.notOk(deployment)
+})
+
+test('Selects the device with the least amount of (relevant) deployments', async (t) => {
+  const type = await createDeviceType(db)
+
+  // Create a few devices
+  const devices = await Promise.all([
+    createDevice(db, {
+      type: { connect: { id: type.id } },
+      connector: { create: {} },
+      status: DeviceStatus.RUNNING
+    }),
+    createDevice(db, {
+      type: { connect: { id: type.id } },
+      connector: { create: {} },
+      status: DeviceStatus.RUNNING
+    }),
+    createDevice(db, {
+      type: { connect: { id: type.id } },
+      connector: { create: {} },
+      status: DeviceStatus.RUNNING
+    }),
+    createDevice(db, {
+      type: { connect: { id: type.id } },
+      connector: { create: {} },
+      status: DeviceStatus.RUNNING
+    }),
+    createDevice(db, {
+      type: { connect: { id: type.id } },
+      connector: { create: {} },
+      status: DeviceStatus.RUNNING
+    })
+  ])
+
+  await Promise.all(
+    devices.map((device) => {
+      return db.deployRequest.create({
+        data: {
+          artifactUrl: 'https://example.com/artifact.zip',
+          device: {
+            connect: {
+              id: device.id
+            }
+          },
+          status: DeployStatus.PENDING
+        }
+      })
+    })
+  )
+
+  await db.deployRequest.create({
+    data: {
+      artifactUrl: 'https://example.com/artifact.zip',
+      device: {
+        connect: {
+          id: devices[0].id
+        }
+      },
+      status: DeployStatus.PENDING
+    }
+  })
+
+  await db.deployRequest.create({
+    data: {
+      artifactUrl: 'https://example.com/artifact.zip',
+      device: {
+        connect: {
+          id: devices[2].id
+        }
+      },
+      status: DeployStatus.PENDING
+    }
+  })
+
+  await db.deployRequest.create({
+    data: {
+      artifactUrl: 'https://example.com/artifact.zip',
+      device: {
+        connect: {
+          id: devices[2].id
+        }
+      },
+      status: DeployStatus.PENDING
+    }
+  })
+
+  // unavailable Device without requests should not be selected
+  await createDevice(db, {
+    type: { connect: { id: type.id } },
+    connector: { create: {} },
+    status: DeviceStatus.UNAVAILABLE
+  })
+
+  const match = await createDevice(db, {
+    type: { connect: { id: type.id } },
+    connector: { create: {} },
+    status: DeviceStatus.DEPLOYING
+  })
+
+  const reqs: Array<Promise<DeployRequest>> = []
+
+  for (let i = 0; i < 5; i++) {
+    const base = {
+      artifactUrl: 'https://example.com/artifact.zip',
+      device: {
+        connect: {
+          id: match.id
+        }
+      }
+    }
+
+    reqs.push(
+      db.deployRequest.create({
+        data: {
+          ...base,
+          status: DeployStatus.SUCCESS
+        }
+      })
+    )
+
+    reqs.push(
+      db.deployRequest.create({
+        data: {
+          ...base,
+          status: DeployStatus.FAILED
+        }
+      })
+    )
+
+    reqs.push(
+      db.deployRequest.create({
+        data: {
+          ...base,
+          status: DeployStatus.TERMINATED
+        }
+      })
+    )
+  }
+  await Promise.all(reqs)
+
+  const selectedDevice = await getLeastLoadedDevice(type.id)
+
+  t.match(selectedDevice, match)
 })
