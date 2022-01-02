@@ -1,4 +1,4 @@
-export enum grpcStatus {
+export enum GrpcStatus {
   ok = 'Ok',
   notInitialized = 'Client not initialized',
   unknown = 'Unknown'

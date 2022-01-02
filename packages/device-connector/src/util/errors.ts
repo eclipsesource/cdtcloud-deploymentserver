@@ -1,9 +1,9 @@
 import { StatusObject } from '@grpc/grpc-js'
-import { grpcStatus } from './common'
+import { GrpcStatus } from './common'
 
-export const grpcError = {
-  notInitialized: new Error(grpcStatus.notInitialized),
-  unknown: new Error(grpcStatus.unknown)
+export const GrpcError = {
+  notInitialized: new Error(GrpcStatus.notInitialized),
+  unknown: new Error(GrpcStatus.unknown)
 }
 
 export const grpcStatusToError = (status: StatusObject): string => {
