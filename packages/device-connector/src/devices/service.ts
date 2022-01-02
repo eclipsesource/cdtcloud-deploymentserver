@@ -129,7 +129,7 @@ export const registerNewDevice = async (fqbn: FQBN, name: string): Promise<Devic
   }
 }
 
-export const deregisterDevice = async (id: string) => {
+export const deregisterDevice = async (id: string): Promise<void> => {
   logger.info(`Deregistering Device with id ${id}`)
   await deleteDeviceRequest(id)
 }
@@ -155,6 +155,6 @@ export const getStoredDevice = async (id: string): Promise<Device | undefined> =
   return storedDevices.find((devI) => devI.id === id)
 }
 
-export const findAvailableByType = async (typeId: string) => {
+export const findAvailableByType = async (typeId: string): Promise<Device | undefined> => {
   return storedDevices.find((device) => device.deviceTypeId === typeId && device.status === DeviceStatus.AVAILABLE)
 }
