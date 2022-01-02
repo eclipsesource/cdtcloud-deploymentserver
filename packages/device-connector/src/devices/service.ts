@@ -1,10 +1,12 @@
 import { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
 import {
+  deleteDeviceRequest,
   DeviceResponse,
   fetchAllDeviceTypes,
   fetchDeviceType,
   sendNewDeviceRequest,
-  sendNewDeviceTypeRequest, setDeviceRequest
+  sendNewDeviceTypeRequest,
+  setDeviceRequest
 } from '../deployment-server/service'
 import logger from '../util/logger'
 import { DeviceStatus } from '../util/common'
@@ -26,40 +28,78 @@ export interface DeviceType {
 }
 
 let storedDevices: Device[] = []
+let deviceTypes: DeviceType[] = []
 
-export const getFQBN = async (typeId: string): Promise<FQBN> => {
-  const deviceType = await fetchDeviceType(typeId)
-
-  return deviceType.fqbn
-}
-
-export const getDeviceTypeId = async (fqbn: string, name: string): Promise<string> => {
-  let allDeviceTypes: DeviceType[]
+export const updateDeviceTypes = async (): Promise<void> => {
   try {
-    allDeviceTypes = await fetchAllDeviceTypes()
+    deviceTypes = await fetchAllDeviceTypes()
   } catch (e) {
     console.log(e)
     throw e
   }
+}
 
-  let deviceId: string
-  const deviceType = allDeviceTypes.find((device) => device.fqbn === fqbn)
+export const getFQBN = async (typeId: string): Promise<FQBN> => {
+  let deviceType = await getStoredDeviceTypeById(typeId)
+
+  if (deviceType == null) {
+    deviceType = await fetchDeviceType(typeId)
+    deviceTypes.push(deviceType)
+  }
+
+  return deviceType.fqbn
+}
+
+export const getDeviceTypeId = async (fqbn: FQBN, name: string): Promise<string> => {
+  let deviceType = await getStoredDeviceTypeByFQBN(fqbn)
+
+  if (deviceType == null) {
+    deviceType = await getRemoteDeviceType(fqbn, name)
+  }
+
+  return deviceType.id
+}
+
+export const getStoredDeviceTypeByFQBN = async (fqbn: FQBN): Promise<DeviceType | undefined> => {
+  return deviceTypes.find((deviceType) => deviceType.fqbn === fqbn)
+}
+
+export const getStoredDeviceTypeById = async (typeId: string): Promise<DeviceType | undefined> => {
+  return deviceTypes.find((deviceType) => deviceType.id === typeId)
+}
+
+export const mapDeviceToType = async (device: Device): Promise<DeviceType> => {
+  const typeId = device.deviceTypeId
+  let deviceType = deviceTypes.find((devI) => devI.id === typeId)
+
+  if (deviceType == null) {
+    deviceType = await fetchDeviceType(typeId)
+    deviceTypes.push(deviceType)
+  }
+
+  return deviceType
+}
+
+export const getRemoteDeviceType = async (fqbn: FQBN, name: string): Promise<DeviceType> => {
+  await updateDeviceTypes()
+  let deviceType = await getStoredDeviceTypeByFQBN(fqbn)
 
   if (deviceType == null) {
     logger.warn(`DeviceType with fqbn ${fqbn} not found.`)
-    try {
-      logger.info(`Trying to register new DeviceType ${name} with fqbn ${fqbn}`)
-      const resp = await sendNewDeviceTypeRequest(fqbn, name)
-      deviceId = resp.id
-    } catch (e) {
-      console.log(e)
-      throw e
-    }
-  } else {
-    deviceId = deviceType.id
+    deviceType = await registerNewDeviceType(fqbn, name)
   }
 
-  return deviceId
+  return deviceType
+}
+
+export const registerNewDeviceType = async (fqbn: FQBN, name: string): Promise<DeviceType> => {
+  try {
+    logger.info(`Trying to register new DeviceType ${name} with fqbn ${fqbn}`)
+    return await sendNewDeviceTypeRequest(fqbn, name)
+  } catch (e) {
+    console.log(e)
+    throw e
+  }
 }
 
 export const getPortForDevice = async (deviceId: string): Promise<Port> => {
@@ -89,6 +129,11 @@ export const registerNewDevice = async (fqbn: FQBN, name: string): Promise<Devic
   }
 }
 
+export const deregisterDevice = async (id: string) => {
+  logger.info(`Deregistering Device with id ${id}`)
+  await deleteDeviceRequest(id)
+}
+
 export const updateDeviceStatus = async (device: Device, status: DeviceStatus): Promise<void> => {
   const id = device.id
   const typeId = device.deviceTypeId
@@ -108,4 +153,8 @@ export const getAttachedDeviceOnPort = async (portAddress: string, protocol: str
 
 export const getStoredDevice = async (id: string): Promise<Device | undefined> => {
   return storedDevices.find((devI) => devI.id === id)
+}
+
+export const findAvailableByType = async (typeId: string) => {
+  return storedDevices.find((device) => device.deviceTypeId === typeId && device.status === DeviceStatus.AVAILABLE)
 }
