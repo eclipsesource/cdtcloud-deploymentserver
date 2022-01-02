@@ -3,19 +3,14 @@ import { createWriteStream } from 'fs'
 import * as Path from 'path'
 import { Readable } from 'stream'
 import { request } from 'undici'
-import { Device } from './service'
 import { promisify } from 'util'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
+import { DeviceResponse } from '../deployment-server/service'
 
-export interface deploymentData {
-  device: Device
+export interface DeploymentData {
+  device: DeviceResponse
   artifactUri: string
-}
-
-export interface deploymentRequest {
-  type: 'deploy'
-  data: deploymentData
 }
 
 export const downloadFile = async (uri: string, fileName: string, extension: string): Promise<string> => {

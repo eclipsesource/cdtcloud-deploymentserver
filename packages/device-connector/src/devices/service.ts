@@ -1,6 +1,7 @@
 import { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
 import { RPCClient } from '../arduino-cli/client'
 import {
+  DeviceResponse,
   fetchAllDeviceTypes,
   fetchDeviceType,
   sendNewDeviceRequest,
@@ -9,23 +10,26 @@ import {
 import logger from '../util/logger'
 import { downloadArtifact } from './deployment'
 import { MonitorResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorResponse'
+import { DeviceStatus } from '../util/common'
+
+export type FQBN = string
 
 export interface Device {
   id: string
-  name: string
-  fqbn: string
+  status: keyof typeof DeviceStatus
+  deviceTypeId: string
   port: Port
 }
 
-interface DeviceType {
+export interface DeviceType {
   id: string
   name: string
-  fqbn: string
+  fqbn: FQBN
 }
 
 let storedDevices: Device[] = []
 
-export const getFQBN = async (typeId: string): Promise<string> => {
+export const getFQBN = async (typeId: string): Promise<FQBN> => {
   const deviceType = await fetchDeviceType(typeId)
 
   return deviceType.fqbn
@@ -76,13 +80,11 @@ export const setDevices = (devices: Device[]): void => {
   storedDevices = devices
 }
 
-export const registerNewDevice = async (fqbn: string, name: string): Promise<string> => {
+export const registerNewDevice = async (fqbn: FQBN, name: string): Promise<DeviceResponse> => {
   const typeId = await getDeviceTypeId(fqbn, name)
 
   try {
-    const resp = await sendNewDeviceRequest(typeId)
-
-    return resp.id
+    return await sendNewDeviceRequest(typeId)
   } catch (e) {
     console.log(e)
     throw e
