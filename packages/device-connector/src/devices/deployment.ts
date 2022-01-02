@@ -4,12 +4,13 @@ import * as Path from 'path'
 import { dirname } from 'path'
 import { Readable } from 'stream'
 import { request } from 'undici'
-import { Device, getFQBN, getStoredDevice, updateDeviceStatus } from './service'
+import { deregisterDevice, Device, findAvailableByType, getFQBN, getStoredDevice, updateDeviceStatus } from './service'
 import { promisify } from 'util'
 import { fileURLToPath } from 'url'
 import { RPCClient } from '../arduino-cli/client'
 import { DeviceResponse } from '../deployment-server/service'
 import { DeviceStatus } from '../util/common'
+import logger from '../util/logger'
 
 export interface DeploymentData {
   device: DeviceResponse
@@ -44,7 +45,16 @@ export const deployBinary = async (deployData: DeploymentData, client: RPCClient
   let device = await getStoredDevice(reqDevice.id)
 
   if (device == null) {
-    throw new Error('Device not found')
+    await deregisterDevice(reqDevice.id)
+  }
+
+  if (device == null || device.status !== DeviceStatus.AVAILABLE) {
+    device = await findAvailableByType(reqDevice.deviceTypeId)
+    if (device != null) {
+      logger.warn(`Requested Device with id ${reqDevice.id} busy or not found - using alternative device`)
+    } else {
+      throw new Error(`Requested Device with id ${reqDevice.id} busy or not found`)
+    }
   }
 
   const fqbn = await getFQBN(device.deviceTypeId)
