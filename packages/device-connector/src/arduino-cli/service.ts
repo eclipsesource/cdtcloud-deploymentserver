@@ -12,7 +12,7 @@ export const connectCli = async (): Promise<RPCClient> => {
 
 export const registerDevices = async (client: RPCClient): Promise<void> => {
   await client.boardListWatch()
-  const devices = client.getDevices()
+  const devices = client.devices
 
   setDevices(devices)
 }

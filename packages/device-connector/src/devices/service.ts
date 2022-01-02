@@ -1,4 +1,4 @@
-import { Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
+import { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
 import { RPCClient } from '../arduino-cli/client'
 import {
   fetchAllDeviceTypes,
