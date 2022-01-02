@@ -3,9 +3,11 @@ import { createWriteStream } from 'fs'
 import * as Path from 'path'
 import { Readable } from 'stream'
 import { request } from 'undici'
+import { Device, getFQBN, getStoredDevice } from './service'
 import { promisify } from 'util'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
+import { RPCClient } from '../arduino-cli/client'
 import { DeviceResponse } from '../deployment-server/service'
 
 export interface DeploymentData {
@@ -37,4 +39,23 @@ export const downloadArtifact = async (uri: string): Promise<string> => {
   const file = await downloadFile(uri, uid, extension)
 
   return Path.resolve(file)
+}
+
+export const deployBinary = async (deployData: DeploymentData, client: RPCClient): Promise<Device> => {
+  const artifactUri = deployData.artifactUri
+  const reqDevice = deployData.device as Device
+
+  let device = await getStoredDevice(reqDevice.id)
+
+  if (device == null) {
+    throw new Error('Device not found')
+  }
+
+  const fqbn = await getFQBN(device.deviceTypeId)
+  const artifactPath = await downloadArtifact(artifactUri)
+
+  // Start uploading artifact
+  await client.uploadBin(fqbn, device.port, artifactPath)
+
+  return device
 }

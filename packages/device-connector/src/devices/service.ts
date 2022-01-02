@@ -1,5 +1,4 @@
 import { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
-import { RPCClient } from '../arduino-cli/client'
 import {
   DeviceResponse,
   fetchAllDeviceTypes,
@@ -8,8 +7,6 @@ import {
   sendNewDeviceTypeRequest
 } from '../deployment-server/service'
 import logger from '../util/logger'
-import { downloadArtifact } from './deployment'
-import { MonitorResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorResponse'
 import { DeviceStatus } from '../util/common'
 
 export type FQBN = string
@@ -93,31 +90,4 @@ export const registerNewDevice = async (fqbn: FQBN, name: string): Promise<Devic
 
 export const getAttachedDeviceOnPort = async (portAddress: string, protocol: string = 'serial'): Promise<Device | undefined> => {
   return storedDevices.find((device) => device.port.address === portAddress && device.port.protocol === protocol)
-}
-
-export const deployBinary = async (resp: any, client: RPCClient): Promise<void> => {
-  const type = resp.type
-  const data = resp.data
-  if (type === 'deploy') {
-    const fqbn = await getFQBN(data.device.deviceTypeId)
-    const port = await getPortForDevice(data.device.id)
-    const artifactPath = await downloadArtifact(data.artifactUri)
-    await client.uploadBin(fqbn, port, artifactPath)
-
-    const monitorStream = await client.monitor(port)
-    monitorStream.on('data', monitorCallback)
-  }
-}
-
-const monitorCallback = (monitorResponse: MonitorResponse): void => {
-  const { error, rx_data: data } = monitorResponse
-  if (error !== undefined && error !== '') {
-    logger.error(error)
-  }
-
-  if (data === undefined) {
-    return
-  }
-
-  process.stdout.write(data)
 }
