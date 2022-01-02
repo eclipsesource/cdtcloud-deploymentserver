@@ -1,4 +1,4 @@
-import type { Connector, Device } from '@prisma/client'
+import type { Connector, DeployRequest, Device } from '@prisma/client'
 import WebSocket, { WebSocketServer } from 'ws'
 import type { AddressInfo, Server as WSServer } from 'ws'
 import type { Server } from 'node:http'
@@ -14,7 +14,7 @@ export const QueueManager = {
   test: /^\/connectors\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/queue$/,
 
   handles (url?: string): boolean {
-    return ((url?.match(this.test)) != null)
+    return url?.match(this.test) != null
   },
 
   registerConnectorQueueRoutes (server: Server) {
@@ -35,9 +35,14 @@ export const QueueManager = {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const matchedServer = this.queueMap.get(id)!
 
-      matchedServer.handleUpgrade(request, socket as Socket, head, function done (ws) {
-        matchedServer.emit('connection', ws, request)
-      })
+      matchedServer.handleUpgrade(
+        request,
+        socket as Socket,
+        head,
+        function done (ws) {
+          matchedServer.emit('connection', ws, request)
+        }
+      )
     })
   },
 
@@ -97,8 +102,13 @@ export function getPortForConnector ({ id: connectorId }: {id: ConnectorId}): nu
   return (QueueManager.get(connectorId)?.address() as AddressInfo | undefined)?.port ?? null
 }
 
-export async function addDeployRequest (device: (Device & { connector: Connector }), artifactUri: string): Promise<void> {
-  const { connector: { id: connectorId } } = device
+export async function addDeployRequest (
+  device: Device & { connector: Connector },
+  { id, artifactUrl }: Pick<DeployRequest, 'artifactUrl' | 'id'>
+): Promise<void> {
+  const {
+    connector: { id: connectorId }
+  } = device
 
   const queue = QueueManager.get(connectorId)
 
@@ -111,16 +121,19 @@ export async function addDeployRequest (device: (Device & { connector: Connector
       const send = promisify(client.send.bind(client)) as (data: string) => Promise<void>
 
       if (client.readyState === WebSocket.OPEN) {
-        await send(JSON.stringify({
-          type: 'deploy',
-          data: {
-            device: {
-              ...device,
-              connector: undefined
-            },
-            artifactUri
-          }
-        }))
+        await send(
+          JSON.stringify({
+            type: 'deploy',
+            data: {
+              device: {
+                ...device,
+                connector: undefined
+              },
+              artifactUri: artifactUrl,
+              id
+            }
+          })
+        )
       }
     })
   )

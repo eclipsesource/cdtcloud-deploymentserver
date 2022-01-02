@@ -72,7 +72,7 @@ export default function deploymentRequestsRoutes (router: Router): void {
         createDeploymentStream(deploymentRequest)
 
         // Send deploymentRequest to device
-        await addDeployRequest(device, req.body.artifactUri)
+        await addDeployRequest(device, deploymentRequest)
 
         return res.json(deploymentRequest)
       } catch (e) {
