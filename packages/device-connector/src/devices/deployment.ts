@@ -1,14 +1,15 @@
 import crypto from 'crypto'
 import { createWriteStream } from 'fs'
 import * as Path from 'path'
+import { dirname } from 'path'
 import { Readable } from 'stream'
 import { request } from 'undici'
-import { Device, getFQBN, getStoredDevice } from './service'
+import { Device, getFQBN, getStoredDevice, updateDeviceStatus } from './service'
 import { promisify } from 'util'
 import { fileURLToPath } from 'url'
-import { dirname } from 'path'
 import { RPCClient } from '../arduino-cli/client'
 import { DeviceResponse } from '../deployment-server/service'
+import { DeviceStatus } from '../util/common'
 
 export interface DeploymentData {
   device: DeviceResponse
@@ -23,11 +24,6 @@ export const downloadFile = async (uri: string, fileName: string, extension: str
   const downStream = Readable.from(resp.body)
 
   downStream.pipe(outStream)
-
-  downStream.on('data', (data) => {
-    console.log(data.toString())
-  })
-
   await promisify<'close'>(outStream.on).bind(outStream)('close')
 
   return file
@@ -53,6 +49,9 @@ export const deployBinary = async (deployData: DeploymentData, client: RPCClient
 
   const fqbn = await getFQBN(device.deviceTypeId)
   const artifactPath = await downloadArtifact(artifactUri)
+
+  // Notify server that device is busy deploying
+  await updateDeviceStatus(device, DeviceStatus.DEPLOYING)
 
   // Start uploading artifact
   await client.uploadBin(fqbn, device.port, artifactPath)

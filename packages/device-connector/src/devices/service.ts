@@ -4,10 +4,11 @@ import {
   fetchAllDeviceTypes,
   fetchDeviceType,
   sendNewDeviceRequest,
-  sendNewDeviceTypeRequest
+  sendNewDeviceTypeRequest, setDeviceRequest
 } from '../deployment-server/service'
 import logger from '../util/logger'
 import { DeviceStatus } from '../util/common'
+import { connectorId } from '../deployment-server/connection'
 
 export type FQBN = string
 
@@ -88,6 +89,23 @@ export const registerNewDevice = async (fqbn: FQBN, name: string): Promise<Devic
   }
 }
 
+export const updateDeviceStatus = async (device: Device, status: DeviceStatus): Promise<void> => {
+  const id = device.id
+  const typeId = device.deviceTypeId
+
+  const data = {
+    typeId,
+    connectorId,
+    status
+  }
+
+  await setDeviceRequest(id, data)
+}
+
 export const getAttachedDeviceOnPort = async (portAddress: string, protocol: string = 'serial'): Promise<Device | undefined> => {
   return storedDevices.find((device) => device.port.address === portAddress && device.port.protocol === protocol)
+}
+
+export const getStoredDevice = async (id: string): Promise<Device | undefined> => {
+  return storedDevices.find((devI) => devI.id === id)
 }
