@@ -1,9 +1,10 @@
 import { env } from 'process'
-import WebSocket, { CloseEvent, ErrorEvent } from 'ws'
+import WebSocket, { CloseEvent, createWebSocketStream, ErrorEvent } from 'ws'
 import fs, { createReadStream, createWriteStream } from 'fs'
 import { fetch } from 'undici'
 import logger from '../util/logger'
 import { setTimeout } from 'timers/promises'
+import { Duplex } from 'stream'
 
 export interface ConnectorData {
   id: string
@@ -70,7 +71,7 @@ const writeConnectorData = async (connectorData: ConnectorData): Promise<void> =
   })
 }
 
-export const openStream = async (): Promise<WebSocket> => {
+export const openStream = async (): Promise<Duplex> => {
   let connectorData: ConnectorData | undefined
   if (fs.existsSync('.connection.data')) {
     connectorData = await readConnectorData()
@@ -87,7 +88,6 @@ export const openStream = async (): Promise<WebSocket> => {
 
   socket.onopen = () => {
     logger.info(`Connected to ${address} (Deployment-Server)`)
-    socket.send('Hello-World')
   }
 
   socket.onerror = (error: ErrorEvent) => {
@@ -100,5 +100,5 @@ export const openStream = async (): Promise<WebSocket> => {
     return await openStream()
   }
 
-  return socket
+  return createWebSocketStream(socket)
 }

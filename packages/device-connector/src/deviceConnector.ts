@@ -1,14 +1,16 @@
 import { connectCli, registerDevices } from './arduino-cli/service'
 import { RPCClient } from './arduino-cli/client'
-import { MessageEvent, WebSocket } from 'ws'
-import { deployBinary } from './devices/service'
+import { deployBinary } from './devices/deployment'
 import { openStream } from './deployment-server/connection'
 import logger from './util/logger'
 import { Signals } from 'close-with-grace'
+import { Duplex } from 'stream'
+import { DeployServRequest } from './deployment-server/service'
+import { monitorDevice } from './devices/monitoring'
 
 export interface DeviceConnector {
   client: RPCClient
-  socket: WebSocket
+  socket: Duplex
 }
 
 export const createConnector = async (): Promise<DeviceConnector> => {
@@ -17,19 +19,32 @@ export const createConnector = async (): Promise<DeviceConnector> => {
 
   await registerDevices(client)
 
-  socket.onmessage = (e: MessageEvent) => {
-    const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
+  socket.on('data', (message) => {
+    const servReq = JSON.parse(message) as DeployServRequest
+    const type = servReq.type
+    const data = servReq.data
 
-    deployBinary(data, client).catch((e) => {
-      logger.error(e)
-    })
-  }
+    if (type === 'deploy') {
+      deployBinary(data, client).then(async (device) => {
+        await monitorDevice(client, device)
+      }).catch((e) => {
+        socket.write(e.message)
+        logger.error(e.message)
+      })
+    } else if (type === 'monitor.start') {
+      // TODO: start monitor
+    } else if (type === 'monitor.close') {
+      // TODO: stop monitor
+    } else {
+      logger.error(`Received unknown request type ${type}`)
+    }
+  })
 
   return { client, socket }
 }
 
 export async function closeConnector (
-  this: {client: RPCClient, socket: WebSocket},
+  this: {client: RPCClient, socket: Duplex},
   { err, signal }: { err?: Error, signal?: Signals | string } = { }
 ): Promise<void> {
   if (err != null) {
@@ -40,7 +55,7 @@ export async function closeConnector (
   await this.client.destroyInstance()
   this.client.closeClient()
 
-  this.socket.close()
+  this.socket.end()
 
   logger.info(`${signal ?? 'Manual Exit'}: Closed service`)
 }
