@@ -120,10 +120,12 @@ test('Receives deployment requests', async (t) => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const socket = new WebSocket(`ws://${address.address}:${address.port}/connectors/${connectorId}/queue`)
 
+  const id = randomUUID()
+
   // Simulate a deployment request once we can be sure the socket is listening
   socket.onopen = () => {
     // Specifically send the request only to this connector
-    addDeployRequest(device, 'http://google.com')
+    addDeployRequest(device, { id, artifactUrl: 'http://google.com' })
   }
 
   // Check the response, close the socket
@@ -135,7 +137,8 @@ test('Receives deployment requests', async (t) => {
           ...device,
           connector: undefined
         },
-        artifactUri: 'http://google.com'
+        artifactUri: 'http://google.com',
+        id
       }
     }))
 

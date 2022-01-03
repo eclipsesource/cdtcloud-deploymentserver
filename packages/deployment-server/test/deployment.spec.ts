@@ -98,16 +98,17 @@ test('Can deploy', async (t) => {
 
   // Register the listener
   socket.onmessage = (message) => {
-    t.equal(message.data, JSON.stringify({
+    t.match(JSON.parse(message.data as string), {
       type: 'deploy',
       data: {
         device: {
           ...device,
           connector: undefined
         },
-        artifactUri
+        artifactUri,
+        id: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
       }
-    }))
+    })
     socket.close()
   }
 
