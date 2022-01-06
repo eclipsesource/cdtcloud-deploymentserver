@@ -7,6 +7,7 @@
   "private": true,
   "workspaces": [
     "packages/deployment-server",
+    "packages/deployment-server-ui",
     "packages/device-connector",
     "packages/theia-extension/browser-app",
     "packages/theia-extension/electron-app",
