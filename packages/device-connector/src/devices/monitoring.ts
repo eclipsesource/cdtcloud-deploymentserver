@@ -1,13 +1,13 @@
 import type { MonitorRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorRequest'
 import type { MonitorResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorResponse'
 import type { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
+import type { Device } from '@prisma/client'
 import { ClientDuplexStream } from '@grpc/grpc-js'
 import { RPCClient } from '../arduino-cli/client'
 import { Duplex, Transform } from 'stream'
 import { ConnectedDevices } from './store'
 import { DeviceStatus } from '../util/common'
 import { setTimeout } from 'timers/promises'
-import { Device } from './device'
 import logger from '../util/logger'
 
 export interface MonitorData {

@@ -1,22 +1,19 @@
 import type { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
+import type { Device, DeviceType } from '@prisma/client'
 import { DeviceStatus } from '../util/common'
 import { fetchDeviceType, setDeviceRequest } from '../deployment-server/service'
 import { RPCClient } from '../arduino-cli/client'
 import { Duplex } from 'stream'
 import { DeviceMonitor } from './monitoring'
-import { DeviceType, FQBN } from '../device-types/service'
+import { FQBN } from '../device-types/service'
 import { DeviceTypes } from '../device-types/store'
+import { connectorId } from '../deployment-server/connection'
 import logger from '../util/logger'
-
-export interface Device {
-  id: string
-  status: keyof typeof DeviceStatus
-  deviceTypeId: string
-}
 
 export class ConnectedDevice implements Device {
   readonly id: string
   readonly deviceTypeId: string
+  readonly connectorId: string
   readonly port: Port
   status: keyof typeof DeviceStatus
   #deviceMonitor: DeviceMonitor | undefined
@@ -24,6 +21,7 @@ export class ConnectedDevice implements Device {
   constructor (id: string, deviceTypeId: string, port: Port, status: keyof typeof DeviceStatus = DeviceStatus.AVAILABLE) {
     this.id = id
     this.deviceTypeId = deviceTypeId
+    this.connectorId = connectorId
     this.port = port
     this.status = status
   }

@@ -2,7 +2,6 @@ import { connectCli } from './arduino-cli/service'
 import { RPCClient } from './arduino-cli/client'
 import { deployBinary, DeploymentData } from './devices/deployment'
 import { openStream } from './deployment-server/connection'
-import logger from './util/logger'
 import { Signals } from 'close-with-grace'
 import { Duplex } from 'stream'
 import { DeployServRequest } from './deployment-server/service'
@@ -10,6 +9,7 @@ import { MonitorData } from './devices/monitoring'
 import { ConnectedDevices } from './devices/store'
 import { unregisterDevice } from './devices/service'
 import { DeviceStatus } from './util/common'
+import logger from './util/logger'
 
 export interface DeviceConnector {
   client: RPCClient
@@ -54,7 +54,7 @@ export const createConnector = async (): Promise<DeviceConnector> => {
               throw err
             })
           } else {
-            const monitoring = device.isMonitoring() ? DeviceStatus.MONITORING : device.status
+            const monitoring = device.isMonitoring() ? DeviceStatus.RUNNING : device.status
             logger.error(`Requested Device with id ${device.id} busy (${monitoring})`)
           }
         } else if (command === 'stop') {

@@ -1,10 +1,9 @@
+import type { DeviceType, Device } from '@prisma/client'
+import { DeviceStatus } from '../util/common'
 import { env } from 'process'
 import { fetch } from 'undici'
 import { connectorId } from './connection'
-import { DeviceStatus } from '../util/common'
-import { DeviceType } from '../device-types/service'
 import { DeploymentData } from '../devices/deployment'
-import { Device } from '../devices/device'
 import { MonitorData } from '../devices/monitoring'
 
 export interface DeployServRequest {
