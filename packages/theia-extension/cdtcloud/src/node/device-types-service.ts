@@ -6,7 +6,7 @@ import { DeviceTypeService } from "../common/protocol";
 export class DeviceTypeServiceImpl implements DeviceTypeService {
   async getDeviceList(): Promise<any[]> {
     const { data } = await axios.get<any[]>(
-      "http://localhost:3001/device-types",
+      "http://localhost:3001/api/device-types",
       { params: { deployable: true } }
     );
     return data;
