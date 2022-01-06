@@ -14,6 +14,7 @@
     "declarationMap": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node"],
+    "emitDeclarationOnly": false
   }
 }

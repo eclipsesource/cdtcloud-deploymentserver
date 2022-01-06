@@ -87,15 +87,15 @@ export const openStream = async (): Promise<Duplex> => {
   const socket = new WebSocket(url)
 
   socket.onopen = () => {
-    logger.info(`Connected to ${address} (Deployment-Server)`)
+    logger.info(`Connected to Deployment-Server (${address})`)
   }
 
   socket.onerror = (error: ErrorEvent) => {
-    logger.error(`WebSocket: ${error.message}`)
+    logger.error(`DeployServ-Stream: ${error.message}`)
   }
 
   socket.onclose = async (event: CloseEvent) => {
-    logger.error(`Connection to Deployment-Server failed (Code: ${event.code}) - Trying to reconnect`)
+    logger.error(`Connection to Deployment-Server failed: ${event.reason}(${event.code}) - Trying to reconnect`)
     await setTimeout(3000)
     return await openStream()
   }

@@ -1,9 +1,3 @@
-export enum GrpcStatus {
-  ok = 'Ok',
-  notInitialized = 'Client not initialized',
-  unknown = 'Unknown'
-}
-
 export enum DeviceStatus {
   UNAVAILABLE = 'UNAVAILABLE',
   AVAILABLE = 'AVAILABLE',
@@ -18,9 +12,4 @@ export enum DeployStatus {
   SUCCESS = 'SUCCESS',
   FAILED = 'FAILED',
   TERMINATED = 'TERMINATED'
-}
-
-export enum MonitorStatus {
-  DISCONNECTED = 'DISCONNECTED',
-  CONNECTED = 'CONNECTED'
 }
