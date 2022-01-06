@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "main": "src/index.ts",
   "repository": "git@github.com:EclipseSource/cdtcloud-deploymentserver.git",
-  "author": "WoH <wolfgang@hey.com>",
   "license": "EPL-2.0",
   "type": "module",
   "scripts": {

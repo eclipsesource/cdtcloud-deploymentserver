@@ -2,7 +2,6 @@
   "name": "cdtcloud-deploymentserver",
   "version": "0.0.0",
   "repository": "git@github.com:EclipseSource/cdtcloud-deploymentserver.git",
-  "author": "WoH <wolfgang@hey.com>",
   "license": "EPL-2.0",
   "private": true,
   "workspaces": [
