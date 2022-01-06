@@ -1,7 +1,9 @@
-export default function Deployments() {
+import defineFunctionalComponent from "../util/defineFunctionalComponent";
+
+export default defineFunctionalComponent(function Deployments() {
   return (
-    <main style={{ padding: "1rem 0" }}>
+    <main>
       <h2>Deployments</h2>
     </main>
   );
-}
+});

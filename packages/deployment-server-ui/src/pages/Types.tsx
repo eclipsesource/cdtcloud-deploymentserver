@@ -1,7 +1,9 @@
-export default function Types() {
+import defineFunctionalComponent from "../util/defineFunctionalComponent";
+
+export default defineFunctionalComponent(function Types() {
   return (
-    <main style={{ padding: "1rem 0" }}>
+    <main>
       <h2>Types</h2>
     </main>
   );
-}
+});
