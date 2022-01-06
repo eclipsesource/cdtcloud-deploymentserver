@@ -21,11 +21,11 @@ export class DeviceMonitor {
   #monitorStream: ClientDuplexStream<MonitorRequest, MonitorResponse> | undefined
   readonly port: Port
 
-  constructor(port: Port) {
+  constructor (port: Port) {
     this.port = port
   }
 
-  async start(client: RPCClient, outStream: Duplex, sec: number): Promise<void> {
+  async start (client: RPCClient, outStream: Duplex, sec: number): Promise<void> {
     if (this.isPaused()) {
       return this.resume()
     }
@@ -34,7 +34,9 @@ export class DeviceMonitor {
     this.#monitorStream = await client.monitor(this.port, sec)
 
     this.#monitorStream.on('close', () => {
-      this.stop()
+      this.stop().catch((err) => {
+        logger.error(err)
+      })
     })
 
     try {
@@ -46,7 +48,7 @@ export class DeviceMonitor {
     this.#isConnected = true
   }
 
-  async stop(): Promise<void> {
+  async stop (): Promise<void> {
     if (!this.#isConnected) {
       return
     }
@@ -59,26 +61,30 @@ export class DeviceMonitor {
     // Wait 5 seconds to ensure that the device also closed the stream
     await setTimeout(5000)
     const device = ConnectedDevices.onPort(this.port.address, this.port.protocol)
-    device?.updateStatus(DeviceStatus.AVAILABLE)
+    await device?.updateStatus(DeviceStatus.AVAILABLE)
   }
 
-  pause(): void {
+  pause (): void {
     this.#monitorStream?.pause()
   }
 
-  resume(): void {
+  resume (): void {
     this.#monitorStream?.resume()
   }
 
-  isPaused(): boolean | undefined {
-    return this.#monitorStream?.isPaused()
+  isPaused (): boolean {
+    if (this.#monitorStream != null) {
+      return this.#monitorStream.isPaused()
+    }
+
+    return false
   }
 
-  isMonitoring(): boolean {
+  isMonitoring (): boolean {
     return this.#isConnected && !this.isPaused()
   }
 
-  async pipeToSocket(): Promise<void> {
+  async pipeToSocket (): Promise<void> {
     if (this.#outStream == null) {
       throw new Error(`No valid output stream defined for device on port ${this.port.address} (${this.port.protocol})`)
     }
@@ -90,21 +96,21 @@ export class DeviceMonitor {
     this.#monitorStream.pipe(monitorResponseTransform).pipe(this.#outStream)
   }
 
-  unpipe(): void {
+  unpipe (): void {
     if (this.#monitorStream != null) {
       this.#monitorStream.unpipe()
     }
   }
 
-  get outStream(): Duplex | undefined {
+  get outStream (): Duplex | undefined {
     return this.#outStream
   }
 
-  set outStream(value: Duplex | undefined) {
+  set outStream (value: Duplex | undefined) {
     this.#outStream = value
   }
 
-  get isConnected(): boolean {
+  get isConnected (): boolean {
     return this.#isConnected
   }
 }
@@ -112,10 +118,10 @@ export class DeviceMonitor {
 const monitorResponseTransform = new Transform({
   writableObjectMode: true,
 
-  transform(chunk: MonitorResponse, encoding, callback) {
-    const {error, rx_data: data} = chunk
+  transform (chunk: MonitorResponse, encoding, callback) {
+    const { error, rx_data: data } = chunk
 
-    if (error != null && error != '') {
+    if (error != null && error !== '') {
       callback(null, error)
     } else {
       callback(null, data)

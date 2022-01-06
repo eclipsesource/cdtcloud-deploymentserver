@@ -16,5 +16,8 @@
     "skipLibCheck": true,
     "types": ["node"],
     "emitDeclarationOnly": false
-  }
+  },
+  "exclude": [
+    "tests"
+  ]
 }

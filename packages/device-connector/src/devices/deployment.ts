@@ -44,7 +44,7 @@ export const downloadArtifact = async (uri: string): Promise<string> => {
 
 export const deployBinary = async (deployData: DeploymentData, client: RPCClient): Promise<ConnectedDevice> => {
   const artifactUri = deployData.artifactUri
-  const reqDevice = deployData.device as Device
+  const reqDevice = deployData.device
   let device
 
   try {

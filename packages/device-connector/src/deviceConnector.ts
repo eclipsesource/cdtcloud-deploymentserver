@@ -27,6 +27,7 @@ export const createConnector = async (): Promise<DeviceConnector> => {
 
     if (type === 'deploy') {
       const data = servReq.data as DeploymentData
+
       deployBinary(data, client).then(async (device) => {
         socket.write(JSON.stringify({ // TODO: Add deploy id
           type: 'deploy',
@@ -43,23 +44,32 @@ export const createConnector = async (): Promise<DeviceConnector> => {
     } else if (type.startsWith('monitor.')) {
       const command = type.split('.')[1]
       const data = servReq.data as MonitorData
+
       try {
         const device = ConnectedDevices.get(data.device.id)
         if (command === 'start') {
           if (device.status === DeviceStatus.AVAILABLE) {
-            device.monitorOutput(client, socket, 5) // TODO: monitor currently set to 5sec for testing purposes - move to other file when client is reworked
+            // TODO: monitor currently set to 5sec for testing purposes - move to other file when client is reworked
+            device.monitorOutput(client, socket, 5).catch((err) => {
+              throw err
+            })
           } else {
             const monitoring = device.isMonitoring() ? DeviceStatus.MONITORING : device.status
             logger.error(`Requested Device with id ${device.id} busy (${monitoring})`)
           }
         } else if (command === 'stop') {
-          device.stopMonitoring() // TODO: move to other file when client is reworked - check status
+          // TODO: move to other file when client is reworked - check status
+          device.stopMonitoring().catch((err) => {
+            throw err
+          })
         } else {
           logger.error(`Received unknown monitor command ${command}`)
         }
       } catch (e) {
         // Requested device not connected - unregistering
-        unregisterDevice(data.device.id)
+        unregisterDevice(data.device.id).catch((err) => {
+          logger.error(err)
+        })
 
         // Notify server of error
         socket.write(JSON.stringify({

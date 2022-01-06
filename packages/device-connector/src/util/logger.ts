@@ -17,7 +17,7 @@ const formatters = {
 const transport = {
   target: 'pino-pretty',
   options: {
-    colorize: env.NODE_ENV === 'development' ,
+    colorize: env.NODE_ENV === 'development',
     translateTime: 'SYS:yyyy-mm-dd HH:MM:ss.l'
   }
 }
