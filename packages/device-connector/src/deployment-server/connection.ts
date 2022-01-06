@@ -35,7 +35,7 @@ const readConnectorData = async (): Promise<ConnectorData> => {
 }
 
 const generateConnectorData = async (): Promise<ConnectorData> => {
-  const registrationResponse = await fetch(`http://${address}/connectors`, {
+  const registrationResponse = await fetch(`http://${address}/api/connectors`, {
     method: 'POST'
   })
   const { id } = await registrationResponse.json() as any
