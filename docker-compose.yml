@@ -16,6 +16,16 @@ services:
       - postgresdb:/var/lib/postgresql/data
     restart: always
 
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 3002:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: tum@seba.lab
+      PGADMIN_DEFAULT_PASSWORD: tum
+
+
   arduino:
     image: solarbotics/arduino-cli-arduino-avr:1.8.4-0.20.0-node16.13
     command: >
