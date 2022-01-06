@@ -4,16 +4,17 @@ import * as Path from 'path'
 import { dirname } from 'path'
 import { Readable } from 'stream'
 import { request } from 'undici'
-import { deregisterDevice, Device, findAvailableByType, getFQBN, getStoredDevice, updateDeviceStatus } from './service'
+import { ConnectedDevice, Device } from './device'
 import { promisify } from 'util'
 import { fileURLToPath } from 'url'
 import { RPCClient } from '../arduino-cli/client'
-import { DeviceResponse } from '../deployment-server/service'
 import { DeviceStatus } from '../util/common'
+import { ConnectedDevices } from './store'
+import { unregisterDevice } from './service'
 import logger from '../util/logger'
 
 export interface DeploymentData {
-  device: DeviceResponse
+  device: Device
   artifactUri: string
 }
 
@@ -24,7 +25,10 @@ export const downloadFile = async (uri: string, fileName: string, extension: str
   const resp = await request(url)
   const downStream = Readable.from(resp.body)
 
+  // Pipe data from artifactURL into writeStream
   downStream.pipe(outStream)
+
+  // Wait for all data written and file closed
   await promisify<'close'>(outStream.on).bind(outStream)('close')
 
   return file
@@ -38,33 +42,53 @@ export const downloadArtifact = async (uri: string): Promise<string> => {
   return Path.resolve(file)
 }
 
-export const deployBinary = async (deployData: DeploymentData, client: RPCClient): Promise<Device> => {
+export const deployBinary = async (deployData: DeploymentData, client: RPCClient): Promise<ConnectedDevice> => {
   const artifactUri = deployData.artifactUri
   const reqDevice = deployData.device as Device
+  let device
 
-  let device = await getStoredDevice(reqDevice.id)
+  try {
+    device = ConnectedDevices.get(reqDevice.id)
+  } catch (e) {
+    // Requested device not connected - unregistering
+    await unregisterDevice(reqDevice.id)
 
-  if (device == null) {
-    await deregisterDevice(reqDevice.id)
-  }
+    // Looking for alternative device of same type
+    device = ConnectedDevices.findAvailable(reqDevice.deviceTypeId)
 
-  if (device == null || device.status !== DeviceStatus.AVAILABLE) {
-    device = await findAvailableByType(reqDevice.deviceTypeId)
     if (device != null) {
-      logger.warn(`Requested Device with id ${reqDevice.id} busy or not found - using alternative device`)
+      logger.warn(`Requested Device with id ${reqDevice.id} not found - using alternative device`)
     } else {
-      throw new Error(`Requested Device with id ${reqDevice.id} busy or not found`)
+      throw new Error(`Requested Device with id ${reqDevice.id} not found`)
     }
   }
 
-  const fqbn = await getFQBN(device.deviceTypeId)
+  const deviceStatus = device.status
+  if (deviceStatus !== DeviceStatus.AVAILABLE) {
+    device = ConnectedDevices.findAvailable(reqDevice.deviceTypeId)
+    if (device != null) {
+      logger.warn(`Requested Device with id ${reqDevice.id} busy - using alternative device`)
+    } else {
+      throw new Error(`Requested Device with id ${reqDevice.id} busy (${deviceStatus})`)
+    }
+  }
+
+  const fqbn = await device.getFQBN()
   const artifactPath = await downloadArtifact(artifactUri)
 
-  // Notify server that device is busy deploying
-  await updateDeviceStatus(device, DeviceStatus.DEPLOYING)
+  // Update device status and notify server of status-change
+  await device.updateStatus(DeviceStatus.DEPLOYING)
 
-  // Start uploading artifact
-  await client.uploadBin(fqbn, device.port, artifactPath)
+  try {
+    // Start uploading artifact
+    await client.uploadBin(fqbn, device.port, artifactPath)
+  } catch (e) {
+    await device.updateStatus(DeviceStatus.AVAILABLE)
+    throw e
+  }
+
+  // Reset device status and notify server of status-change
+  await device.updateStatus(DeviceStatus.AVAILABLE) // TODO: Set correct status
 
   return device
 }

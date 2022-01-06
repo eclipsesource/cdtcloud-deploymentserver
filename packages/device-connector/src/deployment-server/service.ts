@@ -2,18 +2,14 @@ import { env } from 'process'
 import { fetch } from 'undici'
 import { connectorId } from './connection'
 import { DeviceStatus } from '../util/common'
-import { DeviceType } from '../devices/service'
+import { DeviceType } from '../device-types/service'
 import { DeploymentData } from '../devices/deployment'
-
-export interface DeviceResponse {
-  id: string
-  status: keyof typeof DeviceStatus
-  deviceTypeId: string
-}
+import { Device } from '../devices/device'
+import { MonitorData } from '../devices/monitoring'
 
 export interface DeployServRequest {
   type: string
-  data: DeploymentData
+  data: DeploymentData | MonitorData
 }
 
 export const sendNewDeviceTypeRequest = async (fqbn: string, name: string): Promise<DeviceType> => {
@@ -34,7 +30,7 @@ export const sendNewDeviceTypeRequest = async (fqbn: string, name: string): Prom
   return await resp.json() as DeviceType
 }
 
-export const sendNewDeviceRequest = async (typeId: string): Promise<DeviceResponse> => {
+export const sendNewDeviceRequest = async (typeId: string): Promise<Device> => {
   const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
   const url = `http://${address}/devices`
 
@@ -50,10 +46,10 @@ export const sendNewDeviceRequest = async (typeId: string): Promise<DeviceRespon
     })
   })
 
-  return await resp.json() as DeviceResponse
+  return await resp.json() as Device
 }
 
-export const setDeviceRequest = async (deviceId: string, data: object): Promise<DeviceResponse> => {
+export const setDeviceRequest = async (deviceId: string, status: keyof typeof DeviceStatus): Promise<Device> => {
   const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
   const url = `http://${address}/devices/${deviceId}`
 
@@ -62,10 +58,12 @@ export const setDeviceRequest = async (deviceId: string, data: object): Promise<
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify({
+      status: status
+    })
   })
 
-  return await resp.json() as DeviceResponse
+  return await resp.json() as Device
 }
 
 export const fetchAllDeviceTypes = async (): Promise<DeviceType[]> => {

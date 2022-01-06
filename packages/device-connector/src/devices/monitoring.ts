@@ -52,7 +52,8 @@ export class DeviceMonitor {
     }
 
     this.unpipe()
-    this.#monitorStream?.end()
+    this.#monitorStream?.destroy()
+    this.#monitorStream = undefined
     this.#isConnected = false
 
     // Wait 5 seconds to ensure that the device also closed the stream

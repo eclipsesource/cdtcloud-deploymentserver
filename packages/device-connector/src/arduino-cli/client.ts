@@ -22,20 +22,15 @@ import { UploadRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/comman
 import { UploadResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadResponse'
 import { ProtoGrpcType as ArduinoProtoGrpcType } from 'arduino-cli_proto_ts/common/commands'
 import { deleteDeviceRequest } from '../deployment-server/service'
-import {
-  Device,
-  getAttachedDeviceOnPort,
-  getStoredDeviceTypeById,
-  registerNewDevice,
-  setDevices as setStoredDevices
-} from '../devices/service'
+import { addDevice, removeDevice } from '../devices/service'
+import { ConnectedDevices } from '../devices/store'
+import { DeviceTypes } from '../device-types/store'
 import logger from '../util/logger'
 
 export class RPCClient {
   readonly address: string
   private _client: ArduinoCoreServiceClient | undefined
   private _instance: Instance | undefined
-  private _devices: Device[] = []
   private _isConnected: boolean = false
 
   constructor (address: string = '127.0.0.1:50051') {
@@ -72,7 +67,7 @@ export class RPCClient {
         return resolve()
       })
     })
-  };
+  }
 
   async createInstance (): Promise<void> {
     return await new Promise((resolve, reject) => {
@@ -120,7 +115,7 @@ export class RPCClient {
     }
     const initRequest: InitRequest = { instance }
 
-    if (this._devices.length > 0) {
+    if (ConnectedDevices.store.length > 0) {
       await this.removeAllDevices()
     }
 
@@ -136,7 +131,7 @@ export class RPCClient {
         switch (status.code) {
           case Status.OK:
             this._isConnected = true
-            logger.info(`Connected to ${this.address} (Arduino-CLI)`)
+            logger.info(`Connected to Arduino-CLI (${this.address})`)
             return resolve()
           case Status.INVALID_ARGUMENT:
             return this.createInstance().then(() => {
@@ -238,8 +233,9 @@ export class RPCClient {
       })
 
       stream.on('status', (status: StatusObject) => {
-        if (status.code === 0) {
-          logger.info(`Deployment finished with code ${status.code}`)
+        if (status.code === Status.OK) {
+          const devName = DeviceTypes.withFQBN(fqbn)?.name ?? 'Unknown Device Name'
+          logger.info(`Deployment OK: ${devName} on ${port.address} (${port.protocol})`)
           return resolve()
         }
 
@@ -327,7 +323,7 @@ export class RPCClient {
       const detectedPort = data.port
 
       if (eventType === 'add' && detectedPort?.matching_boards != null && detectedPort.matching_boards.length > 0) {
-        await this.addDevice(detectedPort)
+        await addDevice(detectedPort)
       } else if (eventType === 'remove') {
         const port = detectedPort?.port
         if (port == null) {
@@ -340,15 +336,15 @@ export class RPCClient {
           return
         }
 
-        const removed = await getAttachedDeviceOnPort(port.address, port.protocol ?? 'serial')
-        if (removed === undefined) {
+        const removed = ConnectedDevices.onPort(port.address, port.protocol ?? 'serial')
+        if (removed == null) {
           return
         }
 
-        await this.removeDevice(removed)
-        const devType = await getStoredDeviceTypeById(removed.deviceTypeId)
+        await removeDevice(removed)
+        const devType = await removed.getType()
         const devName = devType?.name ?? 'Unknown Device Name'
-        logger.info(`Device removed: ${devName}`)
+        logger.info(`Device removed: ${devName} from ${port.address} (${port.protocol})`)
       }
     }
   }
@@ -392,66 +388,15 @@ export class RPCClient {
     })
   }
 
-  private async addDevice (detectedPort: DetectedPort): Promise<void> {
-    if (detectedPort.port == null) {
-      logger.warn('Port not defined')
-      return
-    }
-
-    if (detectedPort?.matching_boards === undefined || detectedPort.matching_boards.length === 0) {
-      return
-    }
-
-    const board = detectedPort.matching_boards[0]
-    if (board.fqbn == null) {
-      logger.warn('Could not register device: No fqbn found')
-      return
-    }
-
-    const existingDevice = this._devices.find((device) => device.port === detectedPort.port)
-
-    if (existingDevice != null) {
-      const existingDevType = await getStoredDeviceTypeById(existingDevice.deviceTypeId)
-      if (existingDevType == null) {
-        // Should never happen
-        logger.error(`No stored DeviceType found for type with id ${existingDevice.deviceTypeId}`)
-        return
-      }
-
-      if (existingDevType.fqbn === board.fqbn) {
-        return
-      }
-
-      await this.removeDevice(existingDevice)
-    }
-
-    const deviceResponse = await registerNewDevice(board.fqbn, board.name ?? 'Unknown Device Name')
-
-    const device: Device = {
-      ...deviceResponse,
-      port: detectedPort.port
-    }
-
-    this._devices.push(device)
-    logger.info(`Device attached: ${board.name}`)
-  }
-
   async initializeDevices (): Promise<void> {
     const boards = await this.listBoards()
     for (const detectedPort of boards) {
-      await this.addDevice(detectedPort)
+      await addDevice(detectedPort)
     }
   }
 
-  async removeDevice (device: Device): Promise<void> {
-    this._devices = this._devices.filter((deviceItem) => deviceItem !== device)
-    setStoredDevices(this._devices)
-
-    await deleteDeviceRequest(device.id)
-  }
-
   async removeAllDevices (): Promise<void> {
-    for (const device of this._devices) {
+    for (const device of ConnectedDevices.store) {
       try {
         await deleteDeviceRequest(device.id)
       } catch {
@@ -459,16 +404,11 @@ export class RPCClient {
       }
     }
 
-    this._devices = []
-    setStoredDevices(this._devices)
+    ConnectedDevices.store = []
   }
 
   closeClient (): void {
     this._client?.close()
-  }
-
-  get devices (): Device[] {
-    return this._devices
   }
 
   get isConnected (): boolean {
