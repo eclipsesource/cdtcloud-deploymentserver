@@ -40,7 +40,7 @@ const readConnectorData = async (): Promise<ConnectorData> => {
 }
 
 const generateConnectorData = async (): Promise<ConnectorData> => {
-  const registrationResponse = await fetch(`http://${address}/connectors`, {
+  const registrationResponse = await fetch(`http://${address}/api/connectors`, {
     method: 'POST'
   })
   const { id } = await registrationResponse.json() as any
@@ -88,7 +88,7 @@ export const openStream = async (): Promise<Duplex> => {
   }
 
   connectorId = connectorData.id
-  const url = `ws://${address}/connectors/${connectorId}/queue`
+  const url = `ws://${address}/api/connectors/${connectorId}/queue`
   const socket = new WebSocket(url)
 
   socket.onopen = () => {
