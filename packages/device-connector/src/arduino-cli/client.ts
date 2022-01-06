@@ -353,7 +353,7 @@ export class RPCClient {
     }
   }
 
-  async monitor (port: Port): Promise<grpc.ClientDuplexStream<MonitorRequest, MonitorResponse>> {
+  async monitor (port: Port, timeout: number): Promise<grpc.ClientDuplexStream<MonitorRequest, MonitorResponse>> {
     const monitorRequest: MonitorRequest = { instance: this._instance, port }
 
     return await new Promise((resolve, reject) => {
@@ -362,10 +362,10 @@ export class RPCClient {
       }
 
       const deadline = new Date()
-      deadline.setSeconds(deadline.getSeconds() + 5 * 60 * 1000)
+      deadline.setSeconds(deadline.getSeconds() + timeout)
       const stream = this._client.monitor({ deadline })
       stream.once('readable', () => {
-        logger.info(`Monitoring output of device on port ${port.address} (${port.protocol})`)
+        logger.info(`Start monitoring output of device on port ${port.address} (${port.protocol})`)
       })
 
       stream.on('end', () => {
@@ -374,9 +374,12 @@ export class RPCClient {
       })
 
       stream.on('error', (err: StatusObject) => {
-        if (err.code !== 4) {
+        if (err.code === Status.DEADLINE_EXCEEDED) {
+          logger.warn(`Monitoring deadline of ${timeout}s exceeded on port ${port.address} (${port.protocol})`)
+        } else {
           logger.error(err)
         }
+        stream.unpipe()
         stream.end()
       })
 
