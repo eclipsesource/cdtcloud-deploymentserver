@@ -6,7 +6,7 @@ import { deleteDeviceRequest, sendNewDeviceRequest } from '../deployment-server/
 import { FQBN, getDeviceTypeId } from '../device-types/service'
 import { ConnectedDevice } from './device'
 import { ConnectedDevices } from './store'
-import logger from '../util/logger'
+import { logger } from '../util/logger'
 
 export const registerNewDevice = async (fqbn: FQBN, name: string): Promise<Device> => {
   const typeId = await getDeviceTypeId(fqbn, name)

@@ -3,12 +3,12 @@ import type { MonitorResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli
 import type { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
 import type { Device } from '@prisma/client'
 import { ClientDuplexStream } from '@grpc/grpc-js'
-import { RPCClient } from '../arduino-cli/client'
-import { Duplex, Transform } from 'stream'
+import { Transform } from 'stream'
 import { ConnectedDevices } from './store'
 import { DeviceStatus } from '../util/common'
 import { setTimeout } from 'timers/promises'
-import logger from '../util/logger'
+import { arduinoClient, deploymentSocket } from '../deviceConnector'
+import { logger } from '../util/logger'
 
 export interface MonitorData {
   device: Device
@@ -16,7 +16,6 @@ export interface MonitorData {
 }
 
 export class DeviceMonitor {
-  #outStream: Duplex | undefined
   #isConnected: boolean = false
   #monitorStream: ClientDuplexStream<MonitorRequest, MonitorResponse> | undefined
   readonly port: Port
@@ -25,13 +24,12 @@ export class DeviceMonitor {
     this.port = port
   }
 
-  async start (client: RPCClient, outStream: Duplex, sec: number): Promise<void> {
+  async start (sec: number): Promise<void> {
     if (this.isPaused()) {
       return this.resume()
     }
 
-    this.#outStream = outStream
-    this.#monitorStream = await client.monitor(this.port, sec)
+    this.#monitorStream = await arduinoClient.monitor(this.port, sec)
 
     this.#monitorStream.on('close', () => {
       this.stop().catch((err) => {
@@ -85,29 +83,17 @@ export class DeviceMonitor {
   }
 
   async pipeToSocket (): Promise<void> {
-    if (this.#outStream == null) {
-      throw new Error(`No valid output stream defined for device on port ${this.port.address} (${this.port.protocol})`)
-    }
-
     if (this.#monitorStream == null) {
       throw new Error(`No valid data stream to pipe from device on port ${this.port.address} (${this.port.protocol})`)
     }
 
-    this.#monitorStream.pipe(monitorResponseTransform).pipe(this.#outStream)
+    this.#monitorStream.pipe(monitorResponseTransform).pipe(deploymentSocket)
   }
 
   unpipe (): void {
     if (this.#monitorStream != null) {
       this.#monitorStream.unpipe()
     }
-  }
-
-  get outStream (): Duplex | undefined {
-    return this.#outStream
-  }
-
-  set outStream (value: Duplex | undefined) {
-    this.#outStream = value
   }
 
   get isConnected (): boolean {

@@ -1,7 +1,7 @@
 import type { DeviceType } from '@prisma/client'
 import { fetchAllDeviceTypes } from '../deployment-server/service'
 import { FQBN } from './service'
-import logger from '../util/logger'
+import { logger } from '../util/logger'
 
 export const DeviceTypes = {
   store: new Array<DeviceType>(),

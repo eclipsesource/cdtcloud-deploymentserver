@@ -8,11 +8,11 @@ import { request } from 'undici'
 import { ConnectedDevice } from './device'
 import { promisify } from 'util'
 import { fileURLToPath } from 'url'
-import { RPCClient } from '../arduino-cli/client'
 import { DeviceStatus } from '../util/common'
 import { ConnectedDevices } from './store'
 import { unregisterDevice } from './service'
-import logger from '../util/logger'
+import { logger } from '../util/logger'
+import { arduinoClient } from '../deviceConnector'
 
 export interface DeploymentData {
   device: Device
@@ -43,7 +43,7 @@ export const downloadArtifact = async (uri: string): Promise<string> => {
   return Path.resolve(file)
 }
 
-export const deployBinary = async (deployData: DeploymentData, client: RPCClient): Promise<ConnectedDevice> => {
+export const deployBinary = async (deployData: DeploymentData): Promise<ConnectedDevice> => {
   const artifactUri = deployData.artifactUri
   const reqDevice = deployData.device
   let device
@@ -82,7 +82,7 @@ export const deployBinary = async (deployData: DeploymentData, client: RPCClient
 
   try {
     // Start uploading artifact
-    await client.uploadBin(fqbn, device.port, artifactPath)
+    await arduinoClient.uploadBin(fqbn, device.port, artifactPath)
   } catch (e) {
     await device.updateStatus(DeviceStatus.AVAILABLE)
     throw e

@@ -25,13 +25,13 @@ import { deleteDeviceRequest } from '../deployment-server/service'
 import { addDevice, removeDevice } from '../devices/service'
 import { ConnectedDevices } from '../devices/store'
 import { DeviceTypes } from '../device-types/store'
-import logger from '../util/logger'
+import { logger } from '../util/logger'
 
-export class RPCClient {
+export class GRPCClient {
   readonly address: string
-  private _client: ArduinoCoreServiceClient | undefined
-  private _instance: Instance | undefined
-  private _isConnected: boolean = false
+  #client: ArduinoCoreServiceClient | undefined
+  #instance: Instance | undefined
+  #isConnected: boolean = false
 
   constructor (address: string = '127.0.0.1:50051') {
     this.address = address
@@ -63,7 +63,7 @@ export class RPCClient {
           return resolve(this.init())
         }
 
-        this._client = arduinoServiceClient
+        this.#client = arduinoServiceClient
         return resolve()
       })
     })
@@ -71,11 +71,11 @@ export class RPCClient {
 
   async createInstance (): Promise<void> {
     return await new Promise((resolve, reject) => {
-      if (this._client == null) {
+      if (this.#client == null) {
         return reject(new Error('Client not initialized'))
       }
 
-      this._client.Create({}, (err: ServiceError | null, data?: CreateResponse) => {
+      this.#client.Create({}, (err: ServiceError | null, data?: CreateResponse) => {
         if (err != null) {
           return reject(new Error(err.message))
         }
@@ -84,22 +84,22 @@ export class RPCClient {
           return reject(new Error('No Instance created'))
         }
 
-        this._instance = data.instance
+        this.#instance = data.instance
         return resolve()
       })
     })
   }
 
   async destroyInstance (i?: Instance): Promise<void> {
-    const instance = i ?? this._instance
+    const instance = i ?? this.#instance
     const destroyRequest = { instance }
 
     return await new Promise((resolve, reject) => {
-      if (this._client == null) {
+      if (this.#client == null) {
         return reject(new Error('Client not initialized'))
       }
 
-      this._client.destroy(destroyRequest, (err: ServiceError | null) => {
+      this.#client.destroy(destroyRequest, (err: ServiceError | null) => {
         if (err != null) {
           return reject(new Error(err.message))
         }
@@ -109,9 +109,9 @@ export class RPCClient {
   }
 
   async initInstance (i?: Instance): Promise<void> {
-    const instance = i ?? this._instance
+    const instance = i ?? this.#instance
     if (i != null) {
-      this._instance = i
+      this.#instance = i
     }
     const initRequest: InitRequest = { instance }
 
@@ -120,27 +120,25 @@ export class RPCClient {
     }
 
     return await new Promise((resolve, reject) => {
-      if ((instance == null) || (this._client == null)) {
+      if ((instance == null) || (this.#client == null)) {
         return reject(new Error('Client not connected'))
       }
 
-      const stream = this._client.Init(initRequest)
-      // TODO
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      const stream = this.#client.Init(initRequest)
       stream.on('status', (status: StatusObject) => {
         switch (status.code) {
           case Status.OK:
-            this._isConnected = true
+            this.#isConnected = true
             logger.info(`Connected to Arduino-CLI (${this.address})`)
             return resolve()
           case Status.INVALID_ARGUMENT:
-            return this.createInstance().then(() => {
-              resolve(this.initInstance())
-            })
+            return resolve(this.createInstance().then(async () => {
+              return await this.initInstance()
+            }))
           case Status.UNAVAILABLE:
-            if (this._isConnected) {
-              return setTimeout(() => {
-                resolve(this.initInstance())
+            if (this.#isConnected) {
+              setTimeout(() => {
+                return resolve(this.initInstance())
               }, 3000)
             }
             return reject(status)
@@ -160,14 +158,14 @@ export class RPCClient {
   }
 
   async listBoards (): Promise<DetectedPort[]> {
-    const boardListRequest: BoardListRequest = { instance: this._instance, timeout: 1000 }
+    const boardListRequest: BoardListRequest = { instance: this.#instance, timeout: 1000 }
 
     return await new Promise((resolve, reject) => {
-      if (this._client == null) {
+      if (this.#client == null) {
         return reject(new Error('Client not initialized'))
       }
 
-      this._client.boardList(boardListRequest, (err: ServiceError | null, data?: BoardListResponse) => {
+      this.#client.boardList(boardListRequest, (err: ServiceError | null, data?: BoardListResponse) => {
         if (err != null) {
           return reject(new Error(err.message))
         }
@@ -183,16 +181,16 @@ export class RPCClient {
 
   async listAllBoards (filter?: string[]): Promise<BoardListItem[]> {
     const boardListAllRequest: BoardListAllRequest = {
-      instance: this._instance,
+      instance: this.#instance,
       search_args: filter,
       include_hidden_boards: false
     }
 
     return await new Promise((resolve, reject) => {
-      if (this._client == null) {
+      if (this.#client == null) {
         return reject(new Error('Client not initialized'))
       }
-      this._client.BoardListAll(boardListAllRequest, (err: ServiceError | null, data?: BoardListAllResponse) => {
+      this.#client.BoardListAll(boardListAllRequest, (err: ServiceError | null, data?: BoardListAllResponse) => {
         if (err != null) {
           return reject(new Error(err.message))
         }
@@ -208,7 +206,7 @@ export class RPCClient {
 
   async uploadBin (fqbn: string, port: Port, file: string, verify: boolean = false, dryRun: boolean = false): Promise<void> {
     const uploadRequest: UploadRequest = {
-      instance: this._instance,
+      instance: this.#instance,
       fqbn,
       port,
       import_file: file,
@@ -217,11 +215,11 @@ export class RPCClient {
     }
 
     return await new Promise((resolve, reject) => {
-      if (this._client == null) {
+      if (this.#client == null) {
         return reject(new Error('Client not initialized'))
       }
 
-      const stream = this._client.Upload(uploadRequest)
+      const stream = this.#client.Upload(uploadRequest)
       stream.on('data', (data: UploadResponse) => {
         if (data.err_stream != null && data.err_stream.length > 0) {
           reject(new Error(data.err_stream.toString()))
@@ -249,14 +247,14 @@ export class RPCClient {
   }
 
   async burnBootloader (fqbn: string, port: Port, programmer: string, verify: boolean = false): Promise<boolean> {
-    const burnBootloaderRequest = { instance: this._instance, fqbn, port, programmer, verify }
+    const burnBootloaderRequest = { instance: this.#instance, fqbn, port, programmer, verify }
 
     return await new Promise((resolve, reject) => {
-      if (this._client == null) {
+      if (this.#client == null) {
         return reject(new Error('Client not initialized'))
       }
 
-      const stream = this._client.BurnBootloader(burnBootloaderRequest)
+      const stream = this.#client.BurnBootloader(burnBootloaderRequest)
       stream.on('data', (data: BurnBootloaderResponse) => {
         if (data.err_stream != null && data.err_stream.length > 0) {
           reject(new Error(data.err_stream.toString()))
@@ -278,15 +276,15 @@ export class RPCClient {
   }
 
   async boardListWatch (): Promise<void> {
-    const boardListWatchRequest: BoardListWatchRequest = { instance: this._instance, interrupt: false }
+    const boardListWatchRequest: BoardListWatchRequest = { instance: this.#instance, interrupt: false }
 
-    if (this._client == null) {
+    if (this.#client == null) {
       const error = new Error('Client not initialized')
       logger.error(error)
       return
     }
 
-    const stream = this._client.boardListWatch()
+    const stream = this.#client.boardListWatch()
     stream.write(boardListWatchRequest)
 
     stream.on('end', () => {
@@ -350,16 +348,16 @@ export class RPCClient {
   }
 
   async monitor (port: Port, timeout: number): Promise<grpc.ClientDuplexStream<MonitorRequest, MonitorResponse>> {
-    const monitorRequest: MonitorRequest = { instance: this._instance, port }
+    const monitorRequest: MonitorRequest = { instance: this.#instance, port }
 
     return await new Promise((resolve, reject) => {
-      if (this._client == null) {
+      if (this.#client == null) {
         return reject(new Error('Client not initialized'))
       }
 
       const deadline = new Date()
       deadline.setSeconds(deadline.getSeconds() + timeout)
-      const stream = this._client.monitor({ deadline })
+      const stream = this.#client.monitor({ deadline })
       stream.once('readable', () => {
         logger.info(`Start monitoring output of device on port ${port.address} (${port.protocol})`)
       })
@@ -408,10 +406,6 @@ export class RPCClient {
   }
 
   closeClient (): void {
-    this._client?.close()
-  }
-
-  get isConnected (): boolean {
-    return this._isConnected
+    this.#client?.close()
   }
 }

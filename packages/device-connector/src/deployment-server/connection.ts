@@ -1,10 +1,15 @@
 import { env } from 'process'
-import WebSocket, { CloseEvent, createWebSocketStream, ErrorEvent } from 'ws'
+import WebSocket, { CloseEvent, createWebSocketStream, ErrorEvent, MessageEvent } from 'ws'
 import fs, { createReadStream, createWriteStream } from 'fs'
 import { fetch } from 'undici'
-import logger from '../util/logger'
+import { logger } from '../util/logger'
 import { setTimeout } from 'timers/promises'
 import { Duplex } from 'stream'
+import { deployBinary, DeploymentData } from '../devices/deployment'
+import { MonitorData } from '../devices/monitoring'
+import { ConnectedDevices } from '../devices/store'
+import { DeviceStatus } from '../util/common'
+import { unregisterDevice } from '../devices/service'
 
 export interface ConnectorData {
   id: string
@@ -35,7 +40,7 @@ const readConnectorData = async (): Promise<ConnectorData> => {
 }
 
 const generateConnectorData = async (): Promise<ConnectorData> => {
-  const registrationResponse = await fetch(`http://${address}/api/connectors`, {
+  const registrationResponse = await fetch(`http://${address}/connectors`, {
     method: 'POST'
   })
   const { id } = await registrationResponse.json() as any
@@ -98,6 +103,47 @@ export const openStream = async (): Promise<Duplex> => {
     logger.error(`Connection to Deployment-Server failed: ${event.reason}(${event.code}) - Trying to reconnect`)
     await setTimeout(3000)
     return await openStream()
+  }
+
+  socket.onmessage = async (message: MessageEvent) => {
+    const servReq = JSON.parse(message.data as string)
+    const type: string = servReq.type
+
+    if (type === 'deploy') {
+      const data = servReq.data as DeploymentData
+
+      const device = await deployBinary(data)
+      await device.monitorOutput(5) // Todo: remove, this is only temporary to test
+    } else if (type.startsWith('monitor.')) {
+      const command = type.split('.')[1]
+      const data = servReq.data as MonitorData
+
+      try {
+        const device = ConnectedDevices.get(data.device.id)
+        if (command === 'start') {
+          if (device.status === DeviceStatus.AVAILABLE) {
+            await device.monitorOutput(5) // TODO: monitor currently set to 5sec for testing purposes
+          } else {
+            const monitoring = device.isMonitoring() ? DeviceStatus.RUNNING : device.status
+            logger.error(`Requested Device with id ${device.id} busy (${monitoring})`)
+          }
+        } else if (command === 'stop') {
+          await device.stopMonitoring()
+        } else {
+          logger.error(`Received unknown monitor command ${command}`)
+        }
+      } catch (e) {
+        // Requested device not connected - unregistering
+        unregisterDevice(data.device.id).catch((err) => {
+          logger.error(err)
+        })
+
+        // TODO: Notify server of error
+        logger.error(e)
+      }
+    } else {
+      logger.error(`Received unknown request type ${type}`)
+    }
   }
 
   return createWebSocketStream(socket)

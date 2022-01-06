@@ -22,11 +22,9 @@ const transport = {
   }
 }
 
-const logger = pino({
+export const logger = pino({
   name: 'DeviceConnector',
   transport,
   level: env.NODE_ENV === 'test' ? 'fatal' : 'info',
   formatters
 })
-
-export default logger

@@ -2,13 +2,11 @@ import type { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduin
 import type { Device, DeviceType } from '@prisma/client'
 import { DeviceStatus } from '../util/common'
 import { fetchDeviceType, setDeviceRequest } from '../deployment-server/service'
-import { RPCClient } from '../arduino-cli/client'
-import { Duplex } from 'stream'
 import { DeviceMonitor } from './monitoring'
 import { FQBN } from '../device-types/service'
 import { DeviceTypes } from '../device-types/store'
 import { connectorId } from '../deployment-server/connection'
-import logger from '../util/logger'
+import { logger } from '../util/logger'
 
 export class ConnectedDevice implements Device {
   readonly id: string
@@ -52,13 +50,13 @@ export class ConnectedDevice implements Device {
     logger.info(`Device ${status.toLowerCase()}: ${type.name} on ${this.port.address} (${this.port.protocol})`)
   }
 
-  async monitorOutput (client: RPCClient, outStream: Duplex, sec: number = 5 * 60): Promise<void> {
+  async monitorOutput (sec: number = 5 * 60): Promise<void> {
     if (this.#deviceMonitor == null) {
       this.#deviceMonitor = new DeviceMonitor(this.port)
     }
 
     await this.updateStatus(DeviceStatus.UNAVAILABLE)
-    await this.#deviceMonitor.start(client, outStream, sec)
+    await this.#deviceMonitor.start(sec)
   }
 
   async stopMonitoring (): Promise<void> {

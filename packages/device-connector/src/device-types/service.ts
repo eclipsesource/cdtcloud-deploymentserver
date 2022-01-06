@@ -1,7 +1,7 @@
 import type { DeviceType } from '@prisma/client'
 import { sendNewDeviceTypeRequest } from '../deployment-server/service'
 import { DeviceTypes } from './store'
-import logger from '../util/logger'
+import { logger } from '../util/logger'
 
 export type FQBN = string
 
