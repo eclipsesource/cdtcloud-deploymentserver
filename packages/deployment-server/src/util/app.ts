@@ -1,4 +1,4 @@
-import express, { Application } from 'express'
+import express, { Application, Router, static as serveStatic } from 'express'
 import statusMessage from 'statuses'
 
 import connectorRoutes from '../connectors/routes'
@@ -11,6 +11,9 @@ import { errorHandler } from './errorHandler'
 import { pinoHttp } from './logger'
 import type { PrismaClient } from '@prisma/client'
 import cors from 'cors'
+import helmet from 'helmet'
+import { dirname, join } from 'path'
+import { fileURLToPath } from 'url'
 
 export function createApp (db: PrismaClient): Application {
   const app = express()
@@ -33,11 +36,30 @@ export function createApp (db: PrismaClient): Application {
     next()
   })
 
-  deviceRoutes(app)
-  deviceTypeRoutes(app)
-  connectorRoutes(app)
-  deploymentRequestsRoutes(app)
-  deploymentArtifactsRoutes(app)
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        'script-src': ["'self'", "'unsafe-inline'"],
+        'img-src': ["'self'", 'data:', 'storage.googleapis.com']
+      }
+    }
+  }))
+
+  const apiRouter = Router()
+
+  deviceRoutes(apiRouter)
+  deviceTypeRoutes(apiRouter)
+  connectorRoutes(apiRouter)
+  deploymentRequestsRoutes(apiRouter)
+  deploymentArtifactsRoutes(apiRouter)
+
+  app.use(serveStatic('public'))
+  app.use('/api', apiRouter)
+
+  app.get('/*', function (_, res) {
+    res.sendFile(join(dirname(fileURLToPath(import.meta.url)), '../../public', 'index.html'))
+  })
 
   app.use(function notFoundResponse (_req, res) {
     res.sendStatus(404)

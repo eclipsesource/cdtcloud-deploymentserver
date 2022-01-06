@@ -14,7 +14,7 @@ export class CompilationServiceImpl implements CompilationService {
 
   binaryFile: string;
   artifactUri: string;
-  
+
   async compile(fqbn: string, id: string, sketchPath: string): Promise<void> {
     const client = new RPCClient()
     await client.init()
@@ -64,7 +64,7 @@ export class CompilationServiceImpl implements CompilationService {
     const formHeaders = form.getHeaders();
 
     const uploadResponse =
-      await got.post<{ artifactUri: string }>(`http://localhost:3001/deployment-artifacts`, {
+      await got.post<{ artifactUri: string }>(`http://localhost:3001/api/deployment-artifacts`, {
         headers: {
           ...formHeaders
         },
@@ -74,7 +74,7 @@ export class CompilationServiceImpl implements CompilationService {
 
     const artifactUri = uploadResponse.body.artifactUri
 
-    await got.post(`http://localhost:3001/deployments`, {
+    await got.post(`http://localhost:3001/api/deployments`, {
       headers: {
         "Content-Type": "application/json"
       },

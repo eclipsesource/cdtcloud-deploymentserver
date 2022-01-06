@@ -20,7 +20,7 @@ let db: PrismaClient
 before(async () => {
   [server, , db] = await createServer()
   address = server.address() as AddressInfo
-  baseUrl = `http://${address.address}:${address.port}`
+  baseUrl = `http://${address.address}:${address.port}/api`
 })
 
 teardown(async () => {

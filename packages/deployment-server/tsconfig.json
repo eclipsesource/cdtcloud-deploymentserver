@@ -14,6 +14,7 @@
     "esModuleInterop": true,
     "incremental": true,
     "rootDir": ".",
-    "emitDeclarationOnly": false
+    "emitDeclarationOnly": false,
+    "composite": true
   }
 }
