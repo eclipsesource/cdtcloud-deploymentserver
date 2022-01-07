@@ -1,8 +1,9 @@
 import type { DeviceType, Device } from '@prisma/client'
-import { DeviceStatus } from '../util/common'
+import { DeployStatus, DeviceStatus } from '../util/common'
 import { env } from 'process'
 import { fetch } from 'undici'
 import { connectorId } from './connection'
+import { DeploymentData, DeploymentId } from '../devices/deployment'
 
 export const sendNewDeviceTypeRequest = async (fqbn: string, name: string): Promise<DeviceType> => {
   const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
@@ -93,4 +94,21 @@ export const deleteDeviceRequest = async (deviceId: string): Promise<void> => {
   await fetch(url, {
     method: 'DELETE'
   })
+}
+
+export const setDeployRequest = async (deployId: DeploymentId, status: keyof typeof DeployStatus): Promise<DeploymentData> => {
+  const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
+  const url = `http://${address}/api/deployments/${deployId}`
+
+  const resp = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      status: status
+    })
+  })
+
+  return await resp.json() as DeploymentData
 }

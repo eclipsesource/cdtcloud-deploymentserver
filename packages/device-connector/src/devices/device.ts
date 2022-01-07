@@ -1,25 +1,27 @@
 import type { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
 import type { Device, DeviceType } from '@prisma/client'
-import { DeviceStatus } from '../util/common'
-import { fetchDeviceType, setDeviceRequest } from '../deployment-server/service'
+import { DeployStatus, DeviceStatus } from '../util/common'
+import { fetchDeviceType, setDeployRequest, setDeviceRequest } from '../deployment-server/service'
 import { DeviceMonitor } from './monitoring'
 import { FQBN } from '../device-types/service'
 import { DeviceTypes } from '../device-types/store'
 import { connectorId } from '../deployment-server/connection'
 import { logger } from '../util/logger'
+import { Deployment, DeploymentId } from './deployment'
+import { arduinoClient } from '../deviceConnector'
 
 export class ConnectedDevice implements Device {
   readonly id: string
   readonly deviceTypeId: string
-  readonly connectorId: string
+  readonly connectorId = connectorId
   readonly port: Port
   status: keyof typeof DeviceStatus
   #deviceMonitor: DeviceMonitor | undefined
+  deployQueue = new Array<Deployment>()
 
   constructor (id: string, deviceTypeId: string, port: Port, status: keyof typeof DeviceStatus = DeviceStatus.AVAILABLE) {
     this.id = id
     this.deviceTypeId = deviceTypeId
-    this.connectorId = connectorId
     this.port = port
     this.status = status
   }
@@ -28,6 +30,12 @@ export class ConnectedDevice implements Device {
     const deviceType = await this.getType()
 
     return deviceType.fqbn
+  }
+
+  async getName (): Promise<string> {
+    const deviceType = await this.getType()
+
+    return deviceType.name
   }
 
   async getType (): Promise<DeviceType> {
@@ -48,6 +56,13 @@ export class ConnectedDevice implements Device {
 
     const type = await this.getType()
     logger.info(`Device ${status.toLowerCase()}: ${type.name} on ${this.port.address} (${this.port.protocol})`)
+
+    if (status === DeviceStatus.AVAILABLE) {
+      const next = this.deployQueue.pop()
+      if (next != null) {
+        await this.deploy(next)
+      }
+    }
   }
 
   async monitorOutput (sec: number = 5 * 60): Promise<void> {
@@ -86,5 +101,35 @@ export class ConnectedDevice implements Device {
     }
 
     return false
+  }
+
+  async deploy (deployment: Deployment): Promise<void> {
+    const fqbn = await this.getFQBN()
+
+    // Update device status and notify server of status-change
+    await this.updateStatus(DeviceStatus.DEPLOYING)
+    await setDeployRequest(deployment.id, DeployStatus.RUNNING)
+
+    try {
+      // Start uploading artifact
+      await arduinoClient.uploadBin(fqbn, this.port, deployment.artifactPath)
+    } catch (e) {
+      await this.updateStatus(DeviceStatus.AVAILABLE)
+      await setDeployRequest(deployment.id, DeployStatus.FAILED)
+      throw e
+    }
+
+    // Update device status and notify server of status-change
+    await this.updateStatus(DeviceStatus.RUNNING)
+    await setDeployRequest(deployment.id, DeployStatus.SUCCESS)
+  }
+
+  async queue (deployment: Deployment): Promise<void> {
+    await setDeployRequest(deployment.id, DeployStatus.PENDING)
+    this.deployQueue.push(deployment)
+  }
+
+  async dequeue (deployId: DeploymentId): Promise<void> {
+    this.deployQueue = this.deployQueue.filter((deployment) => deployment.id !== deployId)
   }
 }

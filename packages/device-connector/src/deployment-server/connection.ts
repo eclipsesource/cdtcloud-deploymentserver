@@ -88,7 +88,7 @@ export const openStream = async (): Promise<Duplex> => {
   }
 
   connectorId = connectorData.id
-  const url = `ws://${address}/api/connectors/${connectorId}/queue`
+  const url = `ws://${address}/connectors/${connectorId}/queue`
   const socket = new WebSocket(url)
 
   socket.onopen = () => {
@@ -112,8 +112,11 @@ export const openStream = async (): Promise<Duplex> => {
     if (type === 'deploy') {
       const data = servReq.data as DeploymentData
 
-      const device = await deployBinary(data)
-      await device.monitorOutput(5) // Todo: remove, this is only temporary to test
+      try {
+        await deployBinary(data)
+      } catch (e) {
+        logger.error(e)
+      }
     } else if (type.startsWith('monitor.')) {
       const command = type.split('.')[1]
       const data = servReq.data as MonitorData
