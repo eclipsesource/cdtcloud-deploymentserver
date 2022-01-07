@@ -1,18 +1,11 @@
-import { RPCClient } from './client'
-import { setDevices } from '../devices/service'
+import { GRPCClient } from './client'
 
-export const connectCli = async (): Promise<RPCClient> => {
-  const client = await new RPCClient()
+export const buildCli = async (): Promise<GRPCClient> => {
+  const client = await new GRPCClient()
   await client.init()
   await client.createInstance()
   await client.initInstance()
+  await client.boardListWatch()
 
   return client
-}
-
-export const registerDevices = async (client: RPCClient): Promise<void> => {
-  await client.boardListWatch()
-  const devices = client.devices
-
-  setDevices(devices)
 }

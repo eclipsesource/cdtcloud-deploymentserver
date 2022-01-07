@@ -1,61 +1,38 @@
-import { connectCli, registerDevices } from './arduino-cli/service'
-import { RPCClient } from './arduino-cli/client'
-import { deployBinary } from './devices/deployment'
+import { buildCli } from './arduino-cli/service'
+import { GRPCClient } from './arduino-cli/client'
 import { openStream } from './deployment-server/connection'
-import logger from './util/logger'
 import { Signals } from 'close-with-grace'
 import { Duplex } from 'stream'
-import { DeployServRequest } from './deployment-server/service'
-import { monitorDevice } from './devices/monitoring'
+import { logger } from './util/logger'
+
+export let arduinoClient: GRPCClient
+export let deploymentSocket: Duplex
 
 export interface DeviceConnector {
-  client: RPCClient
-  socket: Duplex
+  arduinoClient: GRPCClient
+  deploymentSocket: Duplex
 }
 
 export const createConnector = async (): Promise<DeviceConnector> => {
-  const client = await connectCli()
-  const socket = await openStream()
+  arduinoClient = await buildCli()
+  deploymentSocket = await openStream()
 
-  await registerDevices(client)
-
-  socket.on('data', (message) => {
-    const servReq = JSON.parse(message) as DeployServRequest
-    const type = servReq.type
-    const data = servReq.data
-
-    if (type === 'deploy') {
-      deployBinary(data, client).then(async (device) => {
-        await monitorDevice(client, device)
-      }).catch((e) => {
-        socket.write(e.message)
-        logger.error(e.message)
-      })
-    } else if (type === 'monitor.start') {
-      // TODO: start monitor
-    } else if (type === 'monitor.close') {
-      // TODO: stop monitor
-    } else {
-      logger.error(`Received unknown request type ${type}`)
-    }
-  })
-
-  return { client, socket }
+  return { arduinoClient, deploymentSocket }
 }
 
 export async function closeConnector (
-  this: {client: RPCClient, socket: Duplex},
+  this: {arduinoClient: GRPCClient, deploymentSocket: Duplex},
   { err, signal }: { err?: Error, signal?: Signals | string } = { }
 ): Promise<void> {
   if (err != null) {
     logger.error(err)
   }
 
-  await this.client.removeAllDevices()
-  await this.client.destroyInstance()
-  this.client.closeClient()
+  await this.arduinoClient.removeAllDevices()
+  await this.arduinoClient.destroyInstance()
+  this.arduinoClient.closeClient()
 
-  this.socket.end()
+  this.deploymentSocket.end()
 
   logger.info(`${signal ?? 'Manual Exit'}: Closed service`)
 }

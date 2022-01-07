@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import tap from 'tap'
-import { RPCClient } from '../src/arduino-cli/client'
+import { GRPCClient } from '../src/arduino-cli/client'
 
 const { before, test } = tap
 
-let client: RPCClient
+let client: GRPCClient
 
 before(async () => {
-  client = await new RPCClient()
+  client = await new GRPCClient()
   await client.init()
   await client.createInstance()
   await client.initInstance()
