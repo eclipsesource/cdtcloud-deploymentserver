@@ -88,7 +88,7 @@ export const openStream = async (): Promise<Duplex> => {
   }
 
   connectorId = connectorData.id
-  const url = `ws://${address}/api/connectors/${connectorId}/queue`
+  const url = `ws://${address}/connectors/${connectorId}/queue`
   const socket = new WebSocket(url)
 
   socket.onopen = () => {
