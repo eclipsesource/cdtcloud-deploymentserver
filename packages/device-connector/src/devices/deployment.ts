@@ -5,16 +5,22 @@ import * as Path from 'path'
 import { dirname } from 'path'
 import { Readable } from 'stream'
 import { request } from 'undici'
-import { ConnectedDevice } from './device'
 import { promisify } from 'util'
 import { fileURLToPath } from 'url'
 import { DeviceStatus } from '../util/common'
 import { ConnectedDevices } from './store'
 import { unregisterDevice } from './service'
 import { logger } from '../util/logger'
-import { arduinoClient } from '../deviceConnector'
+
+export type DeploymentId = string
+
+export interface Deployment {
+  id: DeploymentId
+  artifactPath: string
+}
 
 export interface DeploymentData {
+  id: DeploymentId
   device: Device
   artifactUri: string
 }
@@ -43,7 +49,7 @@ export const downloadArtifact = async (uri: string): Promise<string> => {
   return Path.resolve(file)
 }
 
-export const deployBinary = async (deployData: DeploymentData): Promise<ConnectedDevice> => {
+export const deployBinary = async (deployData: DeploymentData): Promise<void> => {
   const artifactUri = deployData.artifactUri
   const reqDevice = deployData.device
   let device
@@ -54,42 +60,20 @@ export const deployBinary = async (deployData: DeploymentData): Promise<Connecte
     // Requested device not connected - unregistering
     await unregisterDevice(reqDevice.id)
 
-    // Looking for alternative device of same type
-    device = ConnectedDevices.findAvailable(reqDevice.deviceTypeId)
-
-    if (device != null) {
-      logger.warn(`Requested Device with id ${reqDevice.id} not found - using alternative device`)
-    } else {
-      throw new Error(`Requested Device with id ${reqDevice.id} not found`)
-    }
+    throw new Error(`Requested Device with id ${reqDevice.id} not found`)
   }
 
-  const deviceStatus = device.status
-  if (deviceStatus !== DeviceStatus.AVAILABLE) {
-    device = ConnectedDevices.findAvailable(reqDevice.deviceTypeId)
-    if (device != null) {
-      logger.warn(`Requested Device with id ${reqDevice.id} busy - using alternative device`)
-    } else {
-      throw new Error(`Requested Device with id ${reqDevice.id} busy (${deviceStatus})`)
-    }
-  }
-
-  const fqbn = await device.getFQBN()
   const artifactPath = await downloadArtifact(artifactUri)
 
-  // Update device status and notify server of status-change
-  await device.updateStatus(DeviceStatus.DEPLOYING)
-
-  try {
-    // Start uploading artifact
-    await arduinoClient.uploadBin(fqbn, device.port, artifactPath)
-  } catch (e) {
-    await device.updateStatus(DeviceStatus.AVAILABLE)
-    throw e
+  const deployment = {
+    id: deployData.id,
+    artifactPath
   }
 
-  // Reset device status and notify server of status-change
-  await device.updateStatus(DeviceStatus.AVAILABLE) // TODO: Set correct status
+  if (device.status === DeviceStatus.AVAILABLE) {
+    return await device.deploy(deployment)
+  }
 
-  return device
+  await device.queue(deployment)
+  logger.info(`Queued deployment ${deployData.id} on device ${device.id}`)
 }

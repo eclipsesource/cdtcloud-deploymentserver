@@ -112,8 +112,11 @@ export const openStream = async (): Promise<Duplex> => {
     if (type === 'deploy') {
       const data = servReq.data as DeploymentData
 
-      const device = await deployBinary(data)
-      await device.monitorOutput(5) // Todo: remove, this is only temporary to test
+      try {
+        await deployBinary(data)
+      } catch (e) {
+        logger.error(e)
+      }
     } else if (type.startsWith('monitor.')) {
       const command = type.split('.')[1]
       const data = servReq.data as MonitorData
