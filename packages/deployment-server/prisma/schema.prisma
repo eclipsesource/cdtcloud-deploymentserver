@@ -43,6 +43,8 @@ model DeployRequest {
   id          String       @unique @default(uuid()) @db.Uuid
   device      Device       @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   status      DeployStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now()) @updatedAt
   artifactUrl String?
   deviceId    String       @db.Uuid
 }
