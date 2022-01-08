@@ -1,8 +1,8 @@
 import "./App.css";
-import { CdtCloudMain } from "./components/CdtCloudMain";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
-  return <h2>Hello</h2>;
+  return <Dashboard />;
 }
 
 export default App;
