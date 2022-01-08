@@ -6,6 +6,7 @@ import deviceRoutes from '../devices/routes'
 import deviceTypeRoutes from '../device-types/routes'
 import deploymentRequestsRoutes from '../deployments/routes'
 import deploymentArtifactsRoutes from '../deployment-artifacts/routes'
+import dashboardRoutes from '../dashboard/routes'
 
 import { errorHandler } from './errorHandler'
 import { pinoHttp } from './logger'
@@ -48,6 +49,7 @@ export function createApp (db: PrismaClient): Application {
 
   const apiRouter = Router()
 
+  dashboardRoutes(apiRouter)
   deviceRoutes(apiRouter)
   deviceTypeRoutes(apiRouter)
   connectorRoutes(apiRouter)

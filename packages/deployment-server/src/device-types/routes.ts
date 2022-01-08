@@ -2,8 +2,10 @@ import dbClient, { DeviceType } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
+import { DeviceTypeWithCount } from '.'
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
+import { withCount } from './service'
 
 const { DeviceStatus } = dbClient
 
@@ -17,7 +19,7 @@ export default function deviceTypeRoutes (router: Router): void {
 
   router.get(
     '/device-types',
-    validate<DeviceType[], {}, never, Static<typeof getQuery>>({
+    validate<DeviceTypeWithCount[], {}, never, Static<typeof getQuery>>({
       query: getQuery
     }),
     async (req, res, next) => {
@@ -43,14 +45,17 @@ export default function deviceTypeRoutes (router: Router): void {
           }
         }
 
-        const deviceTypes: Array<DeviceType & { _count?: { devices: number } }> =
-          await req.db.deviceType.findMany(req.query.deployable != null ? selectDeployable : {})
+        const deviceTypes = await req.db.deviceType.findMany(
+          req.query.deployable != null
+            ? selectDeployable
+            : { include: { _count: { select: { devices: true } } } }
+        ) as Array<(DeviceType & {
+          _count: {
+            devices: number
+          }
+        })>
 
-        for (const deviceType of deviceTypes) {
-          delete deviceType._count
-        }
-
-        res.json(deviceTypes)
+        res.json(deviceTypes.map(withCount))
       } catch (e) {
         next(e)
       }
@@ -59,16 +64,21 @@ export default function deviceTypeRoutes (router: Router): void {
 
   router.get(
     '/device-types/:id',
-    validate<DeviceType, IdParams>({ params: idParams }),
+    validate<DeviceTypeWithCount, IdParams>({ params: idParams }),
     async (req, res, next) => {
       try {
         const deviceType = await req.db.deviceType.findUnique({
-          where: { id: req.params.id }
+          where: { id: req.params.id },
+          include: {
+            _count: {
+              select: { devices: true }
+            }
+          }
         })
 
         if (deviceType == null) return res.sendStatus(404)
 
-        return res.json(deviceType)
+        return res.json(withCount(deviceType))
       } catch (e) {
         next(e)
       }
@@ -85,14 +95,19 @@ export default function deviceTypeRoutes (router: Router): void {
 
   router.post(
     '/device-types',
-    validate<DeviceType, {}, Static<typeof postBody>>({ body: postBody }),
+    validate<DeviceTypeWithCount, {}, Static<typeof postBody>>({ body: postBody }),
     async (req, res, next) => {
       try {
         const deviceType = await req.db.deviceType.create({
-          data: req.body
+          data: req.body,
+          include: {
+            _count: {
+              select: { devices: true }
+            }
+          }
         })
 
-        return res.json(deviceType)
+        return res.json(withCount(deviceType))
       } catch (e) {
         next(e)
       }
@@ -109,7 +124,7 @@ export default function deviceTypeRoutes (router: Router): void {
 
   router.put(
     '/device-types/:id',
-    validate<DeviceType, IdParams, Static<typeof putBody>>({
+    validate<DeviceTypeWithCount, IdParams, Static<typeof putBody>>({
       params: idParams,
       body: putBody
     }),
@@ -117,10 +132,15 @@ export default function deviceTypeRoutes (router: Router): void {
       try {
         const deviceType = await req.db.deviceType.update({
           where: { id: req.params.id },
-          data: req.body
+          data: req.body,
+          include: {
+            _count: {
+              select: { devices: true }
+            }
+          }
         })
 
-        return res.json(deviceType)
+        return res.json(withCount(deviceType))
       } catch (e) {
         next(e)
       }
@@ -129,14 +149,19 @@ export default function deviceTypeRoutes (router: Router): void {
 
   router.delete(
     '/device-types/:id',
-    validate<DeviceType, IdParams>({ params: idParams }),
+    validate<DeviceTypeWithCount, IdParams>({ params: idParams }),
     async (req, res, next) => {
       try {
         const deviceType = await req.db.deviceType.delete({
-          where: { id: req.params.id }
+          where: { id: req.params.id },
+          include: {
+            _count: {
+              select: { devices: true }
+            }
+          }
         })
 
-        return res.json(deviceType)
+        return res.json(withCount(deviceType))
       } catch (e) {
         if (e instanceof PrismaClientKnownRequestError && e.code === 'P2025') {
           return res.sendStatus(404)

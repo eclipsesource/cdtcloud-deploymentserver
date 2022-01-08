@@ -1,7 +1,9 @@
-export default function Devices() {
+import defineFunctionalComponent from "../util/defineFunctionalComponent";
+
+export default defineFunctionalComponent(function Devices() {
   return (
-    <main style={{ padding: "1rem 0" }}>
+    <main>
       <h2>Devices</h2>
     </main>
   );
-}
+});

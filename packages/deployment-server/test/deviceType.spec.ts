@@ -3,10 +3,11 @@ import tap from 'tap'
 import { fetch } from './util/fetch'
 import type { AddressInfo } from 'node:net'
 import { Server } from 'node:http'
-import dbClient, { DeviceType, PrismaClient } from '@prisma/client'
+import dbClient, { PrismaClient } from '@prisma/client'
 import { closeServer, createServer } from '../src/server'
 import { randomUUID } from 'node:crypto'
 import { stringify } from 'node:querystring'
+import { DeviceTypeWithCount } from '../src'
 
 const { DeviceStatus } = dbClient
 
@@ -46,7 +47,7 @@ test('Retrieves all deviceTypes', async (t) => {
 
   t.equal(response.status, 200)
 
-  const body = (await response.json()) as DeviceType[]
+  const body = (await response.json()) as DeviceTypeWithCount[]
 
   t.ok(body.some((x) => x.id === deviceType.id))
 })
@@ -63,11 +64,12 @@ test('Adds a device type', async (t) => {
       name: 'Test device type'
     })
   })
-  const body = (await response.json()) as DeviceType
+  const body = (await response.json()) as DeviceTypeWithCount
 
   t.equal(response.status, 200)
 
   t.ok(body.id)
+  t.equal(body.numberOfDevices, 0)
 })
 
 test('Can filter for potentially viable deviceTypes', async (t) => {
@@ -124,7 +126,7 @@ test('Can filter for potentially viable deviceTypes', async (t) => {
   t.ok(response.ok)
   t.equal(response.status, 200)
 
-  const body = (await response.json()) as DeviceType[]
+  const body = (await response.json()) as DeviceTypeWithCount[]
 
   t.ok(
     body.some(

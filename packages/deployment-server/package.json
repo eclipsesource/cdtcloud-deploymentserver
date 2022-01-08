@@ -5,6 +5,9 @@
   "repository": "git@github.com:EclipseSource/cdtcloud-deploymentserver.git",
   "license": "EPL-2.0",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "nts": "node --loader esbuild-node-loader",
     "dev": "nodemon -x node --loader esbuild-node-loader  -r dotenv/config src/index.ts",
@@ -12,7 +15,8 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "c8 tap",
     "test:dev": "tap -w",
-    "typecheck": "tsc -noEmit"
+    "typecheck": "tsc -noEmit",
+    "prepare": "yarn tsc"
   },
   "tap": {
     "node-arg": [
