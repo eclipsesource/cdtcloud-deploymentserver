@@ -45,6 +45,9 @@ jobs:
       - name: Seed database
         run: yarn run --cwd=packages/deployment-server prisma db seed
 
+      - name: Build server type declarations
+        run: yarn run --cwd=packages/deployment-server tsc
+
       - name: Check
         run: yarn run typecheck
 
