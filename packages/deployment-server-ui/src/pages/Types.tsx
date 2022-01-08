@@ -1,4 +1,4 @@
-import type { DeviceTypeWithCount as DeviceType } from "deployment-server";
+import type { DeviceTypeWithCount } from "deployment-server";
 
 import { useState, useEffect } from "react";
 import { Card, Divider, List, Skeleton } from "antd";
@@ -9,12 +9,16 @@ import SkeletonButton from "antd/lib/skeleton/Button";
 
 const { Meta } = Card;
 
-const isType = (type: DeviceType | {}): type is DeviceType => {
+const isType = (
+  type: DeviceTypeWithCount | {}
+): type is DeviceTypeWithCount => {
   return typeof type === "object" && "id" in type;
 };
 
 export default defineFunctionalComponent(function Types() {
-  const [types, setTypes] = useState<DeviceType[] | {}[]>(Array(15).fill({}));
+  const [types, setTypes] = useState<DeviceTypeWithCount[] | {}[]>(
+    Array(15).fill({})
+  );
 
   useEffect(() => {
     fetch("/api/device-types")
