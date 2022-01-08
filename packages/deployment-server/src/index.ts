@@ -22,3 +22,7 @@ try {
   console.error(err)
   exit(1)
 }
+
+export * from './connectors'
+export * from './deployment-artifacts'
+export * from './device-types'
