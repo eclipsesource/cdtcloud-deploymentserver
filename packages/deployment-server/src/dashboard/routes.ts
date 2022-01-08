@@ -9,6 +9,13 @@ export default function dashboardRoutes (router: Router): void {
       try {
         const recentDeployments = await req.db.deployRequest.findMany({
           take: 5,
+          include: {
+            device: {
+              include: {
+                type: true
+              }
+            }
+          },
           orderBy: {
             updatedAt: 'desc'
           }
