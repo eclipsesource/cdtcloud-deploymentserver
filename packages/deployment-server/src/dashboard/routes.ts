@@ -1,10 +1,12 @@
 import { DeployStatus, DeviceStatus } from '@prisma/client'
 import { Router } from 'express'
+import { Dashboard } from '.'
+import { validate } from '../util/validate'
 
 export default function dashboardRoutes (router: Router): void {
   router.get(
     '/dashboard',
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    validate<Dashboard>({}),
     async (req, res, next) => {
       try {
         const recentDeployments = await req.db.deployRequest.findMany({
