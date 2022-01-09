@@ -8,6 +8,8 @@ import App from "./App";
 import Types from "./pages/Types";
 import Devices from "./pages/Devices";
 import Deployments from "./pages/Deployments";
+import NotFound from "./pages/NotFound";
+
 import { CdtCloudMain } from "./components/CdtCloudMain";
 
 ReactDOM.render(
@@ -19,6 +21,7 @@ ReactDOM.render(
           <Route path="types" element={<Types />} />
           <Route path="devices" element={<Devices />} />
           <Route path="deployments" element={<Deployments />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </CdtCloudMain>
     </BrowserRouter>

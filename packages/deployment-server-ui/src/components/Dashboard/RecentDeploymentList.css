@@ -1,0 +1,19 @@
+.deployment-enter {
+  opacity: 0;
+  max-height: 0px;
+}
+.deployment-enter-active {
+  opacity: 1;
+  max-height: 100px;
+  transition: all 750ms ease-in-out;
+}
+
+.deployment-exit {
+  max-height: 100px;
+  opacity: 1;
+}
+.deployment-exit-active {
+  opacity: 0;
+  max-height: 0px;
+  transition: all 750ms ease-in-out;
+}

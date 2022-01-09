@@ -18,12 +18,15 @@ export function CdtCloudSidebar() {
         style={{ height: "100%", borderRight: 0 }}
       >
         <Menu.Item key="1" icon={<PieChartOutlined />}>
+          <Link to={"/"}>Dashboard</Link>
+        </Menu.Item>
+        <Menu.Item key="2" icon={<PieChartOutlined />}>
           <Link to={"/deployments"}>Deployments</Link>
         </Menu.Item>
-        <Menu.Item key="2" icon={<DesktopOutlined />}>
+        <Menu.Item key="3" icon={<DesktopOutlined />}>
           <Link to={"/devices"}>Devices</Link>
         </Menu.Item>
-        <Menu.Item key="3" icon={<FileOutlined />}>
+        <Menu.Item key="4" icon={<FileOutlined />}>
           <Link to={"/types"}>Types</Link>
         </Menu.Item>
       </Menu>

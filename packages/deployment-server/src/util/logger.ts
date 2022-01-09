@@ -11,6 +11,7 @@ const devTransport = {
 
 export const pinoHttp = pino({
   transport: env.NODE_ENV === 'development' ? devTransport : undefined,
+  redact: env.NODE_ENV === 'development' ? ['req.headers', 'res.headers'] : undefined,
   level: env.NODE_ENV === 'test' ? 'fatal' : 'info'
 })
 
