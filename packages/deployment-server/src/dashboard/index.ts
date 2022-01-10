@@ -13,5 +13,5 @@ export interface Dashboard {
   deviceCount: number
   deploymentOverview: Record<DeployRequest['status'], number>
   deviceOverview: Record<Device['status'], number>
-
+  deploymentsPerBucket: Record<string, number>
 }

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/prefer-reduce-type-parameter */
+/* eslint-disable @typescript-eslint/consistent-type-assertions */
 import { DeployStatus, DeviceStatus } from '@prisma/client'
 import { Router } from 'express'
 import { Dashboard } from '.'
@@ -23,19 +25,35 @@ export default function dashboardRoutes (router: Router): void {
           }
         })
 
+        const deploymentsPerBucket = await req.db.$queryRaw<Array<{bucket: string, count: string}>>`
+          WITH buckets AS (
+            SELECT generate_series(
+              date_trunc('minute', now()) - '20 minutes'::interval,
+              date_trunc('minute', now()),
+              '1 minute'::interval
+            ) as bucket
+          )
+
+          SELECT
+            buckets.bucket,
+            count("DeployRequest".id)
+          FROM buckets
+          LEFT JOIN "DeployRequest" on date_trunc('minute', "DeployRequest"."createdAt") = buckets.bucket
+          GROUP BY 1
+          ORDER BY 1
+        `.then((x) => x.reduce((acc, { bucket, count }) => ({ ...acc, [bucket]: parseInt(count) }), {} as Record<string, number>))
+
         const deployRequestCount = await req.db.deployRequest.count()
         const deviceCount = await req.db.device.count()
 
         const deploymentOverview = await req.db.deployRequest.groupBy({
           by: ['status'],
           _count: true
-        // eslint-disable-next-line @typescript-eslint/prefer-reduce-type-parameter, @typescript-eslint/consistent-type-assertions
         }).then(x => x.reduce((acc, { status, _count }) => ({ ...acc, [status]: _count }), {} as Record<DeployStatus, number>))
 
         const deviceOverview = await req.db.device.groupBy({
           by: ['status'],
           _count: true
-        // eslint-disable-next-line @typescript-eslint/prefer-reduce-type-parameter, @typescript-eslint/consistent-type-assertions
         }).then(x => x.reduce((acc, { status, _count }) => ({ ...acc, [status]: _count }), {} as Record<DeviceStatus, number>))
 
         return res.json({
@@ -43,7 +61,8 @@ export default function dashboardRoutes (router: Router): void {
           deploymentOverview,
           deployRequestCount,
           deviceOverview,
-          deviceCount
+          deviceCount,
+          deploymentsPerBucket
         })
       } catch (e) {
         next(e)
