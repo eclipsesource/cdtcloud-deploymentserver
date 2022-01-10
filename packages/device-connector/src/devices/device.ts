@@ -9,6 +9,7 @@ import { connectorId } from '../deployment-server/connection'
 import { logger } from '../util/logger'
 import { Deployment, DeploymentId } from './deployment'
 import { arduinoClient } from '../deviceConnector'
+import { setTimeout } from 'timers/promises'
 
 export class ConnectedDevice implements Device {
   readonly id: string
@@ -52,6 +53,12 @@ export class ConnectedDevice implements Device {
 
   async updateStatus (status: keyof typeof DeviceStatus): Promise<void> {
     await setDeviceRequest(this.id, status)
+
+    // Only set remote status and don't execute further steps if status is already set locally
+    if (this.status === status) {
+      return
+    }
+
     this.status = status
 
     const type = await this.getType()
@@ -66,6 +73,10 @@ export class ConnectedDevice implements Device {
   }
 
   async monitorOutput (sec: number = 5 * 60): Promise<void> {
+    if (this.status !== DeviceStatus.RUNNING) {
+      throw new Error(`Device with id ${this.id} not currently running code`)
+    }
+
     if (this.#deviceMonitor == null) {
       this.#deviceMonitor = new DeviceMonitor(this.port)
     }
@@ -103,7 +114,7 @@ export class ConnectedDevice implements Device {
     return false
   }
 
-  async deploy (deployment: Deployment): Promise<void> {
+  async deploy (deployment: Deployment, runtimeMS: number = 12000): Promise<void> {
     const fqbn = await this.getFQBN()
 
     // Update device status and notify server of status-change
@@ -122,6 +133,11 @@ export class ConnectedDevice implements Device {
     // Update device status and notify server of status-change
     await this.updateStatus(DeviceStatus.RUNNING)
     await setDeployRequest(deployment.id, DeployStatus.SUCCESS)
+
+    // Run code only for a set amount of time. Set device back to available after.
+    // Default: 2min
+    await setTimeout(runtimeMS)
+    await this.updateStatus(DeviceStatus.AVAILABLE)
   }
 
   async queue (deployment: Deployment): Promise<void> {

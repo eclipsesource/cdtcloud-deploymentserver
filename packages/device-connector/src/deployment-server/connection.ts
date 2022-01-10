@@ -8,7 +8,6 @@ import { Duplex } from 'stream'
 import { deployBinary, DeploymentData } from '../devices/deployment'
 import { MonitorData } from '../devices/monitoring'
 import { ConnectedDevices } from '../devices/store'
-import { DeviceStatus } from '../util/common'
 import { unregisterDevice } from '../devices/service'
 
 export interface ConnectorData {
@@ -124,11 +123,10 @@ export const openStream = async (): Promise<Duplex> => {
       try {
         const device = ConnectedDevices.get(data.device.id)
         if (command === 'start') {
-          if (device.status === DeviceStatus.AVAILABLE) {
-            await device.monitorOutput(5) // TODO: monitor currently set to 5sec for testing purposes
-          } else {
-            const monitoring = device.isMonitoring() ? DeviceStatus.RUNNING : device.status
-            logger.error(`Requested Device with id ${device.id} busy (${monitoring})`)
+          try {
+            await device.monitorOutput()
+          } catch (e) {
+            logger.error(e)
           }
         } else if (command === 'stop') {
           await device.stopMonitoring()
