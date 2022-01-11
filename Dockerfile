@@ -1,9 +1,8 @@
 FROM node:lts-alpine as fe-builder
 WORKDIR /usr/src/app
-COPY packages/deployment-server-ui ./
-COPY yarn.lock ./
-RUN yarn install
-RUN yarn run vite build
+COPY . .
+RUN yarn install --ignore-scripts
+RUN yarn --cwd packages/deployment-server-ui run vite build
 
 FROM node:lts-alpine
 RUN apk add dumb-init
@@ -17,7 +16,7 @@ RUN yarn install --frozen-lockfile --production=true --ignore-scripts --cache-fo
 
 COPY --chown=node packages/deployment-server/src ./src
 COPY --chown=node packages/deployment-server/prisma ./prisma
-COPY --chown=node:node --from=fe-builder /usr/src/app/dist ./public
+COPY --chown=node:node --from=fe-builder /usr/src/app/packages/deployment-server-ui/dist ./public
 RUN mkdir uploads && chown -R node ./uploads
 RUN yarn run prisma generate
 USER node
