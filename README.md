@@ -17,8 +17,8 @@
 
 #### With Docker
 1. Set deployment-server URI in [.docker/device-connector/env](.docker/device-connector/env)
-3. Run the arduino-cli daemon: `docker-compose up arduino`
-4. Run the device-connector: `docker-compose up devcon`
+2. Run the device-connector: `docker-compose up devcon`
+   - Build the docker-image beforehand if necessary `docker-compose build`
 
 #### On System
 1. Download the latest supported arduino-cli version _(currently v0.20.0)_ from [arduino-cli releases](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
