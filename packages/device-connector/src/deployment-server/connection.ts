@@ -86,9 +86,11 @@ export const openStream = async (): Promise<Duplex> => {
   let connectorData: ConnectorData | undefined
   if (fs.existsSync('.connection.data')) {
     connectorData = await readConnectorData()
+    logger.debug(`Found previous connection on ${connectorData.uri} with id ${connectorData.id}`)
   }
 
-  if (connectorData == null || connectorData.uri !== deployUri) {
+  if (connectorData == null || connectorData.id == null || connectorData.uri !== deployUri) {
+    logger.debug('No or invalid previous connection found for requested deployment-server')
     try {
       connectorData = await generateConnectorData()
     } catch (e) {
@@ -98,6 +100,7 @@ export const openStream = async (): Promise<Duplex> => {
     }
     try {
       await writeConnectorData(connectorData)
+      logger.debug(`New connection on ${connectorData.uri} with id ${connectorData.id}`)
     } catch (e) {
       logger.warn(e)
     }
@@ -148,7 +151,7 @@ export const openStream = async (): Promise<Duplex> => {
         } else if (command === 'stop') {
           await device.stopMonitoring()
         } else {
-          logger.error(`Received unknown monitor command ${command}`)
+          logger.debug(`Received unknown monitor command ${command} - ignoring`)
         }
       } catch (e) {
         // Requested device not connected - unregistering
@@ -160,7 +163,7 @@ export const openStream = async (): Promise<Duplex> => {
         logger.error(e)
       }
     } else {
-      logger.error(`Received unknown request type ${type}`)
+      logger.debug(`Received unknown request type ${type} - ignoring`)
     }
   }
 

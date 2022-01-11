@@ -64,6 +64,7 @@ export const deployBinary = async (deployData: DeploymentData): Promise<void> =>
   }
 
   const artifactPath = await downloadArtifact(artifactUri)
+  logger.debug(`Deployment: ${deployData.id} - Downloaded artifact from ${artifactUri} to ${Path.basename(artifactPath)}`)
 
   const deployment = {
     id: deployData.id,

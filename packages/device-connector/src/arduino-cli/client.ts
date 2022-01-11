@@ -340,6 +340,12 @@ export class GRPCClient {
 
         const removed = ConnectedDevices.onPort(port.address, port.protocol ?? 'serial')
         if (removed == null) {
+          if (port.protocol === 'serial') {
+            logger.debug(`Detached unregistered device on port ${port.address} (${port.protocol}) - ignoring`)
+          } else {
+            logger.trace(`Detached unregistered device on port ${port.address} (${port.protocol}) - ignoring`)
+          }
+
           return
         }
 
@@ -364,6 +370,12 @@ export class GRPCClient {
       const stream = this.#client.monitor({ deadline })
       stream.once('readable', () => {
         logger.info(`Start monitoring output of device on port ${port.address} (${port.protocol})`)
+      })
+
+      stream.on('data', (data: MonitorResponse) => {
+        if (data.rx_data != null) {
+          logger.debug(`Monitoring ${port.address}: ${data.rx_data.toString()}`)
+        }
       })
 
       stream.on('end', () => {
