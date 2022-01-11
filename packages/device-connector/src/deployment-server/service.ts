@@ -4,6 +4,7 @@ import { env } from 'process'
 import { fetch } from 'undici'
 import { connectorId } from './connection'
 import { DeploymentData, DeploymentId } from '../devices/deployment'
+import { httpError } from '../util/errors'
 
 export const sendNewDeviceTypeRequest = async (fqbn: string, name: string): Promise<DeviceType> => {
   const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
@@ -19,6 +20,10 @@ export const sendNewDeviceTypeRequest = async (fqbn: string, name: string): Prom
       name
     })
   })
+
+  if (!resp.ok) {
+    throw httpError(resp)
+  }
 
   return await resp.json() as DeviceType
 }
@@ -39,6 +44,10 @@ export const sendNewDeviceRequest = async (typeId: string): Promise<Device> => {
     })
   })
 
+  if (!resp.ok) {
+    throw httpError(resp)
+  }
+
   return await resp.json() as Device
 }
 
@@ -56,6 +65,10 @@ export const setDeviceRequest = async (deviceId: string, status: keyof typeof De
     })
   })
 
+  if (!resp.ok) {
+    throw httpError(resp)
+  }
+
   return await resp.json() as Device
 }
 
@@ -69,6 +82,10 @@ export const fetchAllDeviceTypes = async (): Promise<DeviceType[]> => {
       'Content-Type': 'application/json'
     }
   })
+
+  if (!resp.ok) {
+    throw httpError(resp)
+  }
 
   return await resp.json() as DeviceType[]
 }
@@ -84,6 +101,10 @@ export const fetchDeviceType = async (typeId: string): Promise<DeviceType> => {
     }
   })
 
+  if (!resp.ok) {
+    throw httpError(resp)
+  }
+
   return await resp.json() as DeviceType
 }
 
@@ -91,9 +112,13 @@ export const deleteDeviceRequest = async (deviceId: string): Promise<void> => {
   const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
   const url = `http://${address}/api/devices/${deviceId}`
 
-  await fetch(url, {
+  const resp = await fetch(url, {
     method: 'DELETE'
   })
+
+  if (!resp.ok) {
+    throw httpError(resp)
+  }
 }
 
 export const setDeployRequest = async (deployId: DeploymentId, status: keyof typeof DeployStatus): Promise<DeploymentData> => {
@@ -109,6 +134,10 @@ export const setDeployRequest = async (deployId: DeploymentId, status: keyof typ
       status: status
     })
   })
+
+  if (!resp.ok) {
+    throw httpError(resp)
+  }
 
   return await resp.json() as DeploymentData
 }

@@ -9,6 +9,7 @@ import { deployBinary, DeploymentData } from '../devices/deployment'
 import { MonitorData } from '../devices/monitoring'
 import { ConnectedDevices } from '../devices/store'
 import { unregisterDevice } from '../devices/service'
+import { httpError } from '../util/errors'
 
 export interface ConnectorData {
   id: string
@@ -42,6 +43,11 @@ const generateConnectorData = async (): Promise<ConnectorData> => {
   const registrationResponse = await fetch(`http://${address}/api/connectors`, {
     method: 'POST'
   })
+
+  if (!registrationResponse.ok) {
+    throw httpError(registrationResponse)
+  }
+
   const { id } = await registrationResponse.json() as any
 
   return await new Promise<ConnectorData>((resolve, reject) => {
@@ -82,8 +88,19 @@ export const openStream = async (): Promise<Duplex> => {
   }
 
   if ((connectorData == null) || connectorData.uri !== address) {
-    connectorData = await generateConnectorData()
-    await writeConnectorData(connectorData)
+    try {
+      connectorData = await generateConnectorData()
+    } catch (e) {
+      logger.error(e)
+      await setTimeout(3000)
+      console.log("restart 1")
+      return await openStream()
+    }
+    try {
+      await writeConnectorData(connectorData)
+    } catch (e) {
+      logger.warn(e)
+    }
   }
 
   connectorId = connectorData.id
@@ -95,7 +112,7 @@ export const openStream = async (): Promise<Duplex> => {
   }
 
   socket.onerror = (error: ErrorEvent) => {
-    logger.error(`DeployServ-Stream: ${error.message}`)
+    logger.error(`Deployment-Server socket: ${error.message}`)
   }
 
   socket.onclose = async (event: CloseEvent) => {
@@ -147,5 +164,11 @@ export const openStream = async (): Promise<Duplex> => {
     }
   }
 
-  return createWebSocketStream(socket)
+  let duplex = createWebSocketStream(socket)
+
+  duplex.on('close', () => {
+    duplex = createWebSocketStream(socket)
+  })
+
+  return duplex
 }

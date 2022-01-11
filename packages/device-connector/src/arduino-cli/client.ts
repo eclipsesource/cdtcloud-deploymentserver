@@ -321,7 +321,12 @@ export class GRPCClient {
       const detectedPort = data.port
 
       if (eventType === 'add' && detectedPort?.matching_boards != null && detectedPort.matching_boards.length > 0) {
-        await addDevice(detectedPort)
+        try {
+          await addDevice(detectedPort)
+        } catch (e) {
+          logger.error(e)
+          return
+        }
       } else if (eventType === 'remove') {
         const port = detectedPort?.port
         if (port == null) {
@@ -389,7 +394,11 @@ export class GRPCClient {
   async initializeDevices (): Promise<void> {
     const boards = await this.listBoards()
     for (const detectedPort of boards) {
-      await addDevice(detectedPort)
+      try {
+        await addDevice(detectedPort)
+      } catch (e) {
+        logger.error(e)
+      }
     }
   }
 

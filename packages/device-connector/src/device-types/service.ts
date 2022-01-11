@@ -28,11 +28,6 @@ export const getDeviceTypeId = async (fqbn: FQBN, name: string): Promise<string>
 }
 
 export const registerNewDeviceType = async (fqbn: FQBN, name: string): Promise<DeviceType> => {
-  try {
-    logger.info(`Trying to register new DeviceType ${name} with fqbn ${fqbn}`)
-    return await sendNewDeviceTypeRequest(fqbn, name)
-  } catch (e) {
-    logger.error(e)
-    throw e
-  }
+  logger.info(`Trying to register new DeviceType ${name} with fqbn ${fqbn}`)
+  return await sendNewDeviceTypeRequest(fqbn, name)
 }
