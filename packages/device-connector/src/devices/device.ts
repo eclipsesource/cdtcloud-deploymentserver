@@ -65,7 +65,7 @@ export class ConnectedDevice implements Device {
     const type = await this.getType()
     logger.info(`Device ${status.toLowerCase()}: ${type.name} on ${this.port.address} (${this.port.protocol})`)
 
-    if (status === DeviceStatus.AVAILABLE) {
+    if (this.status === DeviceStatus.AVAILABLE) {
       const next = this.deployQueue.pop()
       if (next != null) {
         await this.deploy(next)
@@ -156,7 +156,6 @@ export class ConnectedDevice implements Device {
       logger.error(e)
     }
   }
-
 
   async queue (deployment: Deployment): Promise<void> {
     await setDeployRequest(deployment.id, DeployStatus.PENDING)

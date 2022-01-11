@@ -17,7 +17,8 @@ export interface ConnectorData {
 }
 
 export let connectorId: string
-export const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
+const deployUrl = `${env.DEPLOY_IP ?? '127.0.0.1'}:${env.DEPLOY_PORT ?? '3001'}`
+export const deployUri = `http${env.DEPLOY_SECURE === 'true' ? 's' : ''}://${deployUrl}/api`
 
 const readConnectorData = async (): Promise<ConnectorData> => {
   let data = ''
@@ -40,7 +41,7 @@ const readConnectorData = async (): Promise<ConnectorData> => {
 }
 
 const generateConnectorData = async (): Promise<ConnectorData> => {
-  const registrationResponse = await fetch(`http://${address}/api/connectors`, {
+  const registrationResponse = await fetch(`${deployUri}/connectors`, {
     method: 'POST'
   })
 
@@ -57,7 +58,7 @@ const generateConnectorData = async (): Promise<ConnectorData> => {
 
     const connectorData: ConnectorData = {
       id: id,
-      uri: address
+      uri: deployUri
     }
 
     resolve(connectorData)
@@ -87,13 +88,12 @@ export const openStream = async (): Promise<Duplex> => {
     connectorData = await readConnectorData()
   }
 
-  if ((connectorData == null) || connectorData.uri !== address) {
+  if (connectorData == null || connectorData.uri !== deployUri) {
     try {
       connectorData = await generateConnectorData()
     } catch (e) {
       logger.error(e)
       await setTimeout(3000)
-      console.log("restart 1")
       return await openStream()
     }
     try {
@@ -104,11 +104,11 @@ export const openStream = async (): Promise<Duplex> => {
   }
 
   connectorId = connectorData.id
-  const url = `ws://${address}/connectors/${connectorId}/queue`
-  const socket = new WebSocket(url)
+  const uri = `ws${env.DEPLOY_SECURE === 'true' ? 's' : ''}://${deployUrl}/connectors/${connectorId}/queue`
+  const socket = new WebSocket(uri)
 
   socket.onopen = () => {
-    logger.info(`Connected to Deployment-Server (${address})`)
+    logger.info(`Connected to Deployment-Server (${deployUrl})`)
   }
 
   socket.onerror = (error: ErrorEvent) => {

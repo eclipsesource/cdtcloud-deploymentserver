@@ -325,7 +325,6 @@ export class GRPCClient {
           await addDevice(detectedPort)
         } catch (e) {
           logger.error(e)
-          return
         }
       } else if (eventType === 'remove') {
         const port = detectedPort?.port
