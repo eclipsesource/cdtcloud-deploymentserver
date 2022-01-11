@@ -15,15 +15,14 @@
 
 ### Device Connector
 
-1. Start arduino-cli daemon:
-   - a) With Docker:
-     - Run `docker-compose up arduino`
-   - b) Manually:
-     - Download the arduino-cli v0.20.0 from [arduino-cli releases](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
-     - Run: `arduino-cli daemon --port 50051 --daemonize`
-2. Install dependencies: `yarn install`
-3. Make sure the deployment server is running
-4. Start the device connector: `yarn --cwd=packages/device-connector run dev`
+#### With Docker
+1. Set deployment-server URI in [.docker/device-connector/env](.docker/device-connector/env)
+3. Run the arduino-cli daemon: `docker-compose up arduino`
+4. Run the device-connector: `docker-compose up devcon`
 
-#### Edit configuration (optional)
-You can use the `packages/device-connector/.env` file to edit the node_env environment and deployment server uri
+#### On System
+1. Download the latest supported arduino-cli version _(currently v0.20.0)_ from [arduino-cli releases](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
+2. Start the arduino-cli daemon: `arduino-cli daemon --port 50051 --daemonize --verbose`
+3. Install dependencies: `yarn install`
+4. Set deployment-server URI in [packages/device-connector/.env](packages/device-connector/.env)
+5. Start the device connector: `yarn --cwd=packages/device-connector run start`

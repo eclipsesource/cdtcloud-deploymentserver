@@ -7,18 +7,34 @@
   "license": "EPL-2.0",
   "type": "module",
   "scripts": {
-    "dev": "nodemon -x node --experimental-loader esbuild-node-loader -r dotenv/config src/index.ts",
-    "start": "node --experimental-loader esbuild-node-loader -r dotenv/config src/index.ts",
+    "dev": "nodemon -x node --loader esbuild-node-loader -r dotenv/config src/index.ts dotenv_config_path=.env.dev",
+    "start": "node --loader esbuild-node-loader -r dotenv/config src/index.ts",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "test": "tap --node-arg=--experimental-loader=esbuild-node-loader --no-check-coverage -T test/*.spec.ts",
-    "test:dev": "yarn run test -- -w --no-coverage-report",
+    "test": "tap",
+    "test:dev": "tap -w",
     "typecheck": "tsc -noEmit"
+  },
+  "tap": {
+    "node-arg": [
+      "--no-warnings",
+      "--loader=esbuild-node-loader"
+    ],
+    "no-coverage-report": true,
+    "test-env": [
+      "NODE_ENV=test",
+      "SERVER_URI=localhost:3001",
+      "LOG_LEVEL=fatal"
+    ],
+    "files": [
+      "test/**/*.spec.ts"
+    ]
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.4.4",
     "@grpc/proto-loader": "^0.6.7",
     "close-with-grace": "^1.1.0",
     "dotenv": "^10.0.0",
+    "esbuild-node-loader": "^0.6.3",
     "fs": "^0.0.1-security",
     "google-protobuf": "^3.19.1",
     "pino": "^7.6.2",

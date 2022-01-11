@@ -2,6 +2,9 @@ node_modules
 dist
 .nyc_output
 tests/
-.env.local
+.env*
 .connection.data
 artifacts
+
+!.env
+!.env.dev
