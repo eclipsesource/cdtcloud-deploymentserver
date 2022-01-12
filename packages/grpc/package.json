@@ -12,6 +12,7 @@
     "build:settings": "proto-loader-gen-types --keepCase --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js -I proto/ --outDir=common/ cc/arduino/cli/settings/v1/settings.proto"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.5.0",
     "@grpc/proto-loader": "^0.6.7"
   },
   "devDependencies": {
