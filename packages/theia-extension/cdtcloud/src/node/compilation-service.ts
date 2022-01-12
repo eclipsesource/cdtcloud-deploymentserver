@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
 import { CompilationService } from "../common/protocol";
-import { readdir } from 'fs/promises';
+import { readdir as readdirCb } from 'fs';
+import { promisify } from 'util';
 import { createReadStream } from 'fs';
 import { RPCClient } from "./rpc-client";
 import 'reflect-metadata';
@@ -8,6 +9,8 @@ import FormData from 'form-data';
 import { join } from 'path';
 import got from "got";
 import * as Path from "path";
+
+const readdir = promisify(readdirCb);
 
 @injectable()
 export class CompilationServiceImpl implements CompilationService {
