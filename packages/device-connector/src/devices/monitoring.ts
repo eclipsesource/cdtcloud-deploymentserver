@@ -58,8 +58,12 @@ export class DeviceMonitor {
 
     // Wait 5 seconds to ensure that the device also closed the stream
     await setTimeout(5000)
-    const device = ConnectedDevices.onPort(this.port.address, this.port.protocol)
-    await device?.updateStatus(DeviceStatus.AVAILABLE)
+    try {
+      const device = ConnectedDevices.onPort(this.port.address, this.port.protocol)
+      await device.updateStatus(DeviceStatus.AVAILABLE)
+    } catch (e) {
+      logger.error(e)
+    }
   }
 
   pause (): void {

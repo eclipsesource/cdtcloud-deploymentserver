@@ -26,6 +26,7 @@ import { addDevice, removeDevice } from '../devices/service'
 import { ConnectedDevices } from '../devices/store'
 import { DeviceTypes } from '../device-types/store'
 import { logger } from '../util/logger'
+import { ConnectedDevice } from '../devices/device'
 
 export class GRPCClient {
   readonly address: string
@@ -232,7 +233,13 @@ export class GRPCClient {
 
       stream.on('status', (status: StatusObject) => {
         if (status.code === Status.OK) {
-          const devName = DeviceTypes.withFQBN(fqbn)?.name ?? 'Unknown Device Name'
+          let devName: string
+          try {
+            devName = DeviceTypes.withFQBN(fqbn).name
+          } catch (e) {
+            logger.warn(e)
+            devName = 'Unknown Device Name'
+          }
           logger.info(`Deployment OK: ${devName} on ${port.address} (${port.protocol})`)
           return resolve()
         }
@@ -338,8 +345,11 @@ export class GRPCClient {
           return
         }
 
-        const removed = ConnectedDevices.onPort(port.address, port.protocol ?? 'serial')
-        if (removed == null) {
+        let removed: ConnectedDevice
+
+        try {
+          removed = ConnectedDevices.onPort(port.address, port.protocol ?? 'serial')
+        } catch (e) {
           if (port.protocol === 'serial') {
             logger.debug(`Detached unregistered device on port ${port.address} (${port.protocol}) - ignoring`)
           } else {

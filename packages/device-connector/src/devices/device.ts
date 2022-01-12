@@ -40,10 +40,12 @@ export class ConnectedDevice implements Device {
   }
 
   async getType (): Promise<DeviceType> {
-    let deviceType = await DeviceTypes.withId(this.deviceTypeId)
+    let deviceType: DeviceType
 
-    if (deviceType == null) {
-      // Should never happen
+    try {
+      deviceType = await DeviceTypes.withId(this.deviceTypeId)
+    } catch (e) {
+      logger.warn(e)
       deviceType = await fetchDeviceType(this.deviceTypeId)
       DeviceTypes.add(deviceType)
     }
