@@ -51,18 +51,14 @@ const generateConnectorData = async (): Promise<ConnectorData> => {
 
   const { id } = await registrationResponse.json() as any
 
-  return await new Promise<ConnectorData>((resolve, reject) => {
-    if (id === '') {
-      reject(new Error('No valid id response'))
-    }
+  if (id === '') {
+    throw new Error('No valid id response')
+  }
 
-    const connectorData: ConnectorData = {
-      id: id,
-      uri: deployUri
-    }
-
-    resolve(connectorData)
-  })
+  return {
+    id: id,
+    uri: deployUri
+  } as ConnectorData
 }
 
 const writeConnectorData = async (connectorData: ConnectorData): Promise<void> => {
