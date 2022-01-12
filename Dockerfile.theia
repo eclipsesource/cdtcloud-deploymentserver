@@ -38,7 +38,7 @@ RUN chmod g+rw /home && \
   chown -R theia:theia /home/theia && \
   chown -R theia:theia /home/cli && \
   chown -R theia:theia /home/project;
-RUN cat /etc/alpine-release && apk add --update --no-cache git openssh bash libsecret lsblk curl
+RUN apk add --update --no-cache git openssh bash libsecret lsblk
 ENV HOME /home/theia
 WORKDIR /home/theia
 COPY --from=0 --chown=theia:theia /home/theia /home/theia
