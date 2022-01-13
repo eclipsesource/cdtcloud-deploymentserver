@@ -28,3 +28,17 @@
 3. Install dependencies: `yarn install`
 4. Set deployment-server URI in [packages/device-connector/.env](packages/device-connector/.env)
 5. Start the device connector: `yarn --cwd=packages/device-connector run start`
+
+##### Add support for additonal boards
+STM32 Board-Core
+```bash
+arduino-cli config add board_manager.additional_urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
+arduino-cli core update-index
+arduino-cli core install STMicroelectronics:stm32
+```
+
+Arduino:sam Board-Core
+```bash
+arduino-cli core update-index
+arduino-cli core install arduino:sam
+```
