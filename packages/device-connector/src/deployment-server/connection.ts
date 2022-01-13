@@ -56,7 +56,7 @@ const generateConnectorData = async (): Promise<ConnectorData> => {
   }
 
   return {
-    id: id,
+    id,
     uri: deployUri
   }
 }
