@@ -43,6 +43,14 @@ export class CompilationServiceImpl implements CompilationService {
           default:
             throw new Error('Unknown arduino board core')
         }
+      } else if (fqbn.startsWith('STMicroelectronics')) {
+        const segments = fqbn.split(':');
+        switch (segments[1]) {
+          case 'stm32':
+            return '.bin';
+          default:
+            throw new Error('Unknown STM board core');
+        }
       }
       throw new Error('Unknown device')
     }

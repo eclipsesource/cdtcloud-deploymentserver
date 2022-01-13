@@ -29,8 +29,11 @@ services:
   arduino:
     image: solarbotics/arduino-cli-arduino-avr:1.8.4-0.20.0-node16.13
     command: >
-      bash -c "arduino-cli core update-index &&
+      bash -c "arduino-cli config init &&
+               arduino-cli config add board_manager.additional_urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json &&
+               arduino-cli core update-index &&
                arduino-cli core install arduino:sam@1.6.12 &&
+               arduino-cli core install STMicroelectronics:stm32 &&
                arduino-cli daemon --port 50051 --daemonize --verbose"
     network_mode: host
     privileged: true
