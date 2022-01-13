@@ -20,6 +20,8 @@
 2. Run the device-connector: `docker-compose up devcon`
    - Build the docker-image beforehand if necessary `docker-compose build`
 
+`Note: Due to docker not supporting privileged mode on Windows, this does only work on unix systems.`
+
 #### On System
 1. Download the latest supported arduino-cli version _(currently v0.20.0)_ from [arduino-cli releases](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
 2. Start the arduino-cli daemon: `arduino-cli daemon --port 50051 --daemonize --verbose`
