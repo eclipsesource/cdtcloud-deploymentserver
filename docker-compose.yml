@@ -1,7 +1,7 @@
 version: "3"
 volumes:
   postgresdb:
-  arduino:
+  devcon:
 
 services:
   db:
@@ -35,5 +35,17 @@ services:
     network_mode: host
     privileged: true
     volumes:
-      - arduino:/arduino
+      - devcon:/usr/src/app/artifacts
+    restart: always
+
+  devcon:
+    build:
+      context: .
+      dockerfile: Dockerfile.devcon
+    env_file:
+      - .docker/device-connector/env
+    network_mode: host
+    privileged: true
+    volumes:
+      - devcon:/usr/src/app/artifacts
     restart: always
