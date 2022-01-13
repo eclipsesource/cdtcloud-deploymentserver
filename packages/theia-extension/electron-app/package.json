@@ -4,23 +4,23 @@
   "version": "0.0.0",
   "main": "src-gen/frontend/electron-main.js",
   "dependencies": {
-    "@theia/core": "^1.20.0",
-    "@theia/editor": "^1.20.0",
-    "@theia/electron": "^1.20.0",
-    "@theia/filesystem": "^1.20.0",
-    "@theia/markers": "^1.20.0",
-    "@theia/messages": "^1.20.0",
-    "@theia/monaco": "^1.20.0",
-    "@theia/navigator": "^1.20.0",
-    "@theia/preferences": "^1.20.0",
-    "@theia/process": "^1.20.0",
-    "@theia/terminal": "^1.20.0",
-    "@theia/workspace": "^1.20.0",
+    "@theia/core": "^1.21.0",
+    "@theia/editor": "^1.21.0",
+    "@theia/electron": "^1.21.0",
+    "@theia/filesystem": "^1.21.0",
+    "@theia/markers": "^1.21.0",
+    "@theia/messages": "^1.21.0",
+    "@theia/monaco": "^1.21.0",
+    "@theia/navigator": "^1.21.0",
+    "@theia/preferences": "^1.21.0",
+    "@theia/process": "^1.21.0",
+    "@theia/terminal": "^1.21.0",
+    "@theia/workspace": "^1.21.0",
     "cdtcloud": "0.0.0",
     "find-git-repositories": "^0.2.1"
   },
   "devDependencies": {
-    "@theia/cli": "^1.20.0"
+    "@theia/cli": "^1.21.0"
   },
   "scripts": {
     "prepare": "theia build --mode development",
