@@ -49,7 +49,7 @@ const generateConnectorData = async (): Promise<ConnectorData> => {
     throw httpError(registrationResponse)
   }
 
-  const { id } = await registrationResponse.json() as any
+  const { id } = await registrationResponse.json() as {id: string}
 
   if (id === '') {
     throw new Error('No valid id response')
