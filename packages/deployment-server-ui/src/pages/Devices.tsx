@@ -12,7 +12,7 @@ export default defineFunctionalComponent(function Devices() {
     Array(15).fill({})
   );
 
-  const [filters, setFilters] = useState<any>({});
+  const [filters, setFilters] = useState<{status: string[], deviceTypeId: string[]}>({status: [], deviceTypeId: []});
 
   let [searchParams, setSearchParams] = useSearchParams();
   
