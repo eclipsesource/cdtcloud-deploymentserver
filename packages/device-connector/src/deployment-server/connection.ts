@@ -9,6 +9,7 @@ import { deployBinary, DeploymentData } from '../devices/deployment'
 import { MonitorData } from '../devices/monitoring'
 import { ConnectedDevices } from '../devices/store'
 import { unregisterDevice } from '../devices/service'
+import { httpError } from '../util/errors'
 
 export interface ConnectorData {
   id: string
@@ -16,7 +17,8 @@ export interface ConnectorData {
 }
 
 export let connectorId: string
-export const address = env.SERVER_URI != null ? env.SERVER_URI : '127.0.0.1:3001'
+const deployUrl = `${env.DEPLOY_IP ?? '127.0.0.1'}:${env.DEPLOY_PORT ?? '3001'}`
+export const deployUri = `http${env.DEPLOY_SECURE === 'true' ? 's' : ''}://${deployUrl}/api`
 
 const readConnectorData = async (): Promise<ConnectorData> => {
   let data = ''
@@ -39,23 +41,24 @@ const readConnectorData = async (): Promise<ConnectorData> => {
 }
 
 const generateConnectorData = async (): Promise<ConnectorData> => {
-  const registrationResponse = await fetch(`http://${address}/api/connectors`, {
+  const registrationResponse = await fetch(`${deployUri}/connectors`, {
     method: 'POST'
   })
-  const { id } = await registrationResponse.json() as any
 
-  return await new Promise<ConnectorData>((resolve, reject) => {
-    if (id === '') {
-      reject(new Error('No valid id response'))
-    }
+  if (!registrationResponse.ok) {
+    throw httpError(registrationResponse)
+  }
 
-    const connectorData: ConnectorData = {
-      id: id,
-      uri: address
-    }
+  const { id } = await registrationResponse.json() as {id: string}
 
-    resolve(connectorData)
-  })
+  if (id === '') {
+    throw new Error('No valid id response')
+  }
+
+  return {
+    id,
+    uri: deployUri
+  }
 }
 
 const writeConnectorData = async (connectorData: ConnectorData): Promise<void> => {
@@ -79,23 +82,36 @@ export const openStream = async (): Promise<Duplex> => {
   let connectorData: ConnectorData | undefined
   if (fs.existsSync('.connection.data')) {
     connectorData = await readConnectorData()
+    logger.debug(`Found previous connection on ${connectorData.uri} with id ${connectorData.id}`)
   }
 
-  if ((connectorData == null) || connectorData.uri !== address) {
-    connectorData = await generateConnectorData()
-    await writeConnectorData(connectorData)
+  if (connectorData == null || connectorData.id == null || connectorData.uri !== deployUri) {
+    logger.debug('No or invalid previous connection found for requested deployment-server')
+    try {
+      connectorData = await generateConnectorData()
+    } catch (e) {
+      logger.error(e)
+      await setTimeout(3000)
+      return await openStream()
+    }
+    try {
+      await writeConnectorData(connectorData)
+      logger.debug(`New connection on ${connectorData.uri} with id ${connectorData.id}`)
+    } catch (e) {
+      logger.warn(e)
+    }
   }
 
   connectorId = connectorData.id
-  const url = `ws://${address}/connectors/${connectorId}/queue`
-  const socket = new WebSocket(url)
+  const uri = `ws${env.DEPLOY_SECURE === 'true' ? 's' : ''}://${deployUrl}/connectors/${connectorId}/queue`
+  const socket = new WebSocket(uri)
 
   socket.onopen = () => {
-    logger.info(`Connected to Deployment-Server (${address})`)
+    logger.info(`Connected to Deployment-Server (${deployUrl})`)
   }
 
   socket.onerror = (error: ErrorEvent) => {
-    logger.error(`DeployServ-Stream: ${error.message}`)
+    logger.error(`Deployment-Server socket: ${error.message}`)
   }
 
   socket.onclose = async (event: CloseEvent) => {
@@ -131,7 +147,7 @@ export const openStream = async (): Promise<Duplex> => {
         } else if (command === 'stop') {
           await device.stopMonitoring()
         } else {
-          logger.error(`Received unknown monitor command ${command}`)
+          logger.debug(`Received unknown monitor command ${command} - ignoring`)
         }
       } catch (e) {
         // Requested device not connected - unregistering
@@ -143,9 +159,15 @@ export const openStream = async (): Promise<Duplex> => {
         logger.error(e)
       }
     } else {
-      logger.error(`Received unknown request type ${type}`)
+      logger.debug(`Received unknown request type ${type} - ignoring`)
     }
   }
 
-  return createWebSocketStream(socket)
+  let duplex = createWebSocketStream(socket)
+
+  duplex.on('close', () => {
+    duplex = createWebSocketStream(socket)
+  })
+
+  return duplex
 }

@@ -6,12 +6,24 @@ import { logger } from '../util/logger'
 export const DeviceTypes = {
   store: new Array<DeviceType>(),
 
-  withFQBN (fqbn: FQBN): DeviceType | undefined {
-    return this.store.find((item) => item.fqbn === fqbn)
+  getByFQBN (fqbn: FQBN): DeviceType {
+    const devType = this.store.find((item) => item.fqbn === fqbn)
+
+    if (devType == null) {
+      throw new Error(`No DeviceType with fqbn ${fqbn} found locally`)
+    }
+
+    return devType
   },
 
-  withId (typeId: string): DeviceType | undefined {
-    return this.store.find((item) => item.id === typeId)
+  getById (typeId: string): DeviceType {
+    const devType = this.store.find((item) => item.id === typeId)
+
+    if (devType == null) {
+      throw new Error(`No DeviceType with id ${typeId} found locally`)
+    }
+
+    return devType
   },
 
   add (deviceType: DeviceType): void {

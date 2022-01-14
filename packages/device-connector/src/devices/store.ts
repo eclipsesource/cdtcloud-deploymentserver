@@ -18,12 +18,33 @@ export const ConnectedDevices = {
     return this.store.includes(device)
   },
 
-  onPort (portAddress: string, protocol: string = 'serial'): ConnectedDevice | undefined {
-    return this.store.find((item) => item.port.address === portAddress && item.port.protocol === protocol)
+  onPort (portAddress: string, protocol: string = 'serial'): ConnectedDevice {
+    const device = this.store.find((item) => item.port.address === portAddress && item.port.protocol === protocol)
+
+    if (device == null) {
+      throw new Error(`No connected Device on port ${portAddress} (${protocol}) registered`)
+    }
+
+    return device
   },
 
-  findAvailable (typeId: string): ConnectedDevice | undefined {
-    return this.store.find((item) => item.deviceTypeId === typeId && item.status === DeviceStatus.AVAILABLE)
+  findAvailable (typeId: string): ConnectedDevice {
+    const device = this.store.find((item) => item.deviceTypeId === typeId && item.status === DeviceStatus.AVAILABLE)
+
+    if (device == null) {
+      throw new Error(`No available Device of type ${typeId} found`)
+    }
+
+    return device
+  },
+
+  isPortUsed (portAddress: string, protocol: string = 'serial'): boolean {
+    try {
+      const device = this.onPort(portAddress, protocol)
+      return device != null
+    } catch {
+      return false
+    }
   },
 
   add (device: ConnectedDevice): void {

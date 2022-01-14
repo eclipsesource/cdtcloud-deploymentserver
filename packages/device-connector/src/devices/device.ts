@@ -40,10 +40,12 @@ export class ConnectedDevice implements Device {
   }
 
   async getType (): Promise<DeviceType> {
-    let deviceType = await DeviceTypes.withId(this.deviceTypeId)
+    let deviceType: DeviceType
 
-    if (deviceType == null) {
-      // Should never happen
+    try {
+      deviceType = await DeviceTypes.getById(this.deviceTypeId)
+    } catch (e) {
+      logger.warn(e)
       deviceType = await fetchDeviceType(this.deviceTypeId)
       DeviceTypes.add(deviceType)
     }
@@ -52,6 +54,7 @@ export class ConnectedDevice implements Device {
   }
 
   async updateStatus (status: keyof typeof DeviceStatus): Promise<void> {
+    // TODO: catch if setDeviceRequest fails
     await setDeviceRequest(this.id, status)
 
     // Only set remote status and don't execute further steps if status is already set locally
@@ -64,7 +67,7 @@ export class ConnectedDevice implements Device {
     const type = await this.getType()
     logger.info(`Device ${status.toLowerCase()}: ${type.name} on ${this.port.address} (${this.port.protocol})`)
 
-    if (status === DeviceStatus.AVAILABLE) {
+    if (this.status === DeviceStatus.AVAILABLE) {
       const next = this.deployQueue.pop()
       if (next != null) {
         await this.deploy(next)
@@ -119,25 +122,41 @@ export class ConnectedDevice implements Device {
 
     // Update device status and notify server of status-change
     await this.updateStatus(DeviceStatus.DEPLOYING)
-    await setDeployRequest(deployment.id, DeployStatus.RUNNING)
+    try {
+      await setDeployRequest(deployment.id, DeployStatus.RUNNING)
+    } catch (e) {
+      logger.error(e)
+    }
 
     try {
       // Start uploading artifact
       await arduinoClient.uploadBin(fqbn, this.port, deployment.artifactPath)
     } catch (e) {
-      await this.updateStatus(DeviceStatus.AVAILABLE)
-      await setDeployRequest(deployment.id, DeployStatus.FAILED)
+      try {
+        await this.updateStatus(DeviceStatus.AVAILABLE)
+        await setDeployRequest(deployment.id, DeployStatus.FAILED)
+      } catch (err) {
+        logger.error(err)
+      }
       throw e
     }
 
     // Update device status and notify server of status-change
-    await this.updateStatus(DeviceStatus.RUNNING)
-    await setDeployRequest(deployment.id, DeployStatus.SUCCESS)
+    try {
+      await this.updateStatus(DeviceStatus.RUNNING)
+      await setDeployRequest(deployment.id, DeployStatus.SUCCESS)
+    } catch (e) {
+      logger.error(e)
+    }
 
     // Run code only for a set amount of time. Set device back to available after.
     // Default: 2min
     await setTimeout(runtimeMS)
-    await this.updateStatus(DeviceStatus.AVAILABLE)
+    try {
+      await this.updateStatus(DeviceStatus.AVAILABLE)
+    } catch (e) {
+      logger.error(e)
+    }
   }
 
   async queue (deployment: Deployment): Promise<void> {

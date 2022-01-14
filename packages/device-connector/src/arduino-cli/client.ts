@@ -26,6 +26,7 @@ import { addDevice, removeDevice } from '../devices/service'
 import { ConnectedDevices } from '../devices/store'
 import { DeviceTypes } from '../device-types/store'
 import { logger } from '../util/logger'
+import { ConnectedDevice } from '../devices/device'
 
 export class GRPCClient {
   readonly address: string
@@ -232,7 +233,13 @@ export class GRPCClient {
 
       stream.on('status', (status: StatusObject) => {
         if (status.code === Status.OK) {
-          const devName = DeviceTypes.withFQBN(fqbn)?.name ?? 'Unknown Device Name'
+          let devName: string
+          try {
+            devName = DeviceTypes.getByFQBN(fqbn).name
+          } catch (e) {
+            logger.warn(e)
+            devName = 'Unknown Device Name'
+          }
           logger.info(`Deployment OK: ${devName} on ${port.address} (${port.protocol})`)
           return resolve()
         }
@@ -321,7 +328,11 @@ export class GRPCClient {
       const detectedPort = data.port
 
       if (eventType === 'add' && detectedPort?.matching_boards != null && detectedPort.matching_boards.length > 0) {
-        await addDevice(detectedPort)
+        try {
+          await addDevice(detectedPort)
+        } catch (e) {
+          logger.error(e)
+        }
       } else if (eventType === 'remove') {
         const port = detectedPort?.port
         if (port == null) {
@@ -334,8 +345,17 @@ export class GRPCClient {
           return
         }
 
-        const removed = ConnectedDevices.onPort(port.address, port.protocol ?? 'serial')
-        if (removed == null) {
+        let removed: ConnectedDevice
+
+        try {
+          removed = ConnectedDevices.onPort(port.address, port.protocol ?? 'serial')
+        } catch (e) {
+          if (port.protocol === 'serial') {
+            logger.debug(`Detached unregistered device on port ${port.address} (${port.protocol}) - ignoring`)
+          } else {
+            logger.trace(`Detached unregistered device on port ${port.address} (${port.protocol}) - ignoring`)
+          }
+
           return
         }
 
@@ -360,6 +380,12 @@ export class GRPCClient {
       const stream = this.#client.monitor({ deadline })
       stream.once('readable', () => {
         logger.info(`Start monitoring output of device on port ${port.address} (${port.protocol})`)
+      })
+
+      stream.on('data', (data: MonitorResponse) => {
+        if (data.rx_data != null) {
+          logger.debug(`Monitoring ${port.address}: ${data.rx_data.toString()}`)
+        }
       })
 
       stream.on('end', () => {
@@ -389,7 +415,11 @@ export class GRPCClient {
   async initializeDevices (): Promise<void> {
     const boards = await this.listBoards()
     for (const detectedPort of boards) {
-      await addDevice(detectedPort)
+      try {
+        await addDevice(detectedPort)
+      } catch (e) {
+        logger.error(e)
+      }
     }
   }
 

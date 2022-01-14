@@ -1,8 +1,7 @@
 import type { Device } from '@prisma/client'
 import crypto from 'crypto'
 import { createWriteStream } from 'fs'
-import * as Path from 'path'
-import { dirname } from 'path'
+import Path, { dirname, basename } from 'path'
 import { Readable } from 'stream'
 import { request } from 'undici'
 import { promisify } from 'util'
@@ -64,6 +63,7 @@ export const deployBinary = async (deployData: DeploymentData): Promise<void> =>
   }
 
   const artifactPath = await downloadArtifact(artifactUri)
+  logger.debug(`Deployment: ${deployData.id} - Downloaded artifact from ${artifactUri} to ${basename(artifactPath)}`)
 
   const deployment = {
     id: deployData.id,

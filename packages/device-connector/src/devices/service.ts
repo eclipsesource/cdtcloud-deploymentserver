@@ -31,6 +31,7 @@ export const addDevice = async (detectedPort: DetectedPort): Promise<void> => {
   }
 
   if (detectedPort?.matching_boards === undefined || detectedPort.matching_boards.length === 0) {
+    logger.debug(`Attached unknown device on port ${detectedPort.port.address} (${detectedPort.port.protocol}) - ignoring`)
     return
   }
 
@@ -40,11 +41,9 @@ export const addDevice = async (detectedPort: DetectedPort): Promise<void> => {
     return
   }
 
-  const existingDevice = ConnectedDevices.onPort(detectedPort.port.address, detectedPort.port.protocol)
-
-  if (existingDevice != null) {
+  if (ConnectedDevices.isPortUsed(detectedPort.port.address, detectedPort.port.protocol)) {
     logger.warn(`Port ${detectedPort.port.address} (${detectedPort.port.protocol}) already has a device registered - replacing with new device ${board.name}`)
-
+    const existingDevice = ConnectedDevices.onPort(detectedPort.port.address, detectedPort.port.protocol)
     await removeDevice(existingDevice)
   }
 

@@ -1,2 +1,5 @@
-NODE_ENV=production
-SERVER_URI=localhost:3001
+NODE_ENV='production'
+DEPLOY_IP=127.0.0.1
+DEPLOY_PORT=3001
+DEPLOY_SECURE=false
+LOG_LEVEL='info'

@@ -25,6 +25,6 @@ const transport = {
 export const logger = pino({
   name: 'DeviceConnector',
   transport,
-  level: env.NODE_ENV === 'test' ? 'fatal' : 'info',
+  level: env.LOG_LEVEL ?? 'info',
   formatters
 })
