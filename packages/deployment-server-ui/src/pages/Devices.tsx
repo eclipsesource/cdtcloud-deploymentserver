@@ -1,6 +1,6 @@
 import { Device, DeviceType } from ".prisma/client";
-import { Table } from "antd";
-import { FilterValue, TablePaginationConfig } from "antd/lib/table/interface";
+import { Table, TablePaginationConfig } from "antd";
+import { FilterValue } from "antd/lib/table/interface";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import defineFunctionalComponent from "../util/defineFunctionalComponent";
@@ -18,10 +18,13 @@ export default defineFunctionalComponent(function Devices() {
   let [searchParams, setSearchParams] = useSearchParams();
   
   function handleChange (_pagination: TablePaginationConfig, filters: Record<string, FilterValue | null>) {
-    console.log(filters)
+    let params: Record<string, string | string[]> = {status: [], deviceTypeId: []}
     setFilters(filters);
-    setSearchParams(filters);
-  };
+    for (const [key, value] of Object.entries(filters)) {
+      if (value != null) params[key] = value.map(val => '' + val)
+    }
+      setSearchParams(params);
+    }
 
   useEffect(() => {
     fetch("/api/device-types")
@@ -30,7 +33,7 @@ export default defineFunctionalComponent(function Devices() {
       })
     }, []);
     
-  const columns: Object[] = [
+  const columns: any[] = [
     {
       title: 'Device ID',
       dataIndex: 'id',
