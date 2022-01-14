@@ -1,6 +1,7 @@
 import { Device, DeviceType } from ".prisma/client";
 import { Table } from "antd";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import defineFunctionalComponent from "../util/defineFunctionalComponent";
 
 export default defineFunctionalComponent(function Devices() {
@@ -12,12 +13,14 @@ export default defineFunctionalComponent(function Devices() {
   );
 
   const [filters, setFilters] = useState<any>({});
+
+  let [searchParams, setSearchParams] = useSearchParams();
   
-  function handleChange (pagination: any, filters: any, sorter: any) {
-    console.log('Various parameters', pagination, filters, sorter);
+  function handleChange (_pagination: any, filters: any) {
     setFilters(filters);
-    window.history.replaceState(null, "Filtered Results", "/devices?type-" + filters.deviceTypeId + "&status=" + filters.status)
+    setSearchParams(filters);
   };
+
   useEffect(() => {
     fetch("/api/device-types")
       .then(async (res) => { 
