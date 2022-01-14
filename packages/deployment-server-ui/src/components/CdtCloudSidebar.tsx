@@ -1,6 +1,7 @@
 import { Menu } from "antd";
 import Sider from "antd/lib/layout/Sider";
 import {
+  DashboardOutlined,
   DesktopOutlined,
   PieChartOutlined,
   FileOutlined,
@@ -17,17 +18,17 @@ export function CdtCloudSidebar() {
         mode="inline"
         style={{ height: "100%", borderRight: 0 }}
       >
-        <Menu.Item key="1" icon={<PieChartOutlined />}>
+        <Menu.Item key="1" icon={<DashboardOutlined />}>
           <Link to={"/"}>Dashboard</Link>
         </Menu.Item>
         <Menu.Item key="2" icon={<PieChartOutlined />}>
           <Link to={"/deployments"}>Deployments</Link>
         </Menu.Item>
         <Menu.Item key="3" icon={<DesktopOutlined />}>
-          <Link to={"/devices"}>Devices</Link>
+          <Link to={"/devices"}>Connected Boards</Link>
         </Menu.Item>
         <Menu.Item key="4" icon={<FileOutlined />}>
-          <Link to={"/types"}>Types</Link>
+          <Link to={"/types"}>Board Types</Link>
         </Menu.Item>
       </Menu>
     </Sider>
