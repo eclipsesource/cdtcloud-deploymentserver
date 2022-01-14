@@ -4,15 +4,17 @@
   "repository": "git@github.com:EclipseSource/cdtcloud-deploymentserver.git",
   "license": "EPL-2.0",
   "private": true,
-  "workspaces": [
-    "packages/deployment-server",
-    "packages/deployment-server-ui",
-    "packages/device-connector",
-    "packages/theia-extension/browser-app",
-    "packages/theia-extension/electron-app",
-    "packages/theia-extension/cdtcloud",
-    "packages/grpc"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/deployment-server",
+      "packages/deployment-server-ui",
+      "packages/device-connector",
+      "packages/theia-extension/browser-app",
+      "packages/theia-extension/electron-app",
+      "packages/theia-extension/cdtcloud",
+      "packages/grpc"
+    ]
+  },
   "scripts": {
     "test": "lerna run --parallel test",
     "typecheck": "lerna run --parallel typecheck",
