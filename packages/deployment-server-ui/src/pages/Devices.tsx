@@ -27,6 +27,7 @@ export default defineFunctionalComponent(function Devices() {
         setDeviceTypes(await res.json())
       })
     }, []);
+    
   const columns: any[] = [
     {
       title: 'Device ID',
