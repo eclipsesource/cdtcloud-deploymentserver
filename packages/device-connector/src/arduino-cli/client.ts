@@ -235,7 +235,7 @@ export class GRPCClient {
         if (status.code === Status.OK) {
           let devName: string
           try {
-            devName = DeviceTypes.withFQBN(fqbn).name
+            devName = DeviceTypes.getByFQBN(fqbn).name
           } catch (e) {
             logger.warn(e)
             devName = 'Unknown Device Name'

@@ -43,7 +43,7 @@ export class ConnectedDevice implements Device {
     let deviceType: DeviceType
 
     try {
-      deviceType = await DeviceTypes.withId(this.deviceTypeId)
+      deviceType = await DeviceTypes.getById(this.deviceTypeId)
     } catch (e) {
       logger.warn(e)
       deviceType = await fetchDeviceType(this.deviceTypeId)

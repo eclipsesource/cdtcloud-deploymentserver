@@ -10,7 +10,7 @@ export const getRemoteDeviceType = async (fqbn: FQBN, name: string): Promise<Dev
   let deviceType: DeviceType
 
   try {
-    deviceType = DeviceTypes.withFQBN(fqbn)
+    deviceType = DeviceTypes.getByFQBN(fqbn)
   } catch (e) {
     logger.warn(e)
     deviceType = await registerNewDeviceType(fqbn, name)
@@ -23,7 +23,7 @@ export const getDeviceTypeId = async (fqbn: FQBN, name: string): Promise<string>
   let deviceType: DeviceType
 
   try {
-    deviceType = await DeviceTypes.withFQBN(fqbn)
+    deviceType = await DeviceTypes.getByFQBN(fqbn)
   } catch (e) {
     logger.trace(e)
     deviceType = await getRemoteDeviceType(fqbn, name)

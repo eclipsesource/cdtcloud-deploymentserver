@@ -6,7 +6,7 @@ import { logger } from '../util/logger'
 export const DeviceTypes = {
   store: new Array<DeviceType>(),
 
-  withFQBN (fqbn: FQBN): DeviceType {
+  getByFQBN (fqbn: FQBN): DeviceType {
     const devType = this.store.find((item) => item.fqbn === fqbn)
 
     if (devType == null) {
@@ -16,7 +16,7 @@ export const DeviceTypes = {
     return devType
   },
 
-  withId (typeId: string): DeviceType {
+  getById (typeId: string): DeviceType {
     const devType = this.store.find((item) => item.id === typeId)
 
     if (devType == null) {
