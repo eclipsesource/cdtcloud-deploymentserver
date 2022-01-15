@@ -2,6 +2,7 @@ import prismaClient from '@prisma/client'
 import type { Device, Connector } from '@prisma/client'
 import { db } from '../util/prisma'
 
+const MAX_QUEUE_SIZE = 3
 const { DeployStatus, DeviceStatus, Prisma } = prismaClient
 
 type DeviceWithConnector = Device & { connector: Connector }
@@ -89,4 +90,20 @@ export async function updateDeviceStatus ({ id }: Pick<Device, 'id'>): Promise<v
       status
     }
   })
+}
+
+/**
+ * Determine if we should add new Deploy Requests to the queue.
+ */
+export async function isDeployable (device: Pick<Device, 'id' | 'status'>): Promise<boolean> {
+  if (device.status === DeviceStatus.UNAVAILABLE) return false
+
+  const pendingRequests = await db.deployRequest.count({
+    where: {
+      deviceId: device.id,
+      status: DeployStatus.PENDING
+    }
+  })
+
+  return (pendingRequests <= MAX_QUEUE_SIZE)
 }
