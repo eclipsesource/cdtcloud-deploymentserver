@@ -42,6 +42,8 @@ services:
     restart: always
 
   devcon:
+    profiles:
+      - "production"
     build:
       context: .
       dockerfile: Dockerfile.devcon
