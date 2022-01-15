@@ -72,7 +72,7 @@ test('Responds to the websocket connection after create', async (t) => {
 
   const { id } = await response.json() as Connector
 
-  const socket = new WebSocket(`ws://${address.address}:${address.port}/connectors/${id}/queue`)
+  const socket = new WebSocket(`ws://${address.address}:${address.port}/api/connectors/${id}/queue`)
 
   socket.onopen = () => {
     t.pass('Socket opened')
@@ -118,7 +118,7 @@ test('Receives deployment requests', async (t) => {
   })
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const socket = new WebSocket(`ws://${address.address}:${address.port}/connectors/${connectorId}/queue`)
+  const socket = new WebSocket(`ws://${address.address}:${address.port}/api/connectors/${connectorId}/queue`)
 
   const id = randomUUID()
 

@@ -94,7 +94,7 @@ test('Can deploy', async (t) => {
 
   const device = await deviceResponse.json() as Device
 
-  const socket = new WebSocket(`ws://${address.address}:${address.port}/connectors/${connectorId}/queue`)
+  const socket = new WebSocket(`ws://${address.address}:${address.port}/api/connectors/${connectorId}/queue`)
 
   // Register the listener
   socket.onmessage = (message) => {
@@ -180,7 +180,7 @@ test('Opens an i/o stream after a valid deployment request is created', async (t
   const { id } = await setup()
 
   // Open the stream
-  const socket = new WebSocket(`ws://${address.address}:${address.port}/deployments/${id}/stream`)
+  const socket = new WebSocket(`ws://${address.address}:${address.port}/api/deployments/${id}/stream`)
 
   t.test('socket opens', t => {
     t.plan(1)
@@ -201,7 +201,7 @@ test('Closes the i/o stream after a deployment request is cancelled', async (t) 
   const { id, deviceId } = await setup()
 
   // Open the stream
-  const socket = new WebSocket(`ws://${address.address}:${address.port}/deployments/${id}/stream`)
+  const socket = new WebSocket(`ws://${address.address}:${address.port}/api/deployments/${id}/stream`)
 
   await once(socket, 'open')
 
