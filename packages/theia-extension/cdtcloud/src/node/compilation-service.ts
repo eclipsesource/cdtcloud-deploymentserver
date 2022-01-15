@@ -85,7 +85,7 @@ export class CompilationServiceImpl implements CompilationService {
 
     const artifactUri = uploadResponse.body.artifactUri
 
-    const {body: {id: deploymenyId}} = await got.post(`http://localhost:3001/api/deployments`, {
+    const {body: {id: deploymentId}} = await got.post(`http://localhost:3001/api/deployments`, {
       headers: {
         "Content-Type": "application/json"
       },
@@ -96,6 +96,6 @@ export class CompilationServiceImpl implements CompilationService {
       })
     })
 
-    return deploymenyId
+    return deploymentId
   }
 }
