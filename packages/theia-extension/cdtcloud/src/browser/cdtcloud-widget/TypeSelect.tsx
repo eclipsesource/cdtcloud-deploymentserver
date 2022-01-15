@@ -17,10 +17,36 @@ export const TypeSelect: FunctionComponent<{
   });
 
   return (
-    <div>
+    <div style={{ padding: "5px" }}>
       <Select
         value={board}
         options={options}
+        styles={{
+          control: (base) => ({
+            ...base,
+            backgroundColor: "var(--theia-editor-background)",
+          }),
+          menu: (base) => ({
+            ...base,
+            backgroundColor: "var(--theia-menu-background)",
+            color: "var(--theia-menu-foreground)",
+          }),
+          option: (base, state) => ({
+            ...base,
+            backgroundColor:
+              state.isFocused || state.isSelected
+                ? "var(--theia-menu-selectionBackground)"
+                : base.backgroundColor,
+            color:
+              state.isFocused || state.isSelected
+                ? "var(--theia-menu-selectionForeground)"
+                : base.color,
+          }),
+          singleValue: (base) => ({
+            ...base,
+            color: "var(--theia-menu-foreground)",
+          }),
+        }}
         onChange={(e: Option) => {
           if (!e) return;
           const newBoard = { label: e.label, value: e.value };
