@@ -10,16 +10,7 @@ export async function getAvailableDevice (deviceType: string): Promise<DeviceWit
   return await db.device.findFirst({
     where: {
       deviceTypeId: deviceType,
-      status: {
-        not: DeviceStatus.UNAVAILABLE
-      },
-      deployRequests: {
-        every: {
-          status: {
-            notIn: [DeployStatus.PENDING, DeployStatus.RUNNING]
-          }
-        }
-      }
+      status: DeviceStatus.AVAILABLE
     },
     include: {
       connector: true
@@ -51,6 +42,51 @@ export async function getLeastLoadedDevice (deviceType: string): Promise<DeviceW
     },
     include: {
       connector: true
+    }
+  })
+}
+
+export async function updateDeviceStatus ({ id }: Pick<Device, 'id'>): Promise<void> {
+  const deviceStatus = await db.device.findUnique({
+    where: {
+      id
+    },
+    select: {
+      status: true
+    }
+  })
+
+  if (deviceStatus == null) {
+    return
+  }
+
+  const accumulator: Record<keyof typeof DeployStatus, number> =
+    Object.fromEntries(Object.entries(DeployStatus).map(status => [status, 0]))
+
+  const requestCount = await db.deployRequest.groupBy({
+    by: ['status'],
+    _count: true,
+    where: {
+      deviceId: id
+    }
+  }).then(res => res.reduce((acc, { status, _count }) => ({ ...acc, [status]: _count }), accumulator))
+
+  let status: (keyof typeof DeviceStatus) = deviceStatus.status
+
+  if (requestCount[DeployStatus.RUNNING] > 0) {
+    status = DeviceStatus.RUNNING
+  } else if (requestCount[DeployStatus.PENDING] > 0) {
+    status = DeviceStatus.DEPLOYING
+  } else {
+    status = DeviceStatus.AVAILABLE
+  }
+
+  await db.device.update({
+    where: {
+      id
+    },
+    data: {
+      status
     }
   })
 }
