@@ -2,10 +2,10 @@ import { DeployStatus, DeployRequest } from '.prisma/client'
 import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
 import { addDeployRequest } from '../connectors/queue'
-import { getAvailableDevice, getLeastLoadedDevice } from '../devices/service'
+import { getAvailableDevice, getLeastLoadedDevice, updateDeviceStatus } from '../devices/service'
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
-import { closeDeploymentStream, createDeploymentStream } from './service'
+import { closeDeploymentStream, createDeploymentStream, hasDeploymentStream } from './service'
 
 export default function deploymentRequestsRoutes (router: Router): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -68,6 +68,8 @@ export default function deploymentRequestsRoutes (router: Router): void {
           }
         })
 
+        await updateDeviceStatus({ id: deploymentRequest.deviceId })
+
         // Open a websocket for the connector to pipe the output/error to
         createDeploymentStream(deploymentRequest)
 
@@ -93,6 +95,8 @@ export default function deploymentRequestsRoutes (router: Router): void {
           data: req.body
         })
 
+        await updateDeviceStatus({ id: deploymentRequest.deviceId })
+
         const finalStates: readonly DeployStatus[] =
           Object.freeze([
             DeployStatus.SUCCESS,
@@ -100,7 +104,10 @@ export default function deploymentRequestsRoutes (router: Router): void {
             DeployStatus.TERMINATED
           ])
 
-        if (finalStates.includes(deploymentRequest.status)) {
+        if (
+          finalStates.includes(deploymentRequest.status) &&
+          hasDeploymentStream(deploymentRequest)
+        ) {
           await closeDeploymentStream(deploymentRequest)
         }
 

@@ -60,3 +60,7 @@ export async function closeDeploymentStream ({ id }: Pick<DeployRequest, 'id'>):
 
   return openStreams.delete(id)
 }
+
+export function hasDeploymentStream ({ id }: Pick<DeployRequest, 'id'>): boolean {
+  return openStreams.has(id)
+}
