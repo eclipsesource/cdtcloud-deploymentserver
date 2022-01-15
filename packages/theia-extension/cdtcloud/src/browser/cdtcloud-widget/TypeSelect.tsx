@@ -27,9 +27,15 @@ export const TypeSelect: FunctionComponent<{
           setBoard(newBoard);
         }}
       />
+
       <button
+        style={{
+          margin: "10px 5px",
+          width: "calc(100% - 10px)",
+          padding: "5px",
+        }}
         className="theia-button secondary"
-        title="Display Message"
+        title="Deploy"
         onClick={(_a) => deployOnBoard(board)}
       >
         Deploy on Board
