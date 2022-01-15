@@ -18,7 +18,7 @@ export class CompilationServiceImpl implements CompilationService {
   binaryFile: string;
   artifactUri: string;
 
-  async compile(fqbn: string, id: string, sketchPath: string): Promise<void> {
+  async compile(fqbn: string, id: string, sketchPath: string): Promise<string> {
     const client = new RPCClient()
     await client.init()
     await client.createInstance()
@@ -85,7 +85,7 @@ export class CompilationServiceImpl implements CompilationService {
 
     const artifactUri = uploadResponse.body.artifactUri
 
-    await got.post(`http://localhost:3001/api/deployments`, {
+    const {body: {id: deploymenyId}} = await got.post(`http://localhost:3001/api/deployments`, {
       headers: {
         "Content-Type": "application/json"
       },
@@ -95,5 +95,7 @@ export class CompilationServiceImpl implements CompilationService {
         deviceTypeId: id
       })
     })
+
+    return deploymenyId
   }
 }
