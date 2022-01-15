@@ -1,7 +1,7 @@
 import RecentDeploymentList from "../components/Dashboard/RecentDeploymentList";
 import DeploymentsOverTimeGraph from "../components/Dashboard/DeploymentsOverTimeGraph";
 import defineFunctionalComponent from "../util/defineFunctionalComponent";
-import { DeviceCount, DeployRequestCount } from "deployment-server";
+import { Dashboard } from "deployment-server";
 import { useState, useEffect } from "react";
 import { useInterval } from "react-use";
 
@@ -10,7 +10,7 @@ import "./DashboardCSS.css";
 
 export default defineFunctionalComponent(function Dasboard() {
 
-  const [data, setData] = useState<DeviceCount>();
+  const [data, setData] = useState<Dashboard>();
   let [refreshFlip, setRefetchFlip] = useState(false);
 
   useInterval(function () {
@@ -33,18 +33,18 @@ export default defineFunctionalComponent(function Dasboard() {
         <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
           <Col span={8}>
             <Card title="Total Deployments" >
-              <h2>Number</h2>
+              <h2>{data?.deployRequestCount}</h2>
             </Card>
           </Col>
 
           <Col span={8}>
             <Card title="Connected Devices" >
-              <h2>{data.deviceCount}</h2>
+              <h2>{data?.deviceCount}</h2>
             </Card>
           </Col>
           <Col span={8}>
             <Card title="Supported Board Types" >
-              <h2>All of them</h2>
+              <h2>Memes</h2>
             </Card>
           </Col>
         </Row>
