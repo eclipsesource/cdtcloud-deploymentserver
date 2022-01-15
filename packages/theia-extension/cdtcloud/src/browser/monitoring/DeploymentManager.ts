@@ -18,7 +18,7 @@ export class DeploymentManager {
   public async postDeploy(deploymentId: string) {
     const channel = this.outputChannelManager.getChannel(`Deployment ${deploymentId}`);
 
-    const socket = new WebSocket(`ws://0.0.0.0:3001/api/deployments/${deploymentId}/stream"`);
+    const socket = new WebSocket(`ws://localhost:3001/api/deployments/${deploymentId}/stream`);
 
     socket.onopen = () => {
       channel.show({preserveFocus: true});

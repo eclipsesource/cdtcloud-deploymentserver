@@ -5,7 +5,7 @@ import logger from '../util/logger'
 
 const openStreams = new Map<string, WebSocketServer>()
 
-const matchRegex = /^\/deployments\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/stream$/i
+const matchRegex = /^\/api\/deployments\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/stream$/i
 
 export function handles (url?: string): boolean {
   return ((url?.match(matchRegex)) != null)
