@@ -70,7 +70,7 @@ export default function deploymentRequestsRoutes (router: Router): void {
         })
 
         if (!await isDeployable(device)) {
-          return res.status(502).json(deploymentRequest).append('The device cannot be deployed to, due to it\'s status: ' + device.status)
+          return res.status(502).json(deploymentRequest).append('The Request cannot be deployed, because the least loaded device has the following status: ' + device.status)
         }
 
         await updateDeviceStatus({ id: deploymentRequest.deviceId })
