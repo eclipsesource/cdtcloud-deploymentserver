@@ -8,7 +8,7 @@ import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
 import { closeDeploymentStream, createDeploymentStream, hasDeploymentStream } from './service'
 
-export default function deploymentRequestsRoutes (router: Router): void {
+export default function deploymentRequestsRoutes(router: Router): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.get('/deployments', async (req, res, next) => {
     try {
@@ -45,7 +45,7 @@ export default function deploymentRequestsRoutes (router: Router): void {
     validate<DeployRequest, {}, Static<typeof postBody>>({ body: postBody }),
     async (req, res, next) => {
       try {
-      // Find an available device
+        // Find an available device
         let device = await getAvailableDevice(req.body.deviceTypeId)
 
         // If no device is available, get the first one with the minimal amount of in-progress deploymentRequests
