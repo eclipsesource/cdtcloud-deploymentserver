@@ -1,4 +1,3 @@
-import { deploymentRequest } from './../../../device-connector/dist/src/devices/deployment.d';
 import { DeployStatus, DeployRequest } from '.prisma/client'
 import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
