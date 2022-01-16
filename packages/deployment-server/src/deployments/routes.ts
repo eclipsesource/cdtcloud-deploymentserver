@@ -7,7 +7,7 @@ import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
 import { closeDeploymentStream, createDeploymentStream, hasDeploymentStream } from './service'
 
-export default function deploymentRequestsRoutes(router: Router): void {
+export default function deploymentRequestsRoutes (router: Router): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.get('/deployments', async (req, res, next) => {
     try {
