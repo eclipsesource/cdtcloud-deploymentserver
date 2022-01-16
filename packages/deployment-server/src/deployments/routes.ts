@@ -1,3 +1,4 @@
+import { deploymentRequest } from './../../../device-connector/dist/src/devices/deployment.d';
 import { DeployStatus, DeployRequest } from '.prisma/client'
 import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
@@ -56,10 +57,6 @@ export default function deploymentRequestsRoutes (router: Router): void {
           return res.sendStatus(503)
         }
 
-        if (!await isDeployable(device)) {
-          throw new Error('The least loaded device cannot be deployed to, due to it\'s status: ' + device.status)
-        }
-
         const deploymentRequest = await req.db.deployRequest.create({
           data: {
             device: {
@@ -71,6 +68,10 @@ export default function deploymentRequestsRoutes (router: Router): void {
             artifactUrl: req.body.artifactUri
           }
         })
+
+        if (!await isDeployable(device)) {
+          return res.status(502).json(deploymentRequest).append('The device cannot be deployed to, due to it\'s status: ' + device.status)
+        }
 
         await updateDeviceStatus({ id: deploymentRequest.deviceId })
 
