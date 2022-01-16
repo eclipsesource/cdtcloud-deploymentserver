@@ -28,17 +28,17 @@ export default defineFunctionalComponent(function Dasboard() {
       <Divider />
       <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
         <Col span={8}>
-          <Card title="Total Deployments"  >
+          <Card title="Total Deployments" extra={<a href="/deployments">All Deployments</a>}>
             <h2>{data?.deployRequestCount}</h2>
           </Card>
         </Col>
         <Col span={8}>
-          <Card title="Connected Devices" >
+          <Card title="Connected Devices" extra={<a href="/devices">All Devices</a>}>
             <h2>{data?.deviceCount}</h2>
           </Card>
         </Col>
         <Col span={8}>
-          <Card title="Supported Board Types"  >
+          <Card title="Supported Board Types" extra={<a href="/types">All Board Types</a>}>
             <h2>Memes</h2>
           </Card>
         </Col>
@@ -51,7 +51,7 @@ export default defineFunctionalComponent(function Dasboard() {
           </Card>
         </Col>
         <Col span={12}>
-          <Card title="Recent Deployments "  extra={<a href="/deployments">All deployments</a>}>
+          <Card title="Recent Deployments "  extra={<a href="/deployments">All Deployments</a>}>
             <RecentDeploymentList />
           </Card>
         </Col>
