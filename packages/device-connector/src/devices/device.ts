@@ -17,6 +17,7 @@ export class ConnectedDevice implements Device {
   readonly connectorId = connectorId
   readonly port: Port
   status: keyof typeof DeviceStatus
+  #deployment: Deployment | undefined
   #deviceMonitor: DeviceMonitor | undefined
   deployQueue = new Array<Deployment>()
 
@@ -54,8 +55,14 @@ export class ConnectedDevice implements Device {
   }
 
   async updateStatus (status: keyof typeof DeviceStatus): Promise<void> {
-    // TODO: catch if setDeviceRequest fails
-    await setDeviceRequest(this.id, status)
+    // Only set remote status back to available if there are no deployments queued
+    if (status !== DeviceStatus.AVAILABLE || this.deployQueue.length === 0) {
+      try {
+        await setDeviceRequest(this.id, status)
+      } catch (e) {
+        logger.error(e)
+      }
+    }
 
     // Only set remote status and don't execute further steps if status is already set locally
     if (this.status === status) {
@@ -76,7 +83,7 @@ export class ConnectedDevice implements Device {
   }
 
   async monitorOutput (sec: number = 5 * 60): Promise<void> {
-    if (this.status !== DeviceStatus.RUNNING) {
+    if (this.status !== DeviceStatus.RUNNING || this.#deployment == null) {
       throw new Error(`Device with id ${this.id} not currently running code`)
     }
 
@@ -85,7 +92,7 @@ export class ConnectedDevice implements Device {
     }
 
     await this.updateStatus(DeviceStatus.UNAVAILABLE)
-    await this.#deviceMonitor.start(sec)
+    await this.#deviceMonitor.start(this.#deployment.id, sec)
   }
 
   async stopMonitoring (): Promise<void> {
@@ -122,11 +129,14 @@ export class ConnectedDevice implements Device {
 
     // Update device status and notify server of status-change
     await this.updateStatus(DeviceStatus.DEPLOYING)
+    this.#deployment = deployment
+    /* Questionable removal
     try {
       await setDeployRequest(deployment.id, DeployStatus.RUNNING)
     } catch (e) {
       logger.error(e)
     }
+     */
 
     try {
       // Start uploading artifact
@@ -144,7 +154,7 @@ export class ConnectedDevice implements Device {
     // Update device status and notify server of status-change
     try {
       await this.updateStatus(DeviceStatus.RUNNING)
-      await setDeployRequest(deployment.id, DeployStatus.SUCCESS)
+      await setDeployRequest(deployment.id, DeployStatus.RUNNING) // Questionable
     } catch (e) {
       logger.error(e)
     }
@@ -153,10 +163,18 @@ export class ConnectedDevice implements Device {
     // Default: 2min
     await setTimeout(runtimeMS)
     try {
+      if (this.isMonitoring()) {
+        await this.stopMonitoring()
+      }
+      await setDeployRequest(deployment.id, DeployStatus.SUCCESS) // Questionable
       await this.updateStatus(DeviceStatus.AVAILABLE)
     } catch (e) {
       logger.error(e)
     }
+  }
+
+  getLastDeployment (): Deployment | undefined {
+    return this.#deployment
   }
 
   async queue (deployment: Deployment): Promise<void> {

@@ -384,7 +384,12 @@ export class GRPCClient {
 
       stream.on('data', (data: MonitorResponse) => {
         if (data.rx_data != null) {
-          logger.debug(`Monitoring ${port.address}: ${data.rx_data.toString()}`)
+          const outData = data.rx_data.toString()
+          if (outData.match(/^\s*$/) != null) {
+            logger.trace(`Monitoring ${port.address} (Empty line): ${outData}`)
+          } else {
+            logger.debug(`Monitoring ${port.address}: ${outData}`)
+          }
         }
       })
 
