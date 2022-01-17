@@ -103,7 +103,7 @@ export const openStream = async (): Promise<Duplex> => {
   }
 
   connectorId = connectorData.id
-  const uri = `ws${env.DEPLOY_SECURE === 'true' ? 's' : ''}://${deployUrl}/connectors/${connectorId}/queue`
+  const uri = `ws${env.DEPLOY_SECURE === 'true' ? 's' : ''}://${deployUrl}/api/connectors/${connectorId}/queue`
   const socket = new WebSocket(uri)
 
   socket.onopen = () => {

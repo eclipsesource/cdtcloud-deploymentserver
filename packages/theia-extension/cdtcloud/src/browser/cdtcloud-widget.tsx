@@ -12,11 +12,7 @@ import { CompilationService, DeviceTypeService } from "../common/protocol";
 import { EditorManager } from "@theia/editor/lib/browser/editor-manager";
 import { WorkspaceService } from "@theia/workspace/lib/browser/workspace-service";
 import { FileUri } from "@theia/core/lib/node/file-uri";
-import {
-  OutputChannel,
-  OutputChannelManager,
-  OutputChannelSeverity,
-} from "@theia/output/lib/browser/output-channel";
+import { DeploymentManager } from "./monitoring/DeploymentManager";
 
 @injectable()
 export class CdtcloudWidget extends ReactWidget {
@@ -29,8 +25,6 @@ export class CdtcloudWidget extends ReactWidget {
   @inject(MessageService)
   protected readonly messageService!: MessageService;
 
-  private channel!: OutputChannel;
-
   constructor(
     @inject(DeviceTypeService)
     private readonly deviceTypeService: DeviceTypeService,
@@ -40,8 +34,8 @@ export class CdtcloudWidget extends ReactWidget {
     protected readonly editorManager: EditorManager,
     @inject(WorkspaceService)
     protected readonly workspaceService: WorkspaceService,
-    @inject(OutputChannelManager)
-    protected readonly outputChannelManager: OutputChannelManager
+    @inject(DeploymentManager)
+    protected readonly deploymentManager: DeploymentManager
   ) {
     super();
   }
@@ -55,8 +49,6 @@ export class CdtcloudWidget extends ReactWidget {
     this.title.iconClass = "fa fa-window-maximize";
     this.update();
     this.getDeviceList();
-
-    this.channel = this.outputChannelManager.getChannel("Device-Monitor");
   }
 
   render() {
@@ -93,10 +85,6 @@ export class CdtcloudWidget extends ReactWidget {
   }
 
   protected async deployOnBoard(board: any): Promise<void> {
-    this.channel.show({ preserveFocus: true });
-    this.channel.appendLine("HELLO", OutputChannelSeverity.Error);
-    await this.messageService.info("Deployment Request sent.");
-
     const selectedBoard = this.deviceList.find((obj) => {
       return obj.id === board.value;
     });
@@ -105,10 +93,12 @@ export class CdtcloudWidget extends ReactWidget {
       throw new Error("No Sketch found");
     }
     const sketchPath = FileUri.fsPath(sketchUri);
-    await this.compilationService.compile(
+    const deploymentId = await this.compilationService.compile(
       selectedBoard.fqbn,
       board.value,
       sketchPath
     );
+
+    await this.deploymentManager.postDeploy(deploymentId);
   }
 }

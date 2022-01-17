@@ -117,7 +117,7 @@ export class ConnectedDevice implements Device {
     return false
   }
 
-  async deploy (deployment: Deployment, runtimeMS: number = 12000): Promise<void> {
+  async deploy (deployment: Deployment, runtimeMS: number = 120000): Promise<void> {
     const fqbn = await this.getFQBN()
 
     // Update device status and notify server of status-change
