@@ -130,13 +130,6 @@ export class ConnectedDevice implements Device {
     // Update device status and notify server of status-change
     await this.updateStatus(DeviceStatus.DEPLOYING)
     this.#deployment = deployment
-    /* Questionable removal
-    try {
-      await setDeployRequest(deployment.id, DeployStatus.RUNNING)
-    } catch (e) {
-      logger.error(e)
-    }
-     */
 
     try {
       // Start uploading artifact
@@ -154,7 +147,7 @@ export class ConnectedDevice implements Device {
     // Update device status and notify server of status-change
     try {
       await this.updateStatus(DeviceStatus.RUNNING)
-      await setDeployRequest(deployment.id, DeployStatus.RUNNING) // Questionable
+      await setDeployRequest(deployment.id, DeployStatus.RUNNING)
     } catch (e) {
       logger.error(e)
     }
@@ -166,7 +159,7 @@ export class ConnectedDevice implements Device {
       if (this.isMonitoring()) {
         await this.stopMonitoring()
       }
-      await setDeployRequest(deployment.id, DeployStatus.SUCCESS) // Questionable
+      await setDeployRequest(deployment.id, DeployStatus.TERMINATED)
       await this.updateStatus(DeviceStatus.AVAILABLE)
     } catch (e) {
       logger.error(e)
