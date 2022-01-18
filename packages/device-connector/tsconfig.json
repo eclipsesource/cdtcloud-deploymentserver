@@ -2,8 +2,8 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "dist",
-    "target": "es2021",
-    "lib": ["es2021", "DOM"],
+    "target": "esnext",
+    "lib": ["esnext", "DOM"],
     "module": "es2022",
     "moduleResolution": "node",
     "strict": true,

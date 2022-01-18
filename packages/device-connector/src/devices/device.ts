@@ -156,11 +156,13 @@ export class ConnectedDevice implements Device {
     // Default: 2min
     await setTimeout(runtimeMS)
     try {
-      if (this.isMonitoring()) {
-        await this.stopMonitoring()
+      if (this.#deployment.id === deployment.id) {
+        if (this.isMonitoring()) {
+          await this.stopMonitoring()
+        }
+        await this.updateStatus(DeviceStatus.AVAILABLE)
       }
-      await setDeployRequest(deployment.id, DeployStatus.TERMINATED)
-      await this.updateStatus(DeviceStatus.AVAILABLE)
+      await setDeployRequest(deployment.id, DeployStatus.SUCCESS)
     } catch (e) {
       logger.error(e)
     }

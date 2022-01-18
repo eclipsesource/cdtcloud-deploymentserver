@@ -177,16 +177,19 @@ export const openDeployStream = async (deploymentId: string): Promise<Duplex> =>
   const socket = new WebSocket(uri)
 
   socket.onopen = () => {
-    logger.debug(`Deployment-Stream ${deploymentId}: Opened - OK`)
+    logger.debug(`Deployment-Stream ${deploymentId}: Opened`)
   }
 
-  socket.onerror = (error: ErrorEvent) => {
-    logger.error(`Deployment-Stream ${deploymentId}: Error - ${error.message}`)
-  }
+  const duplex = createWebSocketStream(socket)
+  duplex.allowHalfOpen = false
 
-  socket.onclose = (event: CloseEvent) => {
-    logger.debug(`Deployment-Stream ${deploymentId}: Closed - ${event.reason}(${event.code})`)
-  }
+  duplex.on('error', (error: Error) => {
+    logger.error(`Deployment-Stream ${deploymentId}: ${error.message}`)
+  })
 
-  return createWebSocketStream(socket)
+  duplex.on('close', () => {
+    logger.debug(`Deployment-Stream ${deploymentId}: Closed`)
+  })
+
+  return duplex
 }
