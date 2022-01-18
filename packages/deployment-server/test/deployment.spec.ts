@@ -361,8 +361,6 @@ test('returns an error when queue is full', async (t) => {
       artifactUri
     })
   })
-  const result = await response.json() as Error
-  console.log(result.message)
 
   t.equal(response.status, 502)
 })
