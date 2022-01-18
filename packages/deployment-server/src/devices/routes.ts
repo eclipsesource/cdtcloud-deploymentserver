@@ -5,6 +5,8 @@ import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
+import { broadcastNewDevice } from '../dashboard/service'
+import logger from '../util/logger'
 
 const { DeviceStatus } = prisma
 
@@ -59,6 +61,13 @@ export default function deviceRoutes (router: Router): void {
             type: { connect: { id: typeId } }
           }
         })
+
+        try {
+          await broadcastNewDevice(device)
+        } catch (e) {
+          logger.error(e)
+        }
+
         return res.json(device)
       } catch (e) {
         next(e)

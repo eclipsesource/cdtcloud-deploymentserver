@@ -5,6 +5,8 @@ import { validate } from '../util/validate'
 
 import type { Router } from 'express'
 import type { Connector } from '.'
+import { broadcastNewConnector } from '../dashboard/service'
+import logger from '../util/logger'
 
 export default function connectorRoutes (router: Router): void {
   router.get('/connectors',
@@ -30,6 +32,12 @@ export default function connectorRoutes (router: Router): void {
         })
 
         registerConnector(connector)
+
+        try {
+          await broadcastNewConnector(connector)
+        } catch (e) {
+          logger.error(e)
+        }
 
         return res.json({
           ...connector

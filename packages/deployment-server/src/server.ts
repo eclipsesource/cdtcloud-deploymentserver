@@ -11,6 +11,7 @@ import { Signals } from 'close-with-grace'
 import { promisify } from 'util'
 import http from 'node:http'
 import * as DeploymentStream from './deployments/service'
+import * as NotificationStream from './dashboard/service'
 
 export async function createServer (): Promise<[Server, Application, PrismaClient]> {
   try {
@@ -19,9 +20,10 @@ export async function createServer (): Promise<[Server, Application, PrismaClien
     const server = http.createServer(app)
     ConnectorQueue.registerConnectorQueueRoutes(server)
     DeploymentStream.registerDeviceStreamRoutes(server)
+    NotificationStream.registerNotificationStreamRoutes(server)
 
     server.on('upgrade', (request, socket, _head) => {
-      if (!ConnectorQueue.handles(request.url) && !DeploymentStream.handles(request.url)) {
+      if (!ConnectorQueue.handles(request.url) && !DeploymentStream.handles(request.url) && !NotificationStream.handles(request.url)) {
         return socket.destroy()
       }
     })
