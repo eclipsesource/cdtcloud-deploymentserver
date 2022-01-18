@@ -28,9 +28,9 @@ export default function dashboardRoutes (router: Router): void {
         const deploymentsPerBucket = await req.db.$queryRaw<Array<{bucket: string, count: string}>>`
           WITH buckets AS (
             SELECT generate_series(
-              date_trunc('minute', now()) - '20 minutes'::interval,
-              date_trunc('minute', now()),
-              '1 minute'::interval
+              date_trunc('hour', now()) - '24 hours'::interval,
+              date_trunc('hour', now()),
+              '1 hour'::interval
             ) as bucket
           )
 
@@ -38,7 +38,7 @@ export default function dashboardRoutes (router: Router): void {
             buckets.bucket,
             count("DeployRequest".id)
           FROM buckets
-          LEFT JOIN "DeployRequest" on date_trunc('minute', "DeployRequest"."createdAt") = buckets.bucket
+          LEFT JOIN "DeployRequest" on date_trunc('hour', "DeployRequest"."createdAt") = buckets.bucket
           GROUP BY 1
           ORDER BY 1
         `.then((x) => x.reduce((acc, { bucket, count }) => ({ ...acc, [bucket]: parseInt(count) }), {} as Record<string, number>))

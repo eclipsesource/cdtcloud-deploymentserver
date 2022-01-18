@@ -40,5 +40,5 @@ export default new ContainerModule((bind) => {
     return connection.createProxy<CompilationService>(COMPILATION_PATH);
   })
   .inSingletonScope();
-});
 
+});

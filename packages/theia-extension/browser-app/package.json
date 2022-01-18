@@ -10,6 +10,8 @@
     "@theia/messages": "^1.21.0",
     "@theia/monaco": "^1.21.0",
     "@theia/navigator": "^1.21.0",
+    "@theia/plugin-ext": "^1.21.0",
+    "@theia/plugin-ext-vscode": "^1.21.0",
     "@theia/preferences": "^1.21.0",
     "@theia/process": "^1.21.0",
     "@theia/terminal": "^1.21.0",
@@ -21,7 +23,7 @@
   },
   "scripts": {
     "prepare": "theia build --mode development",
-    "start": "theia start",
+    "start": "theia start --plugins=local-dir:../cdtcloud/plugins",
     "watch": "theia build --watch --mode development",
     "dev": "theia build --watch --mode development"
   },
