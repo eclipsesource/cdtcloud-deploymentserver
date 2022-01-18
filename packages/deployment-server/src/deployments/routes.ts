@@ -41,7 +41,7 @@ export default function deploymentRequestsRoutes (router: Router): void {
   }, { additionalProperties: false })
 
   router.post('/deployments',
-    validate<DeployRequest, {}, Static<typeof postBody>>({ body: postBody }),
+    validate<DeployRequest | Error, {}, Static<typeof postBody>>({ body: postBody }),
     async (req, res, next) => {
       try {
         // Find an available device
@@ -56,6 +56,10 @@ export default function deploymentRequestsRoutes (router: Router): void {
           return res.sendStatus(503)
         }
 
+        if (!await isDeployable(device)) {
+          const message = 'The Request cannot be deployed, because the least loaded device\'s queue is full. The device status is: ' + device.status
+          return res.status(502).json({name: 'Device queue is full', message: message})
+        }
         const deploymentRequest = await req.db.deployRequest.create({
           data: {
             device: {
@@ -67,10 +71,6 @@ export default function deploymentRequestsRoutes (router: Router): void {
             artifactUrl: req.body.artifactUri
           }
         })
-
-        if (!await isDeployable(device)) {
-          return res.status(502).json(deploymentRequest).append('The Request cannot be deployed, because the least loaded device has the following status: ' + device.status)
-        }
 
         await updateDeviceStatus({ id: deploymentRequest.deviceId })
 
