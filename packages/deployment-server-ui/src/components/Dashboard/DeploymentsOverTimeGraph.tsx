@@ -23,7 +23,10 @@ export default defineFunctionalComponent(function DeploymentsOverTimeGraph() {
     xField: 'xField',
     yField: 'yField',
     xAxis: {
-      // type: 'timeCat',
+      type: 'timeCat',
+      tickCount: 1,
+    },
+    yAxis: {
       tickCount: 1,
     },
     smooth: true,
