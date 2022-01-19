@@ -34,7 +34,10 @@ export class DeploymentManager {
     }
 
     socket.onmessage = (event) => {
-      channel.appendLine(event.data);
+      const data = event.data.toString().trim()
+      if (data != '') {
+        channel.appendLine(data);
+      }
 
       if (event.data === 'Deployment RUNNING') {
         socket.send('monitor.start');

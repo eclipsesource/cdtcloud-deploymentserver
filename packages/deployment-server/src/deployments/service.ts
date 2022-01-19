@@ -30,6 +30,14 @@ export function registerDeviceStreamRoutes (server: Server): void {
     const matchedServer = openStreams.get(id)!
 
     matchedServer.handleUpgrade(request, socket as Socket, head, function done (ws) {
+      ws.onmessage = (message) => {
+        for (const client of matchedServer.clients) {
+          if (client !== socket) {
+            const data = message.data as string
+            client.send(data.toString())
+          }
+        }
+      }
       matchedServer.emit('connection', ws, request)
     })
   })
