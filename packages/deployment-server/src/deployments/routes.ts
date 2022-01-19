@@ -115,7 +115,7 @@ export default function deploymentRequestsRoutes (router: Router): void {
 
           if (connectorStream != null) {
             for (const client of connectorStream.clients) {
-              client.send('monitor.start')
+              client.send(JSON.stringify({ type: 'monitor.start' }))
             }
           }
         }
