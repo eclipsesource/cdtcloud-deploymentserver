@@ -1,7 +1,7 @@
 import { DeployStatus, DeployRequest } from '.prisma/client'
 import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
-import { addDeployRequest } from '../connectors/queue'
+import { addDeployRequest, getServerForConnector } from '../connectors/queue'
 import { getAvailableDevice, getLeastLoadedDevice, updateDeviceStatus } from '../devices/service'
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
@@ -97,7 +97,8 @@ export default function deploymentRequestsRoutes (router: Router): void {
       try {
         const deploymentRequest = await req.db.deployRequest.update({
           where: { id: req.params.id },
-          data: req.body
+          data: req.body,
+          include: { device: { include: { connector: true } } }
         })
 
         await updateDeviceStatus({ id: deploymentRequest.deviceId })
@@ -106,6 +107,16 @@ export default function deploymentRequestsRoutes (router: Router): void {
         if (stream != null) {
           for (const client of stream.clients) {
             client.send('Deployment ' + deploymentRequest.status)
+          }
+        }
+
+        if (deploymentRequest.status === DeployStatus.RUNNING) {
+          const connectorStream = getServerForConnector(deploymentRequest.device.connector)
+
+          if (connectorStream != null) {
+            for (const client of connectorStream.clients) {
+              client.send('monitor.start')
+            }
           }
         }
 
