@@ -58,6 +58,13 @@ export default function deploymentRequestsRoutes (router: Router): void {
 
         if (!await isDeployable(device)) {
           const message = 'The Request cannot be deployed, because the least loaded device\'s queue is full. The device status is: ' + device.status
+
+          await req.db.issue.create({
+            data: {
+              deviceTypeId: req.body.deviceTypeId
+            }
+          })
+
           return res.status(502).json({ name: 'Device queue is full', message: message })
         }
         const deploymentRequest = await req.db.deployRequest.create({

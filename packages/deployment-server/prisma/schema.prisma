@@ -20,6 +20,7 @@ model DeviceType {
   name    String
   fqbn    String   @unique
   devices Device[]
+  issues  Issue[]
 }
 
 model Device {
@@ -55,4 +56,11 @@ enum DeployStatus {
   SUCCESS
   FAILED
   TERMINATED
+}
+
+model Issue {
+  id             String          @unique @default(uuid()) @db.Uuid
+  createdAt      DateTime        @default(now())
+  type           DeviceType      @relation(fields: [deviceTypeId], references: [id], onDelete: Cascade)
+  deviceTypeId   String          @db.Uuid
 }
