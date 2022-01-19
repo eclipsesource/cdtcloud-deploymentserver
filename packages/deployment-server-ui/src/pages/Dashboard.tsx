@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useInterval } from "react-use";
 
 import { Card, Divider, Row, Col } from "antd";
-import "./DashboardCSS.css";
+import "./Dashboard.css";
 
 export default defineFunctionalComponent(function Dasboard() {
   const [data, setData] = useState<Dashboard>();

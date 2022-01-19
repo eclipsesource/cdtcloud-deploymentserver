@@ -12,7 +12,7 @@ export default defineFunctionalComponent(function DeploymentsOverTimeGraph() {
   }, []);
 
   const asyncFetch = () => {
-    fetch('http://localhost:3001/api/dashboard')
+    fetch('/api/dashboard')
       .then((res) => res.json())
       .then((json) => setData(Object.entries<string>(json.deploymentsPerBucket).reduce<DataEntries>((acc,[key,value]) => ([...acc, ({ xField: key, yField: value })]), [])))
   };
