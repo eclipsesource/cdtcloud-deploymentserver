@@ -11,7 +11,7 @@ type ConnectorId = string
 
 export const QueueManager = {
   queueMap: new Map<ConnectorId, WSServer>(),
-  test: /^\/connectors\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/queue$/,
+  test: /^\/api\/connectors\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/queue$/,
 
   handles (url?: string): boolean {
     return url?.match(this.test) != null
@@ -27,7 +27,7 @@ export const QueueManager = {
 
       const id = match[1]
 
-      if (this.queueMap.has(id) == null) {
+      if (!this.queueMap.has(id)) {
         return socket.destroy()
       }
 

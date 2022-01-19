@@ -15,6 +15,7 @@ import {
   DeviceTypeService,
   DEVICE_TYPES_PATH,
 } from "../common/protocol";
+import { DeploymentManager } from "./monitoring/DeploymentManager";
 
 export default new ContainerModule((bind) => {
   bindViewContribution(bind, CdtcloudContribution);
@@ -26,6 +27,8 @@ export default new ContainerModule((bind) => {
       createWidget: () => ctx.container.get<CdtcloudWidget>(CdtcloudWidget),
     }))
     .inSingletonScope();
+
+  bind(DeploymentManager).toSelf().inSingletonScope();
 
   bind(DeviceTypeService)
     .toDynamicValue((ctx) => {

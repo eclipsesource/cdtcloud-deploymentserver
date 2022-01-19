@@ -5,7 +5,7 @@ import logger from '../util/logger'
 
 const openStreams = new Map<string, WebSocketServer>()
 
-const matchRegex = /^\/deployments\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/stream$/i
+const matchRegex = /^\/api\/deployments\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/stream$/i
 
 export function handles (url?: string): boolean {
   return ((url?.match(matchRegex)) != null)
@@ -21,7 +21,7 @@ export function registerDeviceStreamRoutes (server: Server): void {
 
     const id: string = match[1]
 
-    if (openStreams.has(id) == null) {
+    if (!openStreams.has(id)) {
       return socket.destroy()
     }
 
@@ -59,4 +59,8 @@ export async function closeDeploymentStream ({ id }: Pick<DeployRequest, 'id'>):
   logger.info(`Closed deployment stream for deployment ${id}`)
 
   return openStreams.delete(id)
+}
+
+export function hasDeploymentStream ({ id }: Pick<DeployRequest, 'id'>): boolean {
+  return openStreams.has(id)
 }

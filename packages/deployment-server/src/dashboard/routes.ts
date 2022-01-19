@@ -28,7 +28,7 @@ export default function dashboardRoutes (router: Router): void {
         const deploymentsPerBucket = await req.db.$queryRaw<Array<{bucket: string, count: string}>>`
           WITH buckets AS (
             SELECT generate_series(
-              date_trunc('hour', now()) - '24 hours'::interval,
+              date_trunc('hour', now()) - '20 hours'::interval,
               date_trunc('hour', now()),
               '1 hour'::interval
             ) as bucket
