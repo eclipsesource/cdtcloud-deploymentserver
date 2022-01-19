@@ -27,7 +27,7 @@ export const QueueManager = {
 
       const id = match[1]
 
-      if (this.queueMap.has(id) == null) {
+      if (!this.queueMap.has(id)) {
         return socket.destroy()
       }
 
