@@ -64,3 +64,7 @@ export async function closeDeploymentStream ({ id }: Pick<DeployRequest, 'id'>):
 export function hasDeploymentStream ({ id }: Pick<DeployRequest, 'id'>): boolean {
   return openStreams.has(id)
 }
+
+export function getDeploymentStream ({ id }: Pick<DeployRequest, 'id'>): WebSocketServer | null {
+  return openStreams.get(id) ?? null
+}

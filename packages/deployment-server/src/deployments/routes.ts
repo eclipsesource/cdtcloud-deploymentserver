@@ -5,7 +5,7 @@ import { addDeployRequest } from '../connectors/queue'
 import { getAvailableDevice, getLeastLoadedDevice, updateDeviceStatus } from '../devices/service'
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
-import { closeDeploymentStream, createDeploymentStream, hasDeploymentStream } from './service'
+import { closeDeploymentStream, createDeploymentStream, getDeploymentStream, hasDeploymentStream } from './service'
 
 export default function deploymentRequestsRoutes (router: Router): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -71,7 +71,12 @@ export default function deploymentRequestsRoutes (router: Router): void {
         await updateDeviceStatus({ id: deploymentRequest.deviceId })
 
         // Open a websocket for the connector to pipe the output/error to
-        createDeploymentStream(deploymentRequest)
+        const stream = createDeploymentStream(deploymentRequest)
+        if (stream != null) {
+          for (const client of stream.clients) {
+            client.send('Deployment ' + DeployStatus.PENDING)
+          }
+        }
 
         // Send deploymentRequest to device
         await addDeployRequest(device, deploymentRequest)
@@ -96,6 +101,13 @@ export default function deploymentRequestsRoutes (router: Router): void {
         })
 
         await updateDeviceStatus({ id: deploymentRequest.deviceId })
+
+        const stream = getDeploymentStream(deploymentRequest)
+        if (stream != null) {
+          for (const client of stream.clients) {
+            client.send('Deployment ' + deploymentRequest.status)
+          }
+        }
 
         const finalStates: readonly DeployStatus[] =
           Object.freeze([

@@ -31,11 +31,14 @@ export class DeploymentManager {
     socket.onopen = () => {
       channel.show({preserveFocus: true});
       channel.appendLine('Connected to deployment');
-      socket.send('monitor.start');
     }
 
     socket.onmessage = (event) => {
       channel.appendLine(event.data);
+
+      if (event.data === 'Deployment RUNNING') {
+        socket.send('monitor.start');
+      }
     }
 
     socket.onerror = (_event) => {

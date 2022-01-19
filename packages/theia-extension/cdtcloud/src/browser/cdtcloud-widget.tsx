@@ -26,7 +26,10 @@ export class CdtcloudWidget extends ReactWidget {
   static readonly ID = "cdtcloud:widget";
   static readonly LABEL = "Cdtcloud Widget";
 
+  private deploymentIds: string[] = [];
   private deployments: Deployment[] = [];
+
+  private interval: number;
 
   @inject(MessageService)
   protected readonly messageService!: MessageService;
@@ -55,6 +58,7 @@ export class CdtcloudWidget extends ReactWidget {
     this.title.iconClass = "fa fa-window-maximize";
     this.update();
     this.getDeviceList();
+    this.startPollingDeployments();
   }
 
   render() {
@@ -138,7 +142,29 @@ export class CdtcloudWidget extends ReactWidget {
     );
 
     await this.deploymentManager.postDeploy(deployment);
-    this.deployments = [...this.deployments, deployment];
+    this.deploymentIds = [...this.deploymentIds, deployment.id];
     this.update();
+  }
+
+  private startPollingDeployments(): void {
+    this.interval = setInterval(async () => {
+      try {
+        const request = await fetch("http://localhost:3001/api/deployments");
+
+        const deployments = (await request.json()) as Deployment[];
+
+        this.deployments = deployments.filter((deployment) =>
+          this.deploymentIds.includes(deployment.id)
+        );
+        this.update();
+      } catch (err) {
+        console.log(err);
+      }
+    }, 5000) as unknown as number;
+  }
+
+  dispose(): void {
+    clearInterval(this.interval);
+    super.dispose();
   }
 }
