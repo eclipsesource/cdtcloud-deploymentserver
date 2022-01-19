@@ -10,5 +10,14 @@ export const COMPILATION_PATH = "/services/compilation";
 export interface CompilationService {
   binaryFile: string;
   artifactUri: string;
-  compile(fqbn:string, id:string, sketchPath:string): Promise<string>;
+  compile(fqbn:string, id:string, sketchPath:string): Promise<Deployment>;
+}
+
+export type Deployment = {
+  id: string
+  status: string
+  createdAt: Date
+  updatedAt: Date
+  artifactUrl: string | null
+  deviceId: string
 }

@@ -8,7 +8,11 @@ import {
 import { AlertMessage } from "@theia/core/lib/browser/widgets/alert-message";
 import { ReactWidget } from "@theia/core/lib/browser/widgets/react-widget";
 import { MessageService } from "@theia/core";
-import { CompilationService, DeviceTypeService } from "../common/protocol";
+import {
+  CompilationService,
+  Deployment,
+  DeviceTypeService,
+} from "../common/protocol";
 import { EditorManager } from "@theia/editor/lib/browser/editor-manager";
 import { WorkspaceService } from "@theia/workspace/lib/browser/workspace-service";
 import { FileUri } from "@theia/core/lib/node/file-uri";
@@ -21,6 +25,8 @@ export class CdtcloudWidget extends ReactWidget {
   selected: { label: string; value: string };
   static readonly ID = "cdtcloud:widget";
   static readonly LABEL = "Cdtcloud Widget";
+
+  private deployments: Deployment[] = [];
 
   @inject(MessageService)
   protected readonly messageService!: MessageService;
@@ -55,15 +61,47 @@ export class CdtcloudWidget extends ReactWidget {
     const header = `This widget enables you to deploy your code on a remote (Arduino-)board.`;
 
     return (
-      <div id="widget-container">
-        <AlertMessage type="INFO" header={header} />
+      <>
+        <div id="widget-container">
+          <AlertMessage type="INFO" header={header} />
 
-        <h2> Select a Board to deploy your code on from this list</h2>
-        <TypeSelect
-          options={this.options}
-          deployOnBoard={this.deployOnBoard.bind(this)}
-        />
-      </div>
+          <h2> Select a Board to deploy your code on from this list</h2>
+          <TypeSelect
+            options={this.options}
+            deployOnBoard={this.deployOnBoard.bind(this)}
+          />
+        </div>
+
+        <div id="past-deployments">
+          <h2> Past Deployments</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th>Artifact URL</th>
+                <th>Device ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.deployments.map((deployment) => {
+                return (
+                  <tr>
+                    <td>{deployment.id}</td>
+                    <td>{deployment.status}</td>
+                    <td>{deployment.createdAt}</td>
+                    <td>{deployment.updatedAt}</td>
+                    <td>{deployment.artifactUrl}</td>
+                    <td>{deployment.deviceId}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </>
     );
   }
 
@@ -93,12 +131,14 @@ export class CdtcloudWidget extends ReactWidget {
       throw new Error("No Sketch found");
     }
     const sketchPath = FileUri.fsPath(sketchUri);
-    const deploymentId = await this.compilationService.compile(
+    const deployment = await this.compilationService.compile(
       selectedBoard.fqbn,
       board.value,
       sketchPath
     );
 
-    await this.deploymentManager.postDeploy(deploymentId);
+    await this.deploymentManager.postDeploy(deployment);
+    this.deployments = [...this.deployments, deployment];
+    this.update();
   }
 }
