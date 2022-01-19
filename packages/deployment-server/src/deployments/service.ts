@@ -21,7 +21,7 @@ export function registerDeviceStreamRoutes (server: Server): void {
 
     const id: string = match[1]
 
-    if (openStreams.has(id) == null) {
+    if (!openStreams.has(id)) {
       return socket.destroy()
     }
 

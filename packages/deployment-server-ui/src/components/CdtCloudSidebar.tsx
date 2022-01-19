@@ -1,33 +1,47 @@
 import { Menu } from "antd";
 import Sider from "antd/lib/layout/Sider";
 import {
+  DashboardOutlined,
   DesktopOutlined,
   PieChartOutlined,
   FileOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-import "./CdtCloudSidebar.css";
+import { useEffect, useState } from "react";
 
 export function CdtCloudSidebar() {
+  const [current, setCurrent] = useState(location.pathname);
+
+  useEffect(() => {
+    if (location) {
+      if (current !== location.pathname) {
+        setCurrent(location.pathname);
+      }
+    }
+  }, [location, current]);
+  function handleClick(e: any) {
+    setCurrent(e.key);
+  }
   return (
     <Sider width={200} className="site-layout-background">
       <Menu
+        onClick={handleClick}
         theme="dark"
-        defaultSelectedKeys={["1"]}
+        selectedKeys={[current]}
         mode="inline"
         style={{ height: "100%", borderRight: 0 }}
       >
-        <Menu.Item key="1" icon={<PieChartOutlined />}>
+        <Menu.Item key="/" icon={<DashboardOutlined />}>
           <Link to={"/"}>Dashboard</Link>
         </Menu.Item>
-        <Menu.Item key="2" icon={<PieChartOutlined />}>
+        <Menu.Item key="/deployments" icon={<PieChartOutlined />}>
           <Link to={"/deployments"}>Deployments</Link>
         </Menu.Item>
-        <Menu.Item key="3" icon={<DesktopOutlined />}>
-          <Link to={"/devices"}>Devices</Link>
+        <Menu.Item key="/devices" icon={<DesktopOutlined />}>
+          <Link to={"/devices"}>Connected Boards</Link>
         </Menu.Item>
-        <Menu.Item key="4" icon={<FileOutlined />}>
-          <Link to={"/types"}>Types</Link>
+        <Menu.Item key="/types" icon={<FileOutlined />}>
+          <Link to={"/types"}>Board Types</Link>
         </Menu.Item>
       </Menu>
     </Sider>
