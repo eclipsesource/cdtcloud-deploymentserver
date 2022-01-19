@@ -5,7 +5,7 @@ import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
-import { broadcastNewDevice } from '../dashboard/service'
+import { broadcastDeviceChange } from '../dashboard/service'
 import logger from '../util/logger'
 
 const { DeviceStatus } = prisma
@@ -63,7 +63,7 @@ export default function deviceRoutes (router: Router): void {
         })
 
         try {
-          await broadcastNewDevice(device)
+          await broadcastDeviceChange(device, 'add')
         } catch (e) {
           logger.error(e)
         }
@@ -115,6 +115,12 @@ export default function deviceRoutes (router: Router): void {
         const device = await req.db.device.delete({
           where: { id: req.params.id }
         })
+
+        try {
+          await broadcastDeviceChange(device, 'remove')
+        } catch (e) {
+          logger.error(e)
+        }
 
         return res.json(device)
       } catch (e) {

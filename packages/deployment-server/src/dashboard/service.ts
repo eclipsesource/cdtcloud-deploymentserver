@@ -3,7 +3,7 @@ import { Server, Socket } from 'node:net'
 import { Connector, Device } from '@prisma/client'
 import logger from '../util/logger'
 
-const matchRegex = /^\/dashboard\/notifications$/i
+const matchRegex = /^\/api\/dashboard\/notifications$/i
 
 const notificationStream = new WebSocketServer({ noServer: true })
 
@@ -25,13 +25,16 @@ export const registerNotificationStreamRoutes = (server: Server): void => {
   })
 }
 
-export const broadcastNewDevice = async (device: Device): Promise<void> => {
+export const broadcastDeviceChange = async (device: Device, event: 'add' | 'remove'): Promise<void> => {
   notificationStream.clients.forEach(function each (client) {
     if (client.readyState === WebSocket.OPEN) {
       try {
         client.send(JSON.stringify({
           type: 'device',
-          data: { device }
+          data: {
+            event,
+            device
+          }
         }))
       } catch (e) {
         logger.error(e)
@@ -41,13 +44,16 @@ export const broadcastNewDevice = async (device: Device): Promise<void> => {
   })
 }
 
-export const broadcastNewConnector = async (connector: Connector): Promise<void> => {
+export const broadcastConnectorChange = async (connector: Connector, event: 'add' | 'remove' | 'connect' | 'disconnect'): Promise<void> => {
   notificationStream.clients.forEach(function each (client) {
     if (client.readyState === WebSocket.OPEN) {
       try {
         client.send(JSON.stringify({
           type: 'connector',
-          data: { connector }
+          data: {
+            event,
+            connector
+          }
         }))
       } catch (e) {
         logger.error(e)
