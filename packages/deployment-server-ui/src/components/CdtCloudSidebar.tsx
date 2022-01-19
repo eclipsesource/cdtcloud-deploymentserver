@@ -7,7 +7,6 @@ import {
   FileOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-import "./CdtCloudSidebar.css";
 import { useEffect, useState } from "react";
 
 export function CdtCloudSidebar() {
