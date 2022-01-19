@@ -80,7 +80,7 @@ export class CdtcloudWidget extends ReactWidget {
           <h2> Past Deployments</h2>
           <table>
             <thead>
-              <tr>
+              <tr key="head">
                 <th>ID</th>
                 <th>Status</th>
                 <th>Created At</th>
@@ -92,7 +92,7 @@ export class CdtcloudWidget extends ReactWidget {
             <tbody>
               {this.deployments.map((deployment) => {
                 return (
-                  <tr>
+                  <tr key={deployment.id}>
                     <td>{deployment.id}</td>
                     <td>{deployment.status}</td>
                     <td>{deployment.createdAt}</td>
