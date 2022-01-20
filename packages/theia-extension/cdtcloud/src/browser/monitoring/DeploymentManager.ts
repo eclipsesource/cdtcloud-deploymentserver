@@ -38,10 +38,6 @@ export class DeploymentManager {
       if (data != '') {
         channel.appendLine(data);
       }
-
-      if (event.data === 'Deployment RUNNING') {
-        socket.send('monitor.start');
-      }
     }
 
     socket.onerror = (_event) => {
