@@ -7,13 +7,21 @@ try {
 
   const handler = closeWithGrace({ delay: 1000 }, closeConnector.bind(connector))
 
-  // Nodemon sends SIGUSR2 when it restarts
+  // Process kill pid signal (nodemon)
+  process.once('SIGUSR1 ', () => {
+    handler.close()
+  })
   process.once('SIGUSR2', () => {
     handler.close()
   })
 
-  // Process SIGINT signal
+  // Process ctrl+c signal
   process.once('SIGINT', () => {
+    handler.close()
+  })
+
+  // Process uncaught exceptions
+  process.once('uncaughtException', () => {
     handler.close()
   })
 } catch (err) {
