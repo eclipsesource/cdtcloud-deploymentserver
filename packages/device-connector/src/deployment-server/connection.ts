@@ -17,7 +17,7 @@ export interface ConnectorData {
 }
 
 export let connectorId: string
-const deployUrl = `${env.DEPLOY_IP ?? '127.0.0.1'}:${env.DEPLOY_PORT ?? '3001'}`
+export const deployUrl = `${env.DEPLOY_IP ?? '127.0.0.1'}:${env.DEPLOY_PORT ?? '3001'}`
 export const deployUri = `http${env.DEPLOY_SECURE === 'true' ? 's' : ''}://${deployUrl}/api`
 
 const readConnectorData = async (): Promise<ConnectorData> => {
@@ -78,7 +78,7 @@ const writeConnectorData = async (connectorData: ConnectorData): Promise<void> =
   })
 }
 
-export const openStream = async (): Promise<Duplex> => {
+export const openConnectorStream = async (): Promise<Duplex> => {
   let connectorData: ConnectorData | undefined
   if (fs.existsSync('.connection.data')) {
     connectorData = await readConnectorData()
@@ -92,7 +92,7 @@ export const openStream = async (): Promise<Duplex> => {
     } catch (e) {
       logger.error(e)
       await setTimeout(3000)
-      return await openStream()
+      return await openConnectorStream()
     }
     try {
       await writeConnectorData(connectorData)
@@ -117,7 +117,7 @@ export const openStream = async (): Promise<Duplex> => {
   socket.onclose = async (event: CloseEvent) => {
     logger.error(`Connection to Deployment-Server failed: ${event.reason}(${event.code}) - Trying to reconnect`)
     await setTimeout(3000)
-    return await openStream()
+    return await openConnectorStream()
   }
 
   socket.onmessage = async (message: MessageEvent) => {
@@ -167,6 +167,28 @@ export const openStream = async (): Promise<Duplex> => {
 
   duplex.on('close', () => {
     duplex = createWebSocketStream(socket)
+  })
+
+  return duplex
+}
+
+export const openDeployStream = async (deploymentId: string): Promise<Duplex> => {
+  const uri = `ws${env.DEPLOY_SECURE === 'true' ? 's' : ''}://${deployUrl}/api/deployments/${deploymentId}/stream`
+  const socket = new WebSocket(uri)
+
+  socket.onopen = () => {
+    logger.debug(`Deployment-Stream ${deploymentId}: Opened`)
+  }
+
+  const duplex = createWebSocketStream(socket)
+  duplex.allowHalfOpen = false
+
+  duplex.on('error', (error: Error) => {
+    logger.error(`Deployment-Stream ${deploymentId}: ${error.message}`)
+  })
+
+  duplex.on('close', () => {
+    logger.debug(`Deployment-Stream ${deploymentId}: Closed`)
   })
 
   return duplex

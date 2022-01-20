@@ -5,6 +5,8 @@ import { validate } from '../util/validate'
 
 import type { Router } from 'express'
 import type { Connector } from '.'
+import { broadcastConnectorChange } from '../dashboard/service'
+import logger from '../util/logger'
 
 export default function connectorRoutes (router: Router): void {
   router.get('/connectors',
@@ -31,6 +33,12 @@ export default function connectorRoutes (router: Router): void {
 
         registerConnector(connector)
 
+        try {
+          await broadcastConnectorChange(connector, 'add')
+        } catch (e) {
+          logger.error(e)
+        }
+
         return res.json({
           ...connector
         })
@@ -44,7 +52,13 @@ export default function connectorRoutes (router: Router): void {
     async (req, res, next) => {
       try {
         unregisterConnector({ id: req.params.id })
-        await req.db.connector.delete({ where: { id: req.params.id } })
+        const connector = await req.db.connector.delete({ where: { id: req.params.id } })
+
+        try {
+          await broadcastConnectorChange(connector, 'remove')
+        } catch (e) {
+          logger.error(e)
+        }
 
         return res.sendStatus(204)
       } catch (e) {

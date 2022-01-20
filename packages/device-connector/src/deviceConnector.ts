@@ -1,6 +1,6 @@
 import { buildCli } from './arduino-cli/service'
 import { GRPCClient } from './arduino-cli/client'
-import { openStream } from './deployment-server/connection'
+import { openConnectorStream } from './deployment-server/connection'
 import { Signals } from 'close-with-grace'
 import { Duplex } from 'stream'
 import { logger } from './util/logger'
@@ -15,7 +15,7 @@ export interface DeviceConnector {
 
 export const createConnector = async (): Promise<DeviceConnector> => {
   arduinoClient = await buildCli()
-  deploymentSocket = await openStream()
+  deploymentSocket = await openConnectorStream()
 
   return { arduinoClient, deploymentSocket }
 }
