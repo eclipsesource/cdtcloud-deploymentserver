@@ -8,7 +8,11 @@ import {
 import { AlertMessage } from "@theia/core/lib/browser/widgets/alert-message";
 import { ReactWidget } from "@theia/core/lib/browser/widgets/react-widget";
 import { MessageService } from "@theia/core";
-import { CompilationService, DeviceTypeService } from "../common/protocol";
+import {
+  CompilationService,
+  Deployment,
+  DeviceTypeService,
+} from "../common/protocol";
 import { EditorManager } from "@theia/editor/lib/browser/editor-manager";
 import { WorkspaceService } from "@theia/workspace/lib/browser/workspace-service";
 import { FileUri } from "@theia/core/lib/node/file-uri";
@@ -21,6 +25,11 @@ export class CdtcloudWidget extends ReactWidget {
   selected: { label: string; value: string };
   static readonly ID = "cdtcloud:widget";
   static readonly LABEL = "Cdtcloud Widget";
+
+  private deploymentIds: string[] = [];
+  private deployments: Deployment[] = [];
+
+  private interval: number;
 
   @inject(MessageService)
   protected readonly messageService!: MessageService;
@@ -49,21 +58,54 @@ export class CdtcloudWidget extends ReactWidget {
     this.title.iconClass = "fa fa-window-maximize";
     this.update();
     this.getDeviceList();
+    this.startPollingDeployments();
   }
 
   render() {
     const header = `This widget enables you to deploy your code on a remote (Arduino-)board.`;
 
     return (
-      <div id="widget-container">
-        <AlertMessage type="INFO" header={header} />
+      <>
+        <div id="widget-container">
+          <AlertMessage type="INFO" header={header} />
 
-        <h2> Select a Board to deploy your code on from this list</h2>
-        <TypeSelect
-          options={this.options}
-          deployOnBoard={this.deployOnBoard.bind(this)}
-        />
-      </div>
+          <h2> Select a Board to deploy your code on from this list</h2>
+          <TypeSelect
+            options={this.options}
+            deployOnBoard={this.deployOnBoard.bind(this)}
+          />
+        </div>
+
+        <div id="past-deployments">
+          <h2> Past Deployments</h2>
+          <table>
+            <thead>
+              <tr key="head">
+                <th>ID</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th>Artifact URL</th>
+                <th>Device ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.deployments.map((deployment) => {
+                return (
+                  <tr key={deployment.id}>
+                    <td>{deployment.id}</td>
+                    <td>{deployment.status}</td>
+                    <td>{deployment.createdAt}</td>
+                    <td>{deployment.updatedAt}</td>
+                    <td>{deployment.artifactUrl}</td>
+                    <td>{deployment.deviceId}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </>
     );
   }
 
@@ -93,12 +135,45 @@ export class CdtcloudWidget extends ReactWidget {
       throw new Error("No Sketch found");
     }
     const sketchPath = FileUri.fsPath(sketchUri);
-    const deploymentId = await this.compilationService.compile(
+    const deploymentResponse = await this.compilationService.compile(
       selectedBoard.fqbn,
       board.value,
       sketchPath
     );
 
-    await this.deploymentManager.postDeploy(deploymentId);
+    if (deploymentResponse.kind === "deployment") {
+      await this.deploymentManager.postDeploy(deploymentResponse);
+      this.deploymentIds = [...this.deploymentIds, deploymentResponse.id];
+      this.update();
+    } else {
+      this.messageService.error(
+        deploymentResponse.data.message ??
+          deploymentResponse.statusMessage ??
+          "Unknown deployment error"
+      );
+    }
+  }
+
+  private startPollingDeployments(): void {
+    this.interval = setInterval(async () => {
+      try {
+        const request = await fetch("http://localhost:3001/api/deployments");
+
+        const deployments = (await request.json()) as Deployment[];
+
+        this.deployments = deployments.filter((deployment) =>
+          this.deploymentIds.includes(deployment.id)
+        );
+
+        await this.getDeviceList();
+      } catch (err) {
+        console.log(err);
+      }
+    }, 5000) as unknown as number;
+  }
+
+  dispose(): void {
+    clearInterval(this.interval);
+    super.dispose();
   }
 }

@@ -30,6 +30,14 @@ export function registerDeviceStreamRoutes (server: Server): void {
     const matchedServer = openStreams.get(id)!
 
     matchedServer.handleUpgrade(request, socket as Socket, head, function done (ws) {
+      ws.onmessage = (message) => {
+        for (const client of matchedServer.clients) {
+          if (client !== socket) {
+            const data = message.data as string
+            client.send(data.toString())
+          }
+        }
+      }
       matchedServer.emit('connection', ws, request)
     })
   })
@@ -63,4 +71,8 @@ export async function closeDeploymentStream ({ id }: Pick<DeployRequest, 'id'>):
 
 export function hasDeploymentStream ({ id }: Pick<DeployRequest, 'id'>): boolean {
   return openStreams.has(id)
+}
+
+export function getDeploymentStream ({ id }: Pick<DeployRequest, 'id'>): WebSocketServer | null {
+  return openStreams.get(id) ?? null
 }

@@ -1,9 +1,12 @@
 import { MessageService } from "@theia/core";
 import { inject, injectable } from "@theia/core/shared/inversify";
-import { OutputChannelManager, OutputChannelSeverity } from "@theia/output/lib/browser/output-channel";
+import { OutputChannel, OutputChannelManager, OutputChannelSeverity } from "@theia/output/lib/browser/output-channel";
+import { Deployment } from "../../common/protocol";
 
 @injectable()
 export class DeploymentManager {
+
+
   constructor(
     @inject(OutputChannelManager)
     protected readonly outputChannelManager: OutputChannelManager,
@@ -15,9 +18,14 @@ export class DeploymentManager {
     this.messageService.info('DeploymentManager initialized');
   }
 
-  public async postDeploy(deploymentId: string) {
-    const channel = this.outputChannelManager.getChannel(`Deployment ${deploymentId}`);
+  public async postDeploy(deployment: Deployment): Promise<void> {
+    const channel = this.outputChannelManager.getChannel(`Deployment ${deployment.id}`);
 
+    this.registerWebSocket(deployment.id, channel);
+
+  }
+
+  private registerWebSocket(deploymentId: string, channel: OutputChannel) {
     const socket = new WebSocket(`ws://localhost:3001/api/deployments/${deploymentId}/stream`);
 
     socket.onopen = () => {
@@ -26,7 +34,10 @@ export class DeploymentManager {
     }
 
     socket.onmessage = (event) => {
-      channel.appendLine(event.data);
+      const data = event.data.toString().trim()
+      if (data != '') {
+        channel.appendLine(data);
+      }
     }
 
     socket.onerror = (_event) => {
