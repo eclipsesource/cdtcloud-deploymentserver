@@ -1,14 +1,16 @@
-import type { MonitorRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorRequest'
-import type { MonitorResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorResponse'
 import type { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
 import type { Device } from '@prisma/client'
 import { ClientDuplexStream } from '@grpc/grpc-js'
-import { Transform } from 'stream'
+import { Duplex, pipeline, Transform } from 'stream'
 import { ConnectedDevices } from './store'
 import { DeviceStatus } from '../util/common'
 import { setTimeout } from 'timers/promises'
-import { arduinoClient, deploymentSocket } from '../deviceConnector'
 import { logger } from '../util/logger'
+import { openDeployStream } from '../deployment-server/connection'
+import { StreamingOpenRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/monitor/v1/StreamingOpenRequest'
+import { StreamingOpenResponse__Output as StreamingOpenResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/monitor/v1/StreamingOpenResponse'
+import { monitor } from '../arduino-cli/monitor'
+import { once } from 'events'
 
 export interface MonitorData {
   device: Device
@@ -17,25 +19,42 @@ export interface MonitorData {
 
 export class DeviceMonitor {
   #isConnected: boolean = false
-  #monitorStream: ClientDuplexStream<MonitorRequest, MonitorResponse> | undefined
+  #monitorStream: ClientDuplexStream<StreamingOpenRequest, StreamingOpenResponse> | undefined
+  #serverStream: Duplex | undefined
+  #deploymentId: string | undefined
   readonly port: Port
 
   constructor (port: Port) {
     this.port = port
   }
 
-  async start (sec: number): Promise<void> {
-    if (this.isPaused()) {
+  async start (deploymentId: string, sec: number): Promise<void> {
+    if (this.isPaused() && this.#deploymentId === deploymentId) {
       return this.resume()
     }
 
-    this.#monitorStream = await arduinoClient.monitor(this.port, sec)
+    // Check if deploymentId is different to last monitor request
+    if (this.#deploymentId !== deploymentId) {
+      this.#deploymentId = deploymentId
 
-    this.#monitorStream.on('close', () => {
-      this.stop().catch((err) => {
-        logger.error(err)
-      })
-    })
+      // Destroy outdated stream to server
+      if (this.#serverStream != null) {
+        this.#serverStream.end()
+        this.#serverStream.unpipe()
+        await setTimeout(200)
+        this.#serverStream.destroy()
+        await once(this.#serverStream, 'close')
+        this.#serverStream = undefined
+      }
+    }
+
+    // Open deployment stream to server
+    if (this.#serverStream == null || !this.#serverStream.writable) {
+      this.#serverStream = await openDeployStream(this.#deploymentId)
+    }
+
+    // Create monitor stream to device
+    this.#monitorStream = await monitor(this.port)
 
     try {
       await this.pipeToSocket()
@@ -44,6 +63,8 @@ export class DeviceMonitor {
       await this.stop()
     }
     this.#isConnected = true
+    await setTimeout(sec * 1000)
+    await this.stop()
   }
 
   async stop (): Promise<void> {
@@ -51,16 +72,38 @@ export class DeviceMonitor {
       return
     }
 
-    this.unpipe()
-    this.#monitorStream?.destroy()
-    this.#monitorStream = undefined
+    // End monitor stream and unpipe
+    if (this.#monitorStream != null) {
+      this.#monitorStream.end()
+      this.#monitorStream.unpipe()
+      await setTimeout(200)
+      this.#monitorStream.destroy()
+
+      // Set monitor stream back to undefined
+      this.#monitorStream = undefined
+    }
+
     this.#isConnected = false
+
+    // End server stream and unpipe
+    if (this.#serverStream != null) {
+      this.#serverStream.end()
+      this.#serverStream.unpipe()
+      monitorResponseTransform.unpipe(this.#serverStream)
+      await setTimeout(200)
+      this.#serverStream.destroy()
+      await once(this.#serverStream, 'close')
+
+      // Set server stream back to undefined
+      this.#serverStream = undefined
+    }
 
     // Wait 5 seconds to ensure that the device also closed the stream
     await setTimeout(5000)
+
     try {
       const device = ConnectedDevices.onPort(this.port.address, this.port.protocol)
-      await device.updateStatus(DeviceStatus.AVAILABLE)
+      await device.updateStatus(DeviceStatus.RUNNING)
     } catch (e) {
       logger.error(e)
     }
@@ -86,12 +129,20 @@ export class DeviceMonitor {
     return this.#isConnected && !this.isPaused()
   }
 
-  async pipeToSocket (): Promise<void> {
+  async pipeToSocket (): Promise<Duplex> {
     if (this.#monitorStream == null) {
       throw new Error(`No valid data stream to pipe from device on port ${this.port.address} (${this.port.protocol})`)
     }
 
-    this.#monitorStream.pipe(monitorResponseTransform).pipe(deploymentSocket)
+    if (this.#serverStream == null) {
+      throw new Error(`No valid deployment stream to server for device on port ${this.port.address} (${this.port.protocol})`)
+    }
+
+    return pipeline(this.#monitorStream, monitorResponseTransform, this.#serverStream, (error) => {
+      if (error != null) {
+        logger.error(error)
+      }
+    })
   }
 
   unpipe (): void {
@@ -108,13 +159,13 @@ export class DeviceMonitor {
 const monitorResponseTransform = new Transform({
   writableObjectMode: true,
 
-  transform (chunk: MonitorResponse, encoding, callback) {
-    const { error, rx_data: data } = chunk
+  transform (chunk: StreamingOpenResponse, encoding, callback) {
+    const { data, dropped } = chunk
 
-    if (error != null && error !== '') {
-      callback(null, error)
-    } else {
-      callback(null, data)
+    if (dropped > 0) {
+      logger.debug(`Dropped ${dropped} bytes during monitoring`)
     }
+
+    callback(null, data)
   }
 })

@@ -15,8 +15,6 @@ import { CreateResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/comma
 import { DetectedPort__Output as DetectedPort } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/DetectedPort'
 import { InitRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/InitRequest'
 import { Instance } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Instance'
-import { MonitorRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorRequest'
-import { MonitorResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/MonitorResponse'
 import { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
 import { UploadRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadRequest'
 import { UploadResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/UploadResponse'
@@ -365,51 +363,6 @@ export class GRPCClient {
         logger.info(`Device removed: ${devName} from ${port.address} (${port.protocol})`)
       }
     }
-  }
-
-  async monitor (port: Port, timeout: number): Promise<grpc.ClientDuplexStream<MonitorRequest, MonitorResponse>> {
-    const monitorRequest: MonitorRequest = { instance: this.#instance, port }
-
-    return await new Promise((resolve, reject) => {
-      if (this.#client == null) {
-        return reject(new Error('Client not initialized'))
-      }
-
-      const deadline = new Date()
-      deadline.setSeconds(deadline.getSeconds() + timeout)
-      const stream = this.#client.monitor({ deadline })
-      stream.once('readable', () => {
-        logger.info(`Start monitoring output of device on port ${port.address} (${port.protocol})`)
-      })
-
-      stream.on('data', (data: MonitorResponse) => {
-        if (data.rx_data != null) {
-          logger.debug(`Monitoring ${port.address}: ${data.rx_data.toString()}`)
-        }
-      })
-
-      stream.on('end', () => {
-        logger.info(`Closing monitoring of device on port ${port.address} (${port.protocol})`)
-        stream.destroy()
-      })
-
-      stream.on('error', (err: StatusObject) => {
-        if (err.code === Status.DEADLINE_EXCEEDED) {
-          logger.warn(`Monitoring deadline of ${timeout}s exceeded on port ${port.address} (${port.protocol})`)
-        } else {
-          logger.error(err)
-        }
-        stream.unpipe()
-        stream.end()
-      })
-
-      stream.write(monitorRequest, (err: Error | null | undefined) => {
-        if (err != null) {
-          return reject(err)
-        }
-        return resolve(stream)
-      })
-    })
   }
 
   async initializeDevices (): Promise<void> {
