@@ -18,7 +18,7 @@ export const useWebsocket = (route: string) => {
   const [reconAttempts, setReconAttempts] = useState<number>(0)
 
   useEffect(() => {
-    // Object to avoid new socket creation
+    // Object to avoid clones of sockets
     let newSocket = { ws: null } as { ws: WebSocket | null }
     async function openSocket() {
       const ws = await createWebsocket(route)
@@ -58,6 +58,7 @@ export const useWebsocket = (route: string) => {
       if (!subs.includes(eventFun)) {
         setSubs([...subs, eventFun])
       }
+      return () => setSubs(subs.filter(sub => sub !== eventFun))
     }
   }
 }
