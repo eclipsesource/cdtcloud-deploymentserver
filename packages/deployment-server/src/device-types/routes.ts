@@ -70,6 +70,7 @@ export default function deviceTypeRoutes (router: Router): void {
         const deviceType = await req.db.deviceType.findUnique({
           where: { id: req.params.id },
           include: {
+            issues: true,
             _count: {
               select: { devices: true }
             }

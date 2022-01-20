@@ -2,7 +2,7 @@ import { DeployStatus, DeployRequest } from '.prisma/client'
 import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
 import { addDeployRequest, getServerForConnector } from '../connectors/queue'
-import { getAvailableDevice, getLeastLoadedDevice, updateDeviceStatus } from '../devices/service'
+import { getAvailableDevice, getLeastLoadedDevice, isDeployable, updateDeviceStatus } from '../devices/service'
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
 import { closeDeploymentStream, createDeploymentStream, getDeploymentStream, hasDeploymentStream } from './service'
@@ -41,10 +41,10 @@ export default function deploymentRequestsRoutes (router: Router): void {
   }, { additionalProperties: false })
 
   router.post('/deployments',
-    validate<DeployRequest, {}, Static<typeof postBody>>({ body: postBody }),
+    validate<DeployRequest | Error, {}, Static<typeof postBody>>({ body: postBody }),
     async (req, res, next) => {
       try {
-      // Find an available device
+        // Find an available device
         let device = await getAvailableDevice(req.body.deviceTypeId)
 
         // If no device is available, get the first one with the minimal amount of in-progress deploymentRequests
@@ -56,6 +56,17 @@ export default function deploymentRequestsRoutes (router: Router): void {
           return res.sendStatus(503)
         }
 
+        if (!await isDeployable(device)) {
+          const message = 'The Request cannot be deployed, because the least loaded device\'s queue is full. The device status is: ' + device.status
+
+          await req.db.issue.create({
+            data: {
+              deviceTypeId: req.body.deviceTypeId
+            }
+          })
+
+          return res.status(502).json({ name: 'Device queue is full', message: message })
+        }
         const deploymentRequest = await req.db.deployRequest.create({
           data: {
             device: {
