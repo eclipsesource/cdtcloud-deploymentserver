@@ -135,15 +135,23 @@ export class CdtcloudWidget extends ReactWidget {
       throw new Error("No Sketch found");
     }
     const sketchPath = FileUri.fsPath(sketchUri);
-    const deployment = await this.compilationService.compile(
+    const deploymentResponse = await this.compilationService.compile(
       selectedBoard.fqbn,
       board.value,
       sketchPath
     );
 
-    await this.deploymentManager.postDeploy(deployment);
-    this.deploymentIds = [...this.deploymentIds, deployment.id];
-    this.update();
+    if (deploymentResponse.kind === "deployment") {
+      await this.deploymentManager.postDeploy(deploymentResponse);
+      this.deploymentIds = [...this.deploymentIds, deploymentResponse.id];
+      this.update();
+    } else {
+      this.messageService.error(
+        deploymentResponse.data.message ??
+          deploymentResponse.statusMessage ??
+          "Unknown deployment error"
+      );
+    }
   }
 
   private startPollingDeployments(): void {

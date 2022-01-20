@@ -1,13 +1,17 @@
 import "reflect-metadata";
 import { injectable } from "inversify";
-import { CompilationService, Deployment } from "../common/protocol";
+import {
+  CompilationService,
+  Deployment,
+  DeploymentError,
+} from "../common/protocol";
 import { readdir as readdirCb } from "fs";
 import { promisify } from "util";
 import { createReadStream } from "fs";
 import { RPCClient } from "./rpc-client";
 import FormData from "form-data";
 import { join, extname } from "path";
-import got from "got";
+import got, { HTTPError, Response } from "got";
 
 const readdir = promisify(readdirCb);
 
@@ -20,7 +24,7 @@ export class CompilationServiceImpl implements CompilationService {
     fqbn: string,
     id: string,
     sketchPath: string
-  ): Promise<Deployment> {
+  ): Promise<Deployment | DeploymentError> {
     const client = new RPCClient();
     await client.init();
     await client.createInstance();
@@ -65,10 +69,7 @@ export class CompilationServiceImpl implements CompilationService {
     const ext = await getRequiredExtension(fqbn);
 
     files.forEach((file) => {
-      if (
-        extname(file) === ext &&
-        !file.endsWith(`with_bootloader${ext}`)
-      ) {
+      if (extname(file) === ext && !file.endsWith(`with_bootloader${ext}`)) {
         this.binaryFile = join(buildPath, file);
       }
     });
@@ -91,17 +92,28 @@ export class CompilationServiceImpl implements CompilationService {
 
     const artifactUri = uploadResponse.body.artifactUri;
 
-    const { body } = await got.post(`http://localhost:3001/api/deployments`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      responseType: "json",
-      body: JSON.stringify({
-        artifactUri,
-        deviceTypeId: id,
-      }),
-    });
+    try {
+      const { body } = await got.post<Omit<Deployment, 'kind'>>(`http://localhost:3001/api/deployments`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        responseType: "json",
+        body: JSON.stringify({
+          artifactUri,
+          deviceTypeId: id,
+        }),
+      });
 
-    return body as Deployment;
+      return {...body, kind: "deployment"} as Deployment;
+    } catch (e) {
+      if (e instanceof HTTPError) {
+        const { statusMessage, body: data } = e.response as Response<
+          DeploymentError["data"]
+        >;
+        return { statusMessage, data, kind: "deployment-error" };
+      }
+
+      throw e;
+    }
   }
 }
