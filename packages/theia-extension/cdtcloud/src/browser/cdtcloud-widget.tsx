@@ -164,7 +164,8 @@ export class CdtcloudWidget extends ReactWidget {
         this.deployments = deployments.filter((deployment) =>
           this.deploymentIds.includes(deployment.id)
         );
-        this.update();
+
+        await this.getDeviceList();
       } catch (err) {
         console.log(err);
       }
