@@ -6,6 +6,7 @@ import { db } from '../util/prisma'
 import { Socket } from 'node:net'
 import logger from '../util/logger'
 import { promisify } from 'node:util'
+import { broadcastConnectorChange } from '../dashboard/service'
 
 type ConnectorId = string
 
@@ -40,6 +41,9 @@ export const QueueManager = {
         socket as Socket,
         head,
         function done (ws) {
+          ws.onclose = () => {
+            broadcastConnectorChange({ id }, 'disconnect').catch(logger.error)
+          }
           matchedServer.emit('connection', ws, request)
         }
       )
@@ -56,6 +60,7 @@ export const QueueManager = {
     })
 
     wsServer.on('connection', () => {
+      broadcastConnectorChange({ id: arguments[0] }, 'connect').catch(logger.error)
       logger.info(arguments)
     })
 
@@ -75,6 +80,7 @@ export const QueueManager = {
     if (wsServer != null) {
       wsServer.close()
     }
+
     return this.queueMap.delete(uuid)
   },
 

@@ -20,6 +20,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@ant-design/icons": "^4.7.0",
     "@ant-design/plots": "^1.0.7",
     "antd": "^4.18.2",
     "react": "^16.14.0",
