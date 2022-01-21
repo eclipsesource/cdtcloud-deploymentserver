@@ -11,6 +11,9 @@ import Deployments from "./pages/Deployments";
 import NotFound from "./pages/NotFound";
 
 import { CdtCloudMain } from "./components/CdtCloudMain";
+import { init as InitIcons } from "./util/iconLibrary"
+
+InitIcons()
 
 ReactDOM.render(
   <React.StrictMode>
