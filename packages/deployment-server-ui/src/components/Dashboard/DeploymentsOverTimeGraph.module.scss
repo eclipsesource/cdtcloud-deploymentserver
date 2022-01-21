@@ -1,0 +1,34 @@
+.chart {
+  width: 100%;
+  height: 350px;
+}
+
+.topline {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  .dchooser {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+
+    .dtime {
+      border-radius: 5px;
+      padding: 2px 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #aaaaaa11;
+      margin-right: 3px;
+    }
+
+    .dtime:hover {
+      background: #aaaaaa33;
+    }
+
+    .dtime.selected {
+      background: #aaaaaa55;
+    }
+  }
+}
