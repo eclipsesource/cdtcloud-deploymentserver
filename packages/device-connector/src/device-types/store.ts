@@ -1,4 +1,4 @@
-import type { DeviceType } from '@prisma/client'
+import type { DeviceType } from 'deployment-server'
 import { fetchAllDeviceTypes } from '../deployment-server/service'
 import { FQBN } from './service'
 import { logger } from '../util/logger'

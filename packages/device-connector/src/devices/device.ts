@@ -1,7 +1,7 @@
 import type { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
-import type { Device, DeviceType } from '@prisma/client'
+import type { Device, DeviceType } from 'deployment-server'
 import { DeployStatus, DeviceStatus } from '../util/common'
-import { fetchDeviceType, setDeployRequest, setDeviceRequest } from '../deployment-server/service'
+import { fetchDeviceType, getDeviceRequest, setDeployRequest, setDeviceRequest } from '../deployment-server/service'
 import { DeviceMonitor } from './monitoring'
 import { FQBN } from '../device-types/service'
 import { DeviceTypes } from '../device-types/store'
@@ -55,16 +55,33 @@ export class ConnectedDevice implements Device {
   }
 
   async updateStatus (status: keyof typeof DeviceStatus): Promise<void> {
-    // Only set remote status back to available if there are no deployments queued
-    if (status !== DeviceStatus.AVAILABLE || this.deployQueue.length === 0) {
+    let remoteStatus = null
+
+    // Update remotely if deploying
+    if (status === DeviceStatus.DEPLOYING || status === DeviceStatus.MONITORING) {
       try {
-        await setDeviceRequest(this.id, status)
+        // Set remote status back to available when queue is finished
+        const resp = await setDeviceRequest(this.id, status)
+        remoteStatus = resp.status
       } catch (e) {
         logger.error(e)
       }
     }
 
-    // Only set remote status and don't execute further steps if status is already set locally
+    // Only check if remote status is unknown
+    if (remoteStatus != null) {
+      try {
+        // Check remote status against local status
+        const resp = await getDeviceRequest(this.id)
+        remoteStatus = resp.status
+        if (remoteStatus !== status) {
+          logger.warn(`Requested status ${status} does not equal remote status ${remoteStatus} - Continuing anyway`)
+        }
+      } catch (e) {
+        logger.error(e)
+      }
+    }
+
     if (this.status === status) {
       return
     }
@@ -77,7 +94,14 @@ export class ConnectedDevice implements Device {
     if (this.status === DeviceStatus.AVAILABLE) {
       const next = this.deployQueue.pop()
       if (next != null) {
-        await this.deploy(next)
+        this.deploy(next).catch(logger.error)
+      } else {
+        try {
+          // Set remote status back to available when queue is finished
+          await setDeviceRequest(this.id, status)
+        } catch (e) {
+          logger.error(e)
+        }
       }
     }
   }
@@ -91,7 +115,7 @@ export class ConnectedDevice implements Device {
       this.#deviceMonitor = new DeviceMonitor(this.port)
     }
 
-    await this.updateStatus(DeviceStatus.UNAVAILABLE)
+    await this.updateStatus(DeviceStatus.MONITORING)
     await this.#deviceMonitor.start(this.#deployment.id, sec)
   }
 
@@ -124,7 +148,7 @@ export class ConnectedDevice implements Device {
     return false
   }
 
-  async deploy (deployment: Deployment, runtimeMS: number = 120000): Promise<void> {
+  async deploy (deployment: Deployment, runtimeMS: number = 30 * 1000): Promise<void> {
     const fqbn = await this.getFQBN()
 
     // Update device status and notify server of status-change
@@ -153,7 +177,7 @@ export class ConnectedDevice implements Device {
     }
 
     // Run code only for a set amount of time. Set device back to available after.
-    // Default: 2min
+    // Default: 30sec
     await setTimeout(runtimeMS)
     try {
       if (this.#deployment.id === deployment.id) {
@@ -162,6 +186,11 @@ export class ConnectedDevice implements Device {
         }
         await this.updateStatus(DeviceStatus.AVAILABLE)
       }
+    } catch (e) {
+      logger.error(e)
+    }
+
+    try {
       await setDeployRequest(deployment.id, DeployStatus.SUCCESS)
     } catch (e) {
       logger.error(e)
