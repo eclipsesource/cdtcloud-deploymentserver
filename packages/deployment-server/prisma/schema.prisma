@@ -38,6 +38,7 @@ enum DeviceStatus {
   AVAILABLE
   DEPLOYING
   RUNNING
+  MONITORING
 }
 
 model DeployRequest {
