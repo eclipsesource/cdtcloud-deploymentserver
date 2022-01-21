@@ -28,11 +28,12 @@ export default defineFunctionalComponent(function Dasboard() {
     <main>
       <h2> Dashboard </h2>
       <Divider/>
-      <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}  align="middle">
+      <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}  align="stretch">
         <Col span={8}>
           <Card
             title="Deployments Overview"
             extra={<a href="/deployments">All Deployments</a>}
+            style={{height:"100%"}}
           >
           <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
               <Col span={6}>
@@ -62,6 +63,7 @@ export default defineFunctionalComponent(function Dasboard() {
           <Card
             title="Device Overview"
             extra={<a href="/devices">All Devices</a>}
+            style={{height:"100%"}}
           >
             <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
               <Col span={6}>
@@ -87,15 +89,16 @@ export default defineFunctionalComponent(function Dasboard() {
           <Card
             title="Supported Board Types"
             extra={<a href="/types">All Board Types</a>}
+            style={{height:"100%"}}
           >
-            <h2></h2>
+            <h2>27</h2>
           </Card>
         </Col>
       </Row>
       <Divider/>
-      <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="middle">
+      <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="stretch">
         <Col span={12}>
-          <Card title="Deployments over Time Chart">
+          <Card title="Deployments over Time Chart" style={{height:"100%"}}>
             <DeploymentsOverTimeGraph />
           </Card>
         </Col>
@@ -103,6 +106,7 @@ export default defineFunctionalComponent(function Dasboard() {
           <Card
             title="Recent Deployments "
             extra={<a href="/deployments">All Deployments</a>}
+            style={{height:"100%"}}
           >
             <RecentDeploymentList/>
           </Card>
