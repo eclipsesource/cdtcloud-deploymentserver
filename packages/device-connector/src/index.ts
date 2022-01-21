@@ -5,24 +5,34 @@ import closeWithGrace from 'close-with-grace'
 try {
   const connector: DeviceConnector = await createConnector()
 
-  const handler = closeWithGrace({ delay: 1000 }, closeConnector.bind(connector))
+  const exitHandler = closeWithGrace({ delay: 1000 }, closeConnector.bind(connector))
 
   // Process kill pid signal (nodemon)
-  process.once('SIGUSR1 ', () => {
-    handler.close()
+  process.on('SIGUSR1 ', () => {
+    exitHandler.close()
   })
-  process.once('SIGUSR2', () => {
-    handler.close()
+  process.on('SIGUSR2', () => {
+    exitHandler.close()
   })
 
   // Process ctrl+c signal
-  process.once('SIGINT', () => {
-    handler.close()
+  process.on('SIGINT', () => {
+    exitHandler.close()
+  })
+
+  // Process unix termination signal
+  process.on('SIGTERM', () => {
+    exitHandler.close()
+  })
+
+  // Process windows ctrl+break signal
+  process.on('SIGBREAK', () => {
+    exitHandler.close()
   })
 
   // Process uncaught exceptions
-  process.once('uncaughtException', () => {
-    handler.close()
+  process.on('uncaughtException', () => {
+    exitHandler.close()
   })
 } catch (err) {
   console.error(err)
