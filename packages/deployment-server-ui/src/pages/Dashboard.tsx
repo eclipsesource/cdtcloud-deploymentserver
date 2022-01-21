@@ -5,20 +5,16 @@ import { Dashboard } from "deployment-server";
 import { useState, useEffect } from "react";
 import { useInterval } from "react-use";
 
-import { Card, Divider, Row, Col, Tabs, Statistic } from "antd";
+import { Card, Divider, Row, Col, Statistic } from "antd";
 import "./Dashboard.css";
 import {
   CheckCircleOutlined,
-  CheckSquareOutlined,
   CloseCircleOutlined,
-  CloudSyncOutlined,
   ExclamationCircleOutlined,
   FieldTimeOutlined,
   HddOutlined,
   LockOutlined,
-  PauseCircleOutlined,
   PlayCircleOutlined,
-  PoweroffOutlined,
   RocketOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
