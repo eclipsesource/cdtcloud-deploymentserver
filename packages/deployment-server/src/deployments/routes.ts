@@ -1,4 +1,4 @@
-import { DeployStatus, DeployRequest } from '.prisma/client'
+import prisma, { DeployRequest, DeployStatus } from '@prisma/client'
 import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
 import { addDeployRequest, getServerForConnector } from '../connectors/queue'
@@ -6,6 +6,8 @@ import { getAvailableDevice, getLeastLoadedDevice, isDeployable, updateDeviceSta
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
 import { closeDeploymentStream, createDeploymentStream, getDeploymentStream, hasDeploymentStream } from './service'
+
+const { DeviceStatus } = prisma
 
 export default function deploymentRequestsRoutes (router: Router): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -132,6 +134,11 @@ export default function deploymentRequestsRoutes (router: Router): void {
             for (const client of connectorStream.clients) {
               client.send(JSON.stringify({ type: 'monitor.start', data: { device: { id: deploymentRequest.device.id } } }))
             }
+
+            await req.db.device.update({
+              where: { id: deploymentRequest.deviceId },
+              data: { status: DeviceStatus.MONITORING }
+            })
           }
         }
 
