@@ -1,4 +1,4 @@
-import prisma, { DeployRequest, DeployStatus } from '@prisma/client'
+import prisma, { DeployRequest } from '@prisma/client'
 import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
 import { addDeployRequest, getServerForConnector } from '../connectors/queue'
@@ -7,7 +7,7 @@ import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
 import { closeDeploymentStream, createDeploymentStream, getDeploymentStream, hasDeploymentStream } from './service'
 
-const { DeviceStatus } = prisma
+const { DeviceStatus, DeployStatus } = prisma
 
 export default function deploymentRequestsRoutes (router: Router): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -142,7 +142,7 @@ export default function deploymentRequestsRoutes (router: Router): void {
           }
         }
 
-        const finalStates: readonly DeployStatus[] =
+        const finalStates: ReadonlyArray<(typeof DeployStatus)[keyof typeof DeployStatus]> =
           Object.freeze([
             DeployStatus.SUCCESS,
             DeployStatus.FAILED,
