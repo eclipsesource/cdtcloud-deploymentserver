@@ -22,7 +22,7 @@
     {
       "name": "Debug Deployment-Server tests",
       "request": "launch",
-      "runtimeArgs": ["run", "test", "-T"],
+      "runtimeArgs": ["run", "tap", "-T"],
       "runtimeExecutable": "yarn",
       "cwd": "${workspaceFolder}/packages/deployment-server",
       "skipFiles": ["<node_internals>/**"],

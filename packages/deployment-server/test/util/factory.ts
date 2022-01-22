@@ -7,9 +7,12 @@ const randomDeviceTypeData = (): {name: string, fqbn: string} => ({
   fqbn: randomUUID()
 })
 
-export async function createDeviceType (db: PrismaClient): Promise<DeviceType> {
+export async function createDeviceType (db: PrismaClient): Promise<DeviceType & {
+  _count: {devices: number}
+}> {
   return await db.deviceType.create({
-    data: randomDeviceTypeData()
+    data: randomDeviceTypeData(),
+    include: { _count: { select: { devices: true } } }
   })
 }
 

@@ -1,4 +1,4 @@
-import { DeployStatus, DeployRequest } from '.prisma/client'
+import prisma, { DeployRequest } from '@prisma/client'
 import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
 import { addDeployRequest, getServerForConnector } from '../connectors/queue'
@@ -6,6 +6,8 @@ import { getAvailableDevice, getLeastLoadedDevice, isDeployable, updateDeviceSta
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
 import { closeDeploymentStream, createDeploymentStream, getDeploymentStream, hasDeploymentStream } from './service'
+
+const { DeviceStatus, DeployStatus } = prisma
 
 export default function deploymentRequestsRoutes (router: Router): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -49,23 +51,27 @@ export default function deploymentRequestsRoutes (router: Router): void {
 
         // If no device is available, get the first one with the minimal amount of in-progress deploymentRequests
         if (device == null) {
-          device = await getLeastLoadedDevice(req.body.deviceTypeId)
+          [device] = await getLeastLoadedDevice(req.body.deviceTypeId)
         }
 
         if (device == null) {
-          return res.sendStatus(503)
+          return res.status(503).json({
+            name: 'Type not available',
+            message: 'No device available to serve requests for this type'
+          })
         }
 
         if (!await isDeployable(device)) {
-          const message = 'The Request cannot be deployed, because the least loaded device\'s queue is full. The device status is: ' + device.status
-
           await req.db.issue.create({
             data: {
               deviceTypeId: req.body.deviceTypeId
             }
           })
 
-          return res.status(502).json({ name: 'Device queue is full', message: message })
+          return res.status(502).json({
+            name: 'Device queue is full',
+            message: 'The Request cannot be deployed, because the queue is full.'
+          })
         }
         const deploymentRequest = await req.db.deployRequest.create({
           data: {
@@ -128,10 +134,15 @@ export default function deploymentRequestsRoutes (router: Router): void {
             for (const client of connectorStream.clients) {
               client.send(JSON.stringify({ type: 'monitor.start', data: { device: { id: deploymentRequest.device.id } } }))
             }
+
+            await req.db.device.update({
+              where: { id: deploymentRequest.deviceId },
+              data: { status: DeviceStatus.MONITORING }
+            })
           }
         }
 
-        const finalStates: readonly DeployStatus[] =
+        const finalStates: ReadonlyArray<(typeof DeployStatus)[keyof typeof DeployStatus]> =
           Object.freeze([
             DeployStatus.SUCCESS,
             DeployStatus.FAILED,
