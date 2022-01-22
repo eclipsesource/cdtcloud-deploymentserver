@@ -24,6 +24,8 @@ export interface DeviceTypeWithCount extends DeviceType {
 export interface DeviceTypeResource extends DeviceTypeWithCount {
   status: DeviceTypeStatus
   queueLength?: number
+  history: Record<string, { issueCount: number, deploymentCount: number }>
+
 }
 
 export type { DeviceType }
