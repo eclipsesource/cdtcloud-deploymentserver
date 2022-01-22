@@ -2,7 +2,8 @@ export const DeviceStatus = {
   UNAVAILABLE: 'UNAVAILABLE',
   AVAILABLE: 'AVAILABLE',
   DEPLOYING: 'DEPLOYING',
-  RUNNING: 'RUNNING'
+  RUNNING: 'RUNNING',
+  MONITORING: 'MONITORING'
 } as const
 
 export const DeployStatus = {

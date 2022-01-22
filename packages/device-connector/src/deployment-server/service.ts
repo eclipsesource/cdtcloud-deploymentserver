@@ -1,4 +1,4 @@
-import type { DeviceType, Device } from '@prisma/client'
+import type { DeviceType, Device } from 'deployment-server'
 import { DeployStatus, DeviceStatus } from '../util/common'
 import { fetch } from 'undici'
 import { connectorId, deployUri } from './connection'
@@ -53,6 +53,21 @@ export const setDeviceRequest = async (deviceId: string, status: keyof typeof De
     body: JSON.stringify({
       status: status
     })
+  })
+
+  if (!resp.ok) {
+    throw httpError(resp)
+  }
+
+  return await resp.json() as Device
+}
+
+export const getDeviceRequest = async (deviceId: string): Promise<Device> => {
+  const resp = await fetch(`${deployUri}/devices/${deviceId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
   })
 
   if (!resp.ok) {

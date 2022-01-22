@@ -1,7 +1,7 @@
 import type {
   DetectedPort__Output as DetectedPort
 } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/DetectedPort'
-import type { Device } from '@prisma/client'
+import type { Device } from 'deployment-server'
 import { deleteDeviceRequest, sendNewDeviceRequest, setDeviceRequest } from '../deployment-server/service'
 import { FQBN, getDeviceTypeId } from '../device-types/service'
 import { ConnectedDevice } from './device'

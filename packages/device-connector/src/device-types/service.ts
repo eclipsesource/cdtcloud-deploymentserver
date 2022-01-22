@@ -1,4 +1,4 @@
-import type { DeviceType } from '@prisma/client'
+import type { DeviceType } from 'deployment-server'
 import { sendNewDeviceTypeRequest } from '../deployment-server/service'
 import { DeviceTypes } from './store'
 import { logger } from '../util/logger'
