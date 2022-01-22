@@ -16,7 +16,7 @@
     "test": "c8 tap",
     "test:dev": "tap -w",
     "typecheck": "tsc -noEmit",
-    "prepare": "yarn tsc"
+    "prepare": "yarn prisma generate && yarn tsc"
   },
   "tap": {
     "node-arg": [
