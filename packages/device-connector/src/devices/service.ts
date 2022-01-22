@@ -2,11 +2,12 @@ import type {
   DetectedPort__Output as DetectedPort
 } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/DetectedPort'
 import type { Device } from 'deployment-server'
-import { deleteDeviceRequest, sendNewDeviceRequest } from '../deployment-server/service'
+import { deleteDeviceRequest, sendNewDeviceRequest, setDeviceRequest } from '../deployment-server/service'
 import { FQBN, getDeviceTypeId } from '../device-types/service'
 import { ConnectedDevice } from './device'
 import { ConnectedDevices } from './store'
 import { logger } from '../util/logger'
+import { DeviceStatus } from '../util/common'
 
 export const registerNewDevice = async (fqbn: FQBN, name: string): Promise<Device> => {
   const typeId = await getDeviceTypeId(fqbn, name)
@@ -58,5 +59,9 @@ export const addDevice = async (detectedPort: DetectedPort): Promise<void> => {
 export const removeDevice = async (device: ConnectedDevice): Promise<void> => {
   ConnectedDevices.remove(device)
 
-  await unregisterDevice(device.id)
+  try {
+    await setDeviceRequest(device.id, DeviceStatus.UNAVAILABLE)
+  } catch (e) {
+    logger.error(e)
+  }
 }
