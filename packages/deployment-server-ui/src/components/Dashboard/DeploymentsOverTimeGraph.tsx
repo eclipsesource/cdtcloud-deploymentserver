@@ -4,28 +4,30 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import defineFunctionalComponent from '../../util/defineFunctionalComponent';
 import { format } from 'date-fns'
 
-type DataEntries = {date: string, deploys: string}[]
-
-const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd hh:mm')
+type GraphEntry = { date: string, deploys: number }
 
 interface Props {
-  data: any,
+  data: Record<string, number> | undefined,
   chartTime: number
 }
 
-export default defineFunctionalComponent(function DeploymentsOverTimeGraph(props: Props) {
-    const [graphData, setGraphData] = useState<DataEntries>([])
+const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd hh:mm')
 
-    useEffect(() => {
-      if (props.data != null) {
-        const dataArray = Object.entries<string>(props.data)
-        const convertedData = dataArray.reduce<DataEntries>((acc, [key, value]) => ([...acc, ({
+export default defineFunctionalComponent(function DeploymentsOverTimeGraph(props: Props) {
+  const [graphData, setGraphData] = useState<GraphEntry[]>([])
+
+  useEffect(() => {
+    if (props.data != null) {
+      const dataArray = Object.entries<number>(props.data)
+      const convertedData = dataArray.reduce<GraphEntry[]>((acc, [key, value]) => {
+        return ([...acc, ({
           date: dateFormatter(Date.parse(key)),
           deploys: value
-        })]), [])
-        setGraphData(convertedData)
-      }
-    }, [props.data])
+        })])
+      }, [])
+      setGraphData(convertedData)
+    }
+  }, [props.data])
 
     return (
       <div className={styles.chart}>
