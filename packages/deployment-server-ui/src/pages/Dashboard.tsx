@@ -106,11 +106,11 @@ export default defineFunctionalComponent(function Dasboard() {
       <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="top">
         <Col span={12}>
           <Card
-            title="Deployments over Time Chart"
+            title="Deployments"
             extra={
               <div className={styles.topline}>
                 <div className={styles.dchooser}>
-                  {[3, 6, 24].map((t: number) =>
+                  {[6, 12, 24].map((t: number) =>
                     <div className={classnames(styles.dtime, { [styles.selected]: chartTime === t })}
                          onClick={() => setChartTime(t)}
                     >{t}h</div>)}
