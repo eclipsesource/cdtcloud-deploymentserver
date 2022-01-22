@@ -26,5 +26,6 @@ try {
 export * from './connectors'
 export * from './deployment-artifacts'
 export * from './device-types'
+export * from './devices'
 export * from './deployments'
 export * from './dashboard'

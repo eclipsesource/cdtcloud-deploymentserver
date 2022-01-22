@@ -1,11 +1,10 @@
 import prismaClient from '@prisma/client'
-import type { Device, Connector } from '@prisma/client'
+import type { Device } from '@prisma/client'
 import { db } from '../util/prisma'
+import { DeviceWithConnector } from './index'
 
 export const MAX_QUEUE_SIZE = 3
 const { DeployStatus, DeviceStatus, Prisma } = prismaClient
-
-type DeviceWithConnector = Device & { connector: Connector }
 
 export async function getAvailableDevice (deviceType: string): Promise<DeviceWithConnector | null> {
   return await db.device.findFirst({

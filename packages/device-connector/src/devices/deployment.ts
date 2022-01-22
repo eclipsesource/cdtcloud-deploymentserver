@@ -1,4 +1,4 @@
-import type { Device } from '@prisma/client'
+import type { Device } from 'deployment-server'
 import crypto from 'crypto'
 import { createWriteStream } from 'fs'
 import Path, { dirname, basename } from 'path'

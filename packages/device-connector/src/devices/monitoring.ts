@@ -1,5 +1,5 @@
 import type { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
-import type { Device } from '@prisma/client'
+import type { Device } from 'deployment-server'
 import { ClientDuplexStream } from '@grpc/grpc-js'
 import { Duplex, pipeline, Transform } from 'stream'
 import { ConnectedDevices } from './store'
