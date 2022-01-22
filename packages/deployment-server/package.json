@@ -37,7 +37,7 @@
     "seed": "yarn nts prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^3.7.0",
+    "@prisma/client": "^3.8.1",
     "@sinclair/typebox": "^0.21.2",
     "close-with-grace": "^1.1.0",
     "cors": "^2.8.5",
@@ -73,7 +73,7 @@
     "eslint-plugin-promise": "^5.1.1",
     "nodemon": "^2.0.15",
     "pino-pretty": "^7.2.0",
-    "prisma": "^3.7.0",
+    "prisma": "^3.8.1",
     "tap": "^15.1.1",
     "typescript": "^4.5.2"
   },
