@@ -32,7 +32,8 @@ export default function deviceTypeRoutes (router: Router): void {
                   in: [
                     DeviceStatus.AVAILABLE,
                     DeviceStatus.DEPLOYING,
-                    DeviceStatus.RUNNING
+                    DeviceStatus.RUNNING,
+                    DeviceStatus.MONITORING
                   ]
                 }
               }
