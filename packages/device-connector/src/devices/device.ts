@@ -55,31 +55,15 @@ export class ConnectedDevice implements Device {
   }
 
   async updateStatus (status: keyof typeof DeviceStatus): Promise<void> {
-    let remoteStatus = null
-
-    // Update remotely if deploying
-    if (status === DeviceStatus.DEPLOYING || status === DeviceStatus.MONITORING) {
-      try {
-        // Set remote status back to available when queue is finished
-        const resp = await setDeviceRequest(this.id, status)
-        remoteStatus = resp.status
-      } catch (e) {
-        logger.error(e)
+    // Check remote status against local status
+    try {
+      const resp = await getDeviceRequest(this.id)
+      const remoteStatus = resp.status
+      if (remoteStatus !== status) {
+        logger.warn(`Requested status ${status} does not equal remote status ${remoteStatus} - Continuing anyway`)
       }
-    }
-
-    // Only check if remote status is unknown
-    if (remoteStatus != null) {
-      try {
-        // Check remote status against local status
-        const resp = await getDeviceRequest(this.id)
-        remoteStatus = resp.status
-        if (remoteStatus !== status) {
-          logger.warn(`Requested status ${status} does not equal remote status ${remoteStatus} - Continuing anyway`)
-        }
-      } catch (e) {
-        logger.error(e)
-      }
+    } catch (e) {
+      logger.error(e)
     }
 
     if (this.status === status) {
