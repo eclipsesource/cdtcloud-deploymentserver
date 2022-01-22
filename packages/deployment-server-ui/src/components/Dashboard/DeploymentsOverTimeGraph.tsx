@@ -1,38 +1,46 @@
-import { useState, useEffect } from 'react';
-import { Line } from '@ant-design/plots';
+import React, { useState, useEffect } from 'react';
+import styles from './DeploymentsOverTimeGraph.module.scss';
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import defineFunctionalComponent from '../../util/defineFunctionalComponent';
+import { format } from 'date-fns'
 
-type DataEntries = {xField: string, yField: string}[]
+type GraphEntry = { date: string, deploys: number }
 
-export default defineFunctionalComponent(function DeploymentsOverTimeGraph() {
-  const [data, setData] = useState<DataEntries>([]);
+interface Props {
+  data: Record<string, number> | undefined,
+  chartTime: number
+}
+
+const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd hh:mm')
+
+export default defineFunctionalComponent(function DeploymentsOverTimeGraph(props: Props) {
+  const [graphData, setGraphData] = useState<GraphEntry[]>([])
 
   useEffect(() => {
-    asyncFetch();
-  }, []);
+    if (props.data != null) {
+      const dataArray = Object.entries<number>(props.data)
+      const convertedData = dataArray.reduce<GraphEntry[]>((acc, [key, value]) => {
+        return ([...acc, ({
+          date: dateFormatter(Date.parse(key)),
+          deploys: value
+        })])
+      }, [])
+      setGraphData(convertedData)
+    }
+  }, [props.data])
 
-  const asyncFetch = () => {
-    fetch('/api/dashboard')
-      .then((res) => res.json())
-      .then((json) => setData(Object.entries<string>(json.deploymentsPerBucket).reduce<DataEntries>((acc,[key,value]) => ([...acc, ({ xField: key, yField: value })]), [])))
-  };
-
-  const config = {
-    data,
-    padding: "auto" as const,
-    xField: 'xField',
-    yField: 'yField',
-    xAxis: {
-      type: 'timeCat',
-      tickCount: 1,
-    },
-    yAxis: {
-      tickCount: 1,
-    },
-    smooth: true,
-  };
-
-  return (
-  <Line {...config} />
-  );
-});
+    return (
+      <div className={styles.chart}>
+        <ResponsiveContainer>
+          <AreaChart data={graphData.slice(-props.chartTime)} margin={{ top: 10, right: 0, left: -30, bottom: 5 }}>
+            <CartesianGrid vertical={false} stroke="#aaaaaa77"/>
+            <XAxis dataKey="date"/>
+            <YAxis allowDecimals={false}/>
+            <Tooltip formatter={(value: number) => [value, "Deployments"]}/>
+            <Area type={'monotone'} dataKey={'deploys'} stroke={'#3930e5'} fill={"#3b9aec"}/>
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+);
