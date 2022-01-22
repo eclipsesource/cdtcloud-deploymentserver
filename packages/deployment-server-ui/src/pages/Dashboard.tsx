@@ -6,10 +6,21 @@ import { useState, useEffect } from "react";
 import { useInterval } from "react-use";
 import classnames from 'classnames'
 
-import { Card, Divider, Row, Col } from "antd";
+import { Card, Divider, Row, Col, Statistic } from "antd";
 import "./Dashboard.css";
 import styles from '../components/Dashboard/DeploymentsOverTimeGraph.module.scss'
 
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  ExclamationCircleOutlined,
+  FieldTimeOutlined,
+  HddOutlined,
+  LockOutlined,
+  PlayCircleOutlined,
+  RocketOutlined,
+  SyncOutlined,
+} from "@ant-design/icons";
 
 export default defineFunctionalComponent(function Dasboard() {
   const [data, setData] = useState<Dashboard>();
@@ -36,34 +47,55 @@ export default defineFunctionalComponent(function Dasboard() {
 
   return (
     <main>
-      <h2> Dashboard </h2>
-      <Divider/>
-      <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}  align="middle">
+      <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="stretch">
         <Col span={8}>
           <Card
             title="Deployments Overview"
             extra={<a href="/deployments">All Deployments</a>}
+            style={{ height: "100%" }}
           >
-          <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
-              <Col span={6}>
-                <h3>Total:</h3>
-                <h3>Pending:</h3>
-                <h3>Running:</h3>
+            <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
+              <Col span={8}>
+                <Statistic
+                  title="Total Deploys"
+                  value={data?.deployRequestCount ?? 0}
+                  prefix={<RocketOutlined />}
+                  valueStyle={{ color: "black" }}
+                />
+                <Statistic
+                  title="Pending Deploys"
+                  value={data?.deploymentOverview.PENDING ?? 0}
+                  prefix={<FieldTimeOutlined />}
+                  valueStyle={{ color: "blue" }}
+                />
               </Col>
-              <Col span={6}>
-                <h3>{data?.deployRequestCount ?? 0}</h3>
-                <h3>{data?.deploymentOverview.PENDING ?? 0}</h3>
-                <h3>{data?.deploymentOverview.RUNNING ?? 0}</h3>
+              <Col span={8}>
+                <Statistic
+                  title="Running Deploys"
+                  value={data?.deployRequestCount ?? 0}
+                  prefix={<PlayCircleOutlined />}
+                  valueStyle={{ color: "grey" }}
+                />
+                <Statistic
+                  title="Success Deploys"
+                  value={data?.deploymentOverview.SUCCESS ?? 0}
+                  prefix={<CheckCircleOutlined />}
+                  valueStyle={{ color: "green" }}
+                />
               </Col>
-              <Col span={6}>
-                <h3>Success:</h3>
-                <h3>Terminated:</h3>
-                <h3>Failed:</h3>
-              </Col>
-              <Col span={6}>
-                <h3>{data?.deploymentOverview.SUCCESS ?? 0}</h3>
-                <h3>{data?.deploymentOverview.TERMINATED ?? 0}</h3>
-                <h3>{data?.deploymentOverview.FAILED ?? 0}</h3>
+              <Col span={8}>
+                <Statistic
+                  title="Terminated Deploys"
+                  value={data?.deploymentOverview.TERMINATED ?? 0}
+                  prefix={<ExclamationCircleOutlined />}
+                  valueStyle={{ color: "orange" }}
+                />
+                <Statistic
+                  title="Failed Deploys"
+                  value={data?.deploymentOverview.FAILED ?? 0}
+                  prefix={<CloseCircleOutlined />}
+                  valueStyle={{ color: "red" }}
+                />
               </Col>
             </Row>
           </Card>
@@ -72,23 +104,36 @@ export default defineFunctionalComponent(function Dasboard() {
           <Card
             title="Device Overview"
             extra={<a href="/devices">All Devices</a>}
+            style={{ height: "100%" }}
           >
             <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]}>
-              <Col span={6}>
-                <h3>Available:</h3>
-                <h3>Deploying:</h3>
+              <Col span={12}>
+                <Statistic
+                  title="Available Devices"
+                  value={data?.deviceOverview.AVAILABLE ?? 0}
+                  prefix={<HddOutlined />}
+                  valueStyle={{ color: "green" }}
+                />
+                <Statistic
+                  title="Deploying Devices"
+                  value={data?.deviceOverview.DEPLOYING ?? 0}
+                  prefix={<SyncOutlined spin />}
+                  valueStyle={{ color: "blue" }}
+                />
               </Col>
-              <Col span={6}>
-                <h3>{data?.deviceOverview.AVAILABLE ?? 0}</h3>
-                <h3>{data?.deviceOverview.DEPLOYING ?? 0}</h3>
-              </Col>
-              <Col span={6}>
-                <h3>Running:</h3>
-                <h3>Unavailable:</h3>
-              </Col>
-              <Col span={6}>
-                <h3>{data?.deviceOverview.RUNNING ?? 0}</h3>
-                <h3>{data?.deviceOverview.UNAVAILABLE  ?? 0}</h3>
+              <Col span={12}>
+                <Statistic
+                  title="Running Devices"
+                  value={data?.deviceOverview.RUNNING ?? 0}
+                  prefix={<PlayCircleOutlined />}
+                  valueStyle={{ color: "grey" }}
+                />
+                <Statistic
+                  title="Unavailable Devices"
+                  value={data?.deviceOverview.UNAVAILABLE ?? 0}
+                  prefix={<LockOutlined />}
+                  valueStyle={{ color: "red" }}
+                />
               </Col>
             </Row>
           </Card>
@@ -97,13 +142,14 @@ export default defineFunctionalComponent(function Dasboard() {
           <Card
             title="Supported Board Types"
             extra={<a href="/types">All Board Types</a>}
+            style={{ height: "100%" }}
           >
-            <h2></h2>
+            <h2>27</h2>
           </Card>
         </Col>
       </Row>
-      <Divider/>
-      <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="top">
+      <Divider />
+      <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="stretch">
         <Col span={12}>
           <Card
             title="Deployments"
@@ -125,12 +171,13 @@ export default defineFunctionalComponent(function Dasboard() {
           <Card
             title="Recent Deployments "
             extra={<a href="/deployments">All Deployments</a>}
+            style={{ height: "100%" }}
           >
-            <RecentDeploymentList/>
+            <RecentDeploymentList />
           </Card>
         </Col>
       </Row>
-      <Divider/>
+      <Divider />
     </main>
   );
 });
