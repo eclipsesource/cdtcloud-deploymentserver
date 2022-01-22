@@ -2,10 +2,10 @@ import dbClient, { DeviceType } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { Static, Type } from '@sinclair/typebox'
 import { Router } from 'express'
-import { DeviceTypeWithCount } from '.'
+import { DeviceTypeResource } from '.'
 import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
-import { withCount } from './service'
+import { toJSON } from './service'
 
 const { DeviceStatus } = dbClient
 
@@ -19,7 +19,7 @@ export default function deviceTypeRoutes (router: Router): void {
 
   router.get(
     '/device-types',
-    validate<DeviceTypeWithCount[], {}, never, Static<typeof getQuery>>({
+    validate<DeviceTypeResource[], {}, never, Static<typeof getQuery>>({
       query: getQuery
     }),
     async (req, res, next) => {
@@ -55,7 +55,9 @@ export default function deviceTypeRoutes (router: Router): void {
           }
         })>
 
-        res.json(deviceTypes.map(withCount))
+        const deviceTypeResources = await Promise.all(deviceTypes.map(toJSON))
+
+        res.json(deviceTypeResources)
       } catch (e) {
         next(e)
       }
@@ -64,7 +66,7 @@ export default function deviceTypeRoutes (router: Router): void {
 
   router.get(
     '/device-types/:id',
-    validate<DeviceTypeWithCount, IdParams>({ params: idParams }),
+    validate<DeviceTypeResource, IdParams>({ params: idParams }),
     async (req, res, next) => {
       try {
         const deviceType = await req.db.deviceType.findUnique({
@@ -79,7 +81,7 @@ export default function deviceTypeRoutes (router: Router): void {
 
         if (deviceType == null) return res.sendStatus(404)
 
-        return res.json(withCount(deviceType))
+        return res.json(await toJSON(deviceType))
       } catch (e) {
         next(e)
       }
@@ -96,7 +98,7 @@ export default function deviceTypeRoutes (router: Router): void {
 
   router.post(
     '/device-types',
-    validate<DeviceTypeWithCount, {}, Static<typeof postBody>>({ body: postBody }),
+    validate<DeviceTypeResource, {}, Static<typeof postBody>>({ body: postBody }),
     async (req, res, next) => {
       try {
         const deviceType = await req.db.deviceType.create({
@@ -108,7 +110,7 @@ export default function deviceTypeRoutes (router: Router): void {
           }
         })
 
-        return res.json(withCount(deviceType))
+        return res.json(await toJSON(deviceType))
       } catch (e) {
         next(e)
       }
@@ -125,7 +127,7 @@ export default function deviceTypeRoutes (router: Router): void {
 
   router.put(
     '/device-types/:id',
-    validate<DeviceTypeWithCount, IdParams, Static<typeof putBody>>({
+    validate<DeviceTypeResource, IdParams, Static<typeof putBody>>({
       params: idParams,
       body: putBody
     }),
@@ -141,7 +143,7 @@ export default function deviceTypeRoutes (router: Router): void {
           }
         })
 
-        return res.json(withCount(deviceType))
+        return res.json(await toJSON(deviceType))
       } catch (e) {
         next(e)
       }
@@ -150,7 +152,7 @@ export default function deviceTypeRoutes (router: Router): void {
 
   router.delete(
     '/device-types/:id',
-    validate<DeviceTypeWithCount, IdParams>({ params: idParams }),
+    validate<DeviceTypeResource, IdParams>({ params: idParams }),
     async (req, res, next) => {
       try {
         const deviceType = await req.db.deviceType.delete({
@@ -162,7 +164,7 @@ export default function deviceTypeRoutes (router: Router): void {
           }
         })
 
-        return res.json(withCount(deviceType))
+        return res.json(await toJSON(deviceType))
       } catch (e) {
         if (e instanceof PrismaClientKnownRequestError && e.code === 'P2025') {
           return res.sendStatus(404)

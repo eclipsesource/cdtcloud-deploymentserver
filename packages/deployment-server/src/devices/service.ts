@@ -2,7 +2,7 @@ import prismaClient from '@prisma/client'
 import type { Device, Connector } from '@prisma/client'
 import { db } from '../util/prisma'
 
-const MAX_QUEUE_SIZE = 3
+export const MAX_QUEUE_SIZE = 3
 const { DeployStatus, DeviceStatus, Prisma } = prismaClient
 
 type DeviceWithConnector = Device & { connector: Connector }
@@ -19,9 +19,9 @@ export async function getAvailableDevice (deviceType: string): Promise<DeviceWit
   })
 }
 
-export async function getLeastLoadedDevice (deviceType: string): Promise<DeviceWithConnector | null> {
-  const [{ id }] = await db.$queryRaw`
-    SELECT "Device"."id"
+export async function getLeastLoadedDevice (deviceType: string): Promise<[device: DeviceWithConnector | null, queueLength: number]> {
+  const minQueueLength: [] | [{id: string, queueLength: number}] = await db.$queryRaw`
+    SELECT "Device"."id", COALESCE(sub.sum, 0) AS "queueLength"
     FROM "Device" LEFT OUTER JOIN (
       SELECT "Device".id, COUNT("DeployRequest"."status") as sum
       FROM "DeployRequest" LEFT JOIN "Device" ON "Device"."id" = "DeployRequest"."deviceId"
@@ -35,16 +35,22 @@ export async function getLeastLoadedDevice (deviceType: string): Promise<DeviceW
     WHERE "Device"."deviceTypeId" = ${deviceType}
     AND "Device"."status" != ${DeviceStatus.UNAVAILABLE}
     ORDER BY COALESCE(sub.sum, 0) ASC LIMIT 1;
-  ` as [{id: string}]
+  `
 
-  return await db.device.findUnique({
+  if (minQueueLength.length === 0) {
+    return [null, 0]
+  }
+
+  const [{ id, queueLength }] = minQueueLength
+
+  return [await db.device.findUnique({
     where: {
       id
     },
     include: {
       connector: true
     }
-  })
+  }), queueLength]
 }
 
 export async function updateDeviceStatus ({ id }: Pick<Device, 'id'>): Promise<void> {
@@ -105,5 +111,5 @@ export async function isDeployable (device: Pick<Device, 'id' | 'status'>): Prom
     }
   })
 
-  return (pendingRequests <= MAX_QUEUE_SIZE)
+  return (pendingRequests < MAX_QUEUE_SIZE)
 }
