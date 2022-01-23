@@ -3,15 +3,20 @@ import { CdtCloudHeader } from "./CdtCloudHeader";
 import { CdtCloudSidebar } from "./CdtCloudSidebar";
 import type { FunctionComponent } from "react";
 import { useWebsocket } from '../services/WebsocketService'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { connectorEvent, deviceEvent } from './Notification'
+import { fetchDashboardAsync } from '../reducers/DashboardReducer'
+import { useAppDispatch } from '../app/hooks'
+
+import "./CdtCloudMain.css";
+import { useInterval } from 'react-use'
 
 const { Content } = Layout;
 
-import "./CdtCloudMain.css";
-
 export const CdtCloudMain: FunctionComponent<{}> = ({ children }) => {
+  const [refreshFlip, setRefreshFlip] = useState<boolean>(false);
   const { open, subscribe, subs } = useWebsocket('/api/dashboard/notifications')
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (open) {
@@ -19,6 +24,14 @@ export const CdtCloudMain: FunctionComponent<{}> = ({ children }) => {
       subscribe(deviceEvent)
     }
   }, [open, subs])
+
+  useEffect(() => {
+    dispatch(fetchDashboardAsync())
+  }, [dispatch, refreshFlip])
+
+  useInterval(() => {
+    setRefreshFlip(!refreshFlip)
+  }, 3000)
 
   return (
     <Layout style={{ height: "100vh" }}>
