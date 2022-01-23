@@ -5,6 +5,8 @@ import { useAppSelector } from "../app/hooks"
 import React from "react"
 import type { Dashboard } from "deployment-server"
 
+import styles from "./Deployments.module.scss"
+
 export default defineFunctionalComponent(function Deployments() {
   const dashboardState = useAppSelector((state) => state.dashboard)
 
@@ -12,14 +14,7 @@ export default defineFunctionalComponent(function Deployments() {
     <main style={{height: "100%"}}>
       <h2>Deployments</h2>
       {dashboardState.loading && !dashboardState.error ?
-        <div style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center"
-        }}>
+        <div className={styles.loadouter}>
           <Spin tip={"Loading..."}/>
         </div>
         :
