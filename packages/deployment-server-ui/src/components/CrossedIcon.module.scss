@@ -1,0 +1,11 @@
+.crossed {
+  position: relative;
+  display: inline-flex;
+
+  .slash {
+    color: #FFFFFF;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+}
