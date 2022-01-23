@@ -1,0 +1,36 @@
+@import  '../../Colors.module.scss';
+
+.label {
+  min-width: 108px;
+  text-align: center;
+
+  &.success {
+    color: $success-color;
+    background: $success-background;
+    border-color: $success-border;
+  }
+
+  &.terminated {
+    color: $terminated-color;
+    background: $terminated-background;
+    border-color: $terminated-border;
+  }
+
+  &.failed {
+    color: $failed-color;
+    background: $failed-background;
+    border-color: $failed-border;
+  }
+
+  &.pending {
+    color: $pending-color;
+    background: $pending-background;
+    border-color: $pending-border;
+  }
+
+  &.running {
+    color: $running-color;
+    background: $running-background;
+    border-color: $running-border;
+  }
+}

@@ -7,7 +7,7 @@ export default defineFunctionalComponent(function Deployments() {
     <main>
       <h2>Deployments</h2>
       <Typography>To be replaced with full list of recent deployments</Typography>
-      <RecentDeploymentList/>
+      <RecentDeploymentList details/>
     </main>
   );
 });
