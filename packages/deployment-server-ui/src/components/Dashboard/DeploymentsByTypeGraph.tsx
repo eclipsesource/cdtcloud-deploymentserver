@@ -5,11 +5,11 @@ import { format } from 'date-fns'
 
 import styles from './Graph.module.scss'
 
-type StateCount = { success: number, failed: number, terminated: number }
-type GraphEntry = { date: string } & StateCount
+type TypeCount = Record<string, number>
+type GraphEntry = Record<string, TypeCount>[]
 
 interface Props {
-  data: Record<string, StateCount> | undefined
+  data: Record<string, TypeCount> | undefined
 }
 
 const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd hh:mm')
@@ -19,14 +19,13 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph(props: 
 
     useEffect(() => {
       if (props.data != null) {
-        const dataArray = Object.entries<StateCount>(props.data)
+        const dataArray = Object.entries<TypeCount>(props.data)
         const convertedData = dataArray.reduce<GraphEntry[]>((acc, [key, value]) => {
-          return ([...acc, ({
-            date: dateFormatter(Date.parse(key)),
-            success: value.success,
-            failed: value.failed,
-            terminated: value.terminated
-          })])
+          return ([...acc,
+            {
+              date: dateFormatter(Date.parse(key)),
+              ...Object.entries(value).reduce((ent, [k, v]) => ({...ent, [k]: v}), [])
+            }])
         }, [])
         setGraphData(convertedData)
       }
@@ -35,14 +34,18 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph(props: 
     return (
       <div className={styles.chart}>
         <ResponsiveContainer>
-          <AreaChart data={graphData.slice(-24)} >
+          <AreaChart data={graphData.slice(-24)}>
             <CartesianGrid vertical={false} stroke="#aaaaaa77"/>
             <XAxis dataKey="date"/>
             <YAxis allowDecimals={false}/>
             <Tooltip/>
-            <Area type={'monotone'} dataKey={'success'} name={'Successful'} stackId={1} fill={"#b7eb8f"} stroke={"#52c41a"}/>
-            <Area type={'monotone'} dataKey={'failed'} name={'Failed'} stackId={2} fill={"#ffa39e"} stroke={"#cf1322"}/>
-            <Area type={'monotone'} dataKey={'terminated'} name={'Terminated'} stackId={2} fill={"#ffe58f"} stroke={"#faad14"}/>
+            {graphData.slice(-24).map((value, index) => {
+              const key = Object.keys(value)[index]
+              if (key == null || key === 'date') {
+                return
+              }
+              return <Area type={"monotone"} dataKey={key} name={key}/>
+            })}
           </AreaChart>
         </ResponsiveContainer>
       </div>

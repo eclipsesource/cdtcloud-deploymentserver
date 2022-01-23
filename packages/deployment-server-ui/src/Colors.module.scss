@@ -1,5 +1,4 @@
 $success-color: #52c41a;
-$my-success-color: #52c41a;
 $success-background: #f6ffed;
 $success-border: #b7eb8f;
 
@@ -29,7 +28,8 @@ $graph-button-background-selected: #aaaaaa55;
   success: $success-color;
   terminated: $terminated-color;
   failed: $failed-color;
-  pending: $pending-color;
+  pending: $pending-background;
   running: $running-color;
+
   info: $info-color;
 }

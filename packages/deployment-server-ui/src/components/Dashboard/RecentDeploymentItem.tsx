@@ -1,4 +1,4 @@
-import { Button, Col, List, message, Row, Tag, Tooltip, Typography } from 'antd'
+import { Button, Col, List, Row, Tag, Tooltip, Typography } from 'antd'
 import { CSSTransition } from 'react-transition-group'
 import { DeployStatus, DeviceType } from 'deployment-server'
 import React, { useEffect, useState } from 'react'
@@ -79,10 +79,7 @@ export const RecentDeploymentItem = (props: Props) => {
     if (props.artifactUrl != null) {
       createDownloadUrl(props.artifactUrl)
         .then(setArtifactUrl)
-        .catch((e) => {
-          console.log(e)
-          message.error('Download failed. Please try again.', 5)
-        })
+        .catch(console.log)
       setFileName(props.artifactUrl.split('/').pop())
     } else {
       setArtifactUnavailable(true)
