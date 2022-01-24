@@ -34,12 +34,12 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph(props: 
     return (
       <div className={styles.chart}>
         <ResponsiveContainer>
-          <AreaChart data={graphData.slice(-24)}>
+          <AreaChart data={graphData}>
             <CartesianGrid vertical={false} stroke="#aaaaaa77"/>
             <XAxis dataKey="date"/>
             <YAxis allowDecimals={false}/>
             <Tooltip/>
-            {graphData.slice(-24).map((value, index) => {
+            {graphData.map((value, index) => {
               const key = Object.keys(value)[index]
               if (key == null || key === 'date') {
                 return

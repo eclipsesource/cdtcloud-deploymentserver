@@ -35,7 +35,7 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph(props: 
     return (
       <div className={styles.chart}>
         <ResponsiveContainer>
-          <AreaChart data={graphData.slice(-24)} >
+          <AreaChart data={graphData} >
             <CartesianGrid vertical={false} stroke="#aaaaaa77"/>
             <XAxis dataKey="date"/>
             <YAxis allowDecimals={false}/>
