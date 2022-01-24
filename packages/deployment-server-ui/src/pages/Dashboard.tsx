@@ -1,5 +1,5 @@
 import RecentDeploymentList from "../components/Dashboard/RecentDeploymentList"
-import DeploymentsOverTimeGraph from "../components/Dashboard/DeploymentsOverTimeGraph"
+import DeploymentsOverTimeGraph from "../components/Graphs/DeploymentsOverTimeGraph"
 import defineFunctionalComponent from "../util/defineFunctionalComponent"
 import { Dashboard } from "deployment-server"
 import React, { useState } from "react"
@@ -19,7 +19,7 @@ import {
 import { useAppSelector } from "../app/hooks"
 
 import "./Dashboard.css"
-import styles from "../components/Dashboard/DeploymentsOverTimeGraph.module.scss"
+import deployGraphStyles from "../components/Graphs/DeploymentsOverTimeGraph.module.scss"
 
 export default defineFunctionalComponent(function Dasboard() {
   const dashboardState = useAppSelector((state) => state.dashboard)
@@ -155,10 +155,10 @@ export default defineFunctionalComponent(function Dasboard() {
               <Card
                 title="Deployments"
                 extra={
-                  <div className={styles.topline}>
-                    <div className={styles.dchooser}>
+                  <div className={deployGraphStyles.topline}>
+                    <div className={deployGraphStyles.dchooser}>
                       {[6, 12, 24].map((t: number) =>
-                        <div className={classnames(styles.dtime, {[styles.selected]: chartTime === t})}
+                        <div className={classnames(deployGraphStyles.dtime, {[deployGraphStyles.selected]: chartTime === t})}
                              onClick={() => setChartTime(t)}
                         >{t}h</div>)}
                     </div>
