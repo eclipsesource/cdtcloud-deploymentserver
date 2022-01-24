@@ -2,64 +2,21 @@ import { DeployRequest, DeployStatus, DeviceType } from "deployment-server";
 import { useEffect, useState } from "react";
 import defineFunctionalComponent from "../util/defineFunctionalComponent";
 import { Card, Col, Row, Tag } from "antd";
-import axios from "axios";
-import { Device } from ".prisma/client";
 import { useInterval } from "react-use";
+import { Device } from "@prisma/client";
+import { useParams } from "react-router-dom";
 
 export default defineFunctionalComponent(function TypeId() {
   let [devices, setDevices] = useState<Device[]>([]);
   let [deviceType, setDeviceType] = useState<DeviceType | null>(null);
-  let [deployments, setDeployments] = useState<DeployRequest[]>([
-    {
-      id: "1234",
-      status: "PENDING",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      artifactUrl: null,
-      deviceId: "e6cdc2b2-0558-415d-90c5-3301d016eeae",
-    },
-    {
-      id: "12345",
-      status: "SUCCESS",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      artifactUrl: null,
-      deviceId: "e6cdc2b2-0558-415d-90c5-3301d016eeae",
-    },
-    {
-      id: "123",
-      status: "RUNNING",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      artifactUrl: null,
-      deviceId: "e6cdc2b2-0558-415d-90c5-3301d016eeae",
-    },
-    {
-      id: "12",
-      status: "PENDING",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      artifactUrl: null,
-      deviceId: "e6cdc2b2-0558-415d-90c5-3301d016eeae",
-    },
-    {
-      id: "123456",
-      status: "FAILED",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      artifactUrl: null,
-      deviceId: "e6cdc2b2-0558-415d-90c5-3301d016eeae",
-    },
-  ]);
+  let [deployments, setDeployments] = useState<DeployRequest[]>([]);
   let [refetchFlip, setRefetchFlip] = useState(false);
+
+  const { id } = useParams()
 
   useInterval(function () {
     setRefetchFlip(!refetchFlip);
   }, 5000);
-
-  const url = window.location.href;
-  const strs = url.split("/");
-  const deviceTypeId = strs.at(-1);
 
   const status: Record<DeployStatus, { color: string; text: string }> = {
     SUCCESS: {
@@ -85,7 +42,7 @@ export default defineFunctionalComponent(function TypeId() {
   };
 
   useEffect(() => {
-    fetch(`/api/device-types/${deviceTypeId}`).then(async (res) => {
+    fetch(`/api/device-types/${id}`).then(async (res) => {
       setDeviceType(await res.json());
     });
   }, []);
@@ -98,7 +55,7 @@ export default defineFunctionalComponent(function TypeId() {
       })
       .then((res) => {
         setDevices(
-          res.filter((device) => device.deviceTypeId === deviceTypeId)
+          res.filter((device) => device.deviceTypeId === id)
         );
       });
   }, []);
@@ -114,7 +71,7 @@ export default defineFunctionalComponent(function TypeId() {
       )
     });
   }, [refetchFlip]);
-  console.log(devices)
+  
   const pendingCards = deployments
     .filter(
       (deployment) =>
@@ -155,8 +112,6 @@ export default defineFunctionalComponent(function TypeId() {
       </div>
     ));
 
-  //const deviceType = deviceTypes.find((type) => type.id === device?.deviceTypeId)
-
   return (
     <main>
       <Row justify="space-between">
@@ -164,6 +119,7 @@ export default defineFunctionalComponent(function TypeId() {
           <h2>{deviceType ? deviceType.name : ""}</h2>
           <li>Number of connected devices: {devices.length}</li>
           <li>FQBN: {deviceType ? deviceType.fqbn : ""}</li>
+          <li>{deviceType ? deviceType.fqbn : ""}</li>
           <Row>{pendingCards}</Row>
         </Col>
         <Col>{otherCards}</Col>
