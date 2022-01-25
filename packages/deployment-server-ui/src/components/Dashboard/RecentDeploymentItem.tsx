@@ -1,4 +1,4 @@
-import { Button, List, Tag, Tooltip, Typography } from 'antd'
+import { Button, List, Tooltip, Typography } from 'antd'
 import { CSSTransition } from 'react-transition-group'
 import { DeployStatus, DeviceType } from 'deployment-server'
 import { useState } from 'react'
