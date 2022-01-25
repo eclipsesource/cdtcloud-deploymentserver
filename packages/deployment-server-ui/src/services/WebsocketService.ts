@@ -11,7 +11,7 @@ const createWebsocket = async (route: string): Promise<WebSocket> => {
 }
 
 
-export const useWebsocket = (route: string, condition?: boolean) => {
+export const useWebsocket = (route: string, condition: boolean = true) => {
   const [socket, setSocket] = useState<WebSocket>()
   const [open, setOpen] = useState<boolean>(false)
   const [subs, setSubs] = useState<((obj: any) => void)[]>([])
