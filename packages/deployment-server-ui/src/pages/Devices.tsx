@@ -1,21 +1,29 @@
 import { Device, DeviceType, DeviceStatus } from "@prisma/client";
-import { Table, TablePaginationConfig } from "antd";
+import { Table, TablePaginationConfig, Tag } from "antd"
 import { FilterValue } from "antd/lib/table/interface";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import defineFunctionalComponent from "../util/defineFunctionalComponent";
 import { typeIdToName } from "../util/deviceMapping"
+import classnames from "classnames"
+
+import styles from "./Devices.module.scss"
 
 type DevicesItem = { deviceTypeName: string } & Device
 
-const addNameToDevices = async (devices: Device[]): Promise<DevicesItem[]> => {
+const formatDevices = async (devices: Device[]): Promise<DevicesItem[]> => {
   return await Promise.all(
-    devices.map(async (device) => {
+    devices.map<Promise<DevicesItem>>(async (device) => {
+      const statusTag = <Tag
+        className={classnames(styles.label, styles[device.status.toLowerCase()])}
+      >
+        {device.status}
+      </Tag>
       try {
         const deviceTypeName = await typeIdToName(device.deviceTypeId)
-        return {...device, deviceTypeName}
+        return {...device, deviceTypeName, statusTag}
       } catch {
-        return {...device, deviceTypeName: "Unknown"}
+        return {...device, deviceTypeName: "Unknown", statusTag}
       }
     })
   )
@@ -23,9 +31,7 @@ const addNameToDevices = async (devices: Device[]): Promise<DevicesItem[]> => {
 
 export default defineFunctionalComponent(function Devices() {
   const [devices, setDevices] = useState<DevicesItem[]>(Array(15).fill({}));
-  const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>(
-    Array(15).fill({})
-  );
+  const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>(Array(15).fill({}));
 
   const [filters, setFilters] = useState<Record<string, FilterValue | null>>({
     status: [],
@@ -65,7 +71,7 @@ export default defineFunctionalComponent(function Devices() {
     },
     {
       title: "Status",
-      dataIndex: "status",
+      dataIndex: "statusTag",
       key: "status",
       filters: (
         Object.entries(DeviceStatus) as Array<
@@ -108,7 +114,7 @@ export default defineFunctionalComponent(function Devices() {
     fetch("/api/devices")
       .then((res) => res.json())
       .then(async (res) => {
-        const devicesWithNames = await addNameToDevices(res)
+        const devicesWithNames = await formatDevices(res)
         setDevices(devicesWithNames)
       });
   }, []);
