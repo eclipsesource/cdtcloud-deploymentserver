@@ -1,54 +1,17 @@
-import { Button, Col, List, Row, Tag, Tooltip, Typography } from 'antd'
+import { Button, Col, List, Row, Tooltip, Typography } from 'antd'
 import { CSSTransition } from 'react-transition-group'
-import { DeployStatus, DeviceType } from 'deployment-server'
+import { DeployStatus, DeviceType, Device } from 'deployment-server'
 import React, { useEffect, useState } from 'react'
-import { Device } from '@prisma/client'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom'
-import colors from '../../Colors.module.scss'
-import classnames from 'classnames'
-import styles from './RecentDeploymentItem.module.scss'
-import {
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  CloseCircleOutlined,
-  ExclamationCircleOutlined,
-  SyncOutlined
-} from '@ant-design/icons'
 import { StatusTag } from '../StatusTag'
 import { format } from 'date-fns'
 import MonitoringTerminal from "../MonitoringTerminal"
 
+import colors from '../../Colors.module.scss'
+
 const { Item } = List
 const { Meta } = Item
-
-const formatStatus: Record<DeployStatus, { color: string; text: string, icon: JSX.Element }> = {
-  SUCCESS: {
-    color: 'success',
-    text: "SUCCESS",
-    icon: <CheckCircleOutlined/>
-  },
-  TERMINATED: {
-    color: "warning",
-    text: "TERMINATED",
-    icon: <ExclamationCircleOutlined/>
-  },
-  FAILED: {
-    color: "red",
-    text: "FAILED",
-    icon: <CloseCircleOutlined/>
-  },
-  PENDING: {
-    color: "processing",
-    text: "PENDING",
-    icon: <ClockCircleOutlined/>
-  },
-  RUNNING: {
-    color: "grey",
-    text: "RUNNING",
-    icon: <SyncOutlined spin/>
-  }
-}
 
 interface Props {
   id: string,
@@ -133,12 +96,7 @@ export const RecentDeploymentItem = (props: Props) => {
         <Meta
           style={{flex: "auto"}}
           avatar={
-            <Tag
-              className={classnames(styles.label, styles[props.status.toLowerCase()])}
-               icon={formatStatus[props.status].icon}
-            >
-              {props.status}
-            </Tag>
+            <StatusTag status={props.status} addIcon/>
           }
           title={
             <>

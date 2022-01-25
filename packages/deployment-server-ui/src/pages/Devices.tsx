@@ -1,24 +1,27 @@
-import { Device, DeviceType, DeviceStatus } from "@prisma/client";
-import { Table, TablePaginationConfig, Tag } from "antd"
+import { Device, DeviceType } from "deployment-server";
+import { Table, TablePaginationConfig } from "antd"
 import { FilterValue } from "antd/lib/table/interface";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import defineFunctionalComponent from "../util/defineFunctionalComponent";
 import { typeIdToName } from "../util/deviceMapping"
-import classnames from "classnames"
 
-import styles from "./Devices.module.scss"
+import { StatusTag } from "../components/StatusTag"
 
 type DevicesItem = { deviceTypeName: string } & Device
+
+export const DeviceStatus = {
+  UNAVAILABLE: 'UNAVAILABLE',
+  AVAILABLE: 'AVAILABLE',
+  DEPLOYING: 'DEPLOYING',
+  RUNNING: 'RUNNING',
+  MONITORING: 'MONITORING'
+}
 
 const formatDevices = async (devices: Device[]): Promise<DevicesItem[]> => {
   return await Promise.all(
     devices.map<Promise<DevicesItem>>(async (device) => {
-      const statusTag = <Tag
-        className={classnames(styles.label, styles[device.status.toLowerCase()])}
-      >
-        {device.status}
-      </Tag>
+      const statusTag = <StatusTag status={device.status}/>
       try {
         const deviceTypeName = await typeIdToName(device.deviceTypeId)
         return {...device, deviceTypeName, statusTag}
@@ -32,6 +35,7 @@ const formatDevices = async (devices: Device[]): Promise<DevicesItem[]> => {
 export default defineFunctionalComponent(function Devices() {
   const [devices, setDevices] = useState<DevicesItem[]>(Array(15).fill({}));
   const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>(Array(15).fill({}));
+  const [loading, setLoading] = useState<boolean>(true)
 
   const [filters, setFilters] = useState<Record<string, FilterValue | null>>({
     status: [],
@@ -116,13 +120,14 @@ export default defineFunctionalComponent(function Devices() {
       .then(async (res) => {
         const devicesWithNames = await formatDevices(res)
         setDevices(devicesWithNames)
+        setLoading(false)
       });
   }, []);
 
   return (
     <main>
       <h2>Devices</h2>
-      <Table dataSource={devices} columns={columns} onChange={handleChange} />;
+      <Table dataSource={devices} columns={columns} onChange={handleChange} loading={loading}/>;
     </main>
   );
 });

@@ -1,7 +1,7 @@
 import { notification } from 'antd'
 import { DisconnectOutlined, InfoOutlined, LinkOutlined } from '@ant-design/icons'
 import React from 'react'
-import { Connector, Device } from '@prisma/client'
+import { Connector, Device } from 'deployment-server'
 import { ServerMessage } from '../services/WebsocketService'
 import { typeIdToName } from '../util/deviceMapping'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'

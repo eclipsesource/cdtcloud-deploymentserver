@@ -1,34 +1,38 @@
-@import  '../../Colors.module.scss';
+@import  '../Colors.module.scss';
 
 .label {
   min-width: 108px;
   text-align: center;
 
-  &.success {
+  &.success,
+  &.available {
     color: $success-color;
     background: $success-background;
     border-color: $success-border;
   }
 
-  &.terminated {
+  &.terminated{
     color: $terminated-color;
     background: $terminated-background;
     border-color: $terminated-border;
   }
 
-  &.failed {
+  &.failed,
+  &.unavailable {
     color: $failed-color;
     background: $failed-background;
     border-color: $failed-border;
   }
 
-  &.pending {
+  &.pending,
+  &.deploying {
     color: $pending-color;
     background: $pending-background;
     border-color: $pending-border;
   }
 
-  &.running {
+  &.running,
+  &.monitoring {
     color: $running-color;
     background: $running-background;
     border-color: $running-border;

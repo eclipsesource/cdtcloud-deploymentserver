@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import styles from './DeploymentsOverTimeGraph.module.scss';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import defineFunctionalComponent from '../../util/defineFunctionalComponent';
 import { format } from 'date-fns'
+
+import styles from './Graph.module.scss';
 
 type GraphEntry = { date: string, deploys: number }
 

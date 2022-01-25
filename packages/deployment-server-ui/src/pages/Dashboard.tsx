@@ -19,11 +19,11 @@ import {
 import { useAppSelector } from "../app/hooks"
 
 import "./Dashboard.css"
-import deployGraphStyles from "../components/Graphs/DeploymentsOverTimeGraph.module.scss"
+import deployGraphStyles from "../components/Graphs/Graph.module.scss"
 
-export default defineFunctionalComponent(function Dasboard() {
+export default defineFunctionalComponent(function Dashboard() {
   const dashboardState = useAppSelector((state) => state.dashboard)
-  const [chartTime, setChartTime] = useState(24)
+  const [chartTime, setChartTime] = useState<number>(24)
 
   return (
     dashboardState.loading && !dashboardState.error ?

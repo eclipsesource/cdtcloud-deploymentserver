@@ -41,8 +41,12 @@ const { setData, setError } = dashboardSlice.actions;
 export const fetchDashboardAsync = () => async (dispatch: Dispatch<ISetDashboardData | ISetDashboardError>) => {
   try {
     const resp = await fetch("/api/dashboard")
-    const data = await resp.json()
-    dispatch(setData(data))
+    if (resp.ok) {
+      const data = await resp.json()
+      dispatch(setData(data))
+    } else {
+      dispatch(setError())
+    }
   } catch (e) {
     dispatch(setError())
   }
