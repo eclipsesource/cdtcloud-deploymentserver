@@ -66,14 +66,20 @@ export class CdtcloudWidget extends ReactWidget {
 
     function getColor(status: string) {
       switch (status) {
-        case 'PENDING': return 'blue';
-        case 'RUNNING': return 'gray';
-        case 'TERMINATED': return 'yellow';
-        case 'SUCCESS': return 'green';
-        case 'ERROR': return 'red';
-        default: return 'white';
+        case "PENDING":
+          return "blue";
+        case "RUNNING":
+          return "gray";
+        case "TERMINATED":
+          return "yellow";
+        case "SUCCESS":
+          return "green";
+        case "ERROR":
+          return "red";
+        default:
+          return "white";
       }
-    } 
+    }
 
     return (
       <>
@@ -89,30 +95,52 @@ export class CdtcloudWidget extends ReactWidget {
 
         <div id="past-deployments">
           <h2> Past Deployments</h2>
-          {<table>
-            <thead>
-              <tr key="head">
-                <th></th>
-                <th>Status</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Deployed To</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.deployments.map((deployment) => {
-                return (
-                  <tr key={deployment.id}>
-                    <td><div style={{ display: "flex",  width: "15px", height: "15px", backgroundColor: getColor(deployment.status), borderRadius: "50%", justifyContent: "center", alignItems: "center" }}></div></td>
-                    <td>{deployment.status}</td>
-                    <td>{deployment.createdAt}</td>
-                    <td>{deployment.updatedAt}</td>
-                    <td>{this.deviceList.find(device => device.id === deployment.deviceId).name}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>}
+          {this.deployments.length > 0 ? (
+            <table>
+              <thead>
+                <tr key="head">
+                  <th></th>
+                  <th>Status</th>
+                  <th>Created At</th>
+                  <th>Updated At</th>
+                  <th>Deployed To</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.deployments.map((deployment) => {
+                  return (
+                    <tr key={deployment.id}>
+                      <td>
+                        <div
+                          style={{
+                            display: "flex",
+                            width: "15px",
+                            height: "15px",
+                            backgroundColor: getColor(deployment.status),
+                            borderRadius: "50%",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        ></div>
+                      </td>
+                      <td>{deployment.status}</td>
+                      <td>{deployment.createdAt}</td>
+                      <td>{deployment.updatedAt}</td>
+                      <td>
+                        {
+                          this.deviceList.find(
+                            (device) => device.id === deployment.deviceId
+                          ).name
+                        }
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <p>No deployments have been sent so far.</p>
+          )}
         </div>
       </>
     );
