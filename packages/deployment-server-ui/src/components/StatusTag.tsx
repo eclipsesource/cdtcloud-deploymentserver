@@ -1,8 +1,8 @@
-import { DeployRequest, DeployStatus } from "deployment-server";
+import { DeployStatus } from "deployment-server";
 import { Tag } from "antd";
 
-export function StatusTag(deployment: DeployRequest) {
-  const status: Record<DeployStatus, { color: string; text: string }> = {
+export function StatusTag(status: DeployStatus) {
+  const formatStatus: Record<DeployStatus, { color: string; text: string }> = {
     SUCCESS: {
       color: "green",
       text: "SUCCESS",
@@ -26,8 +26,8 @@ export function StatusTag(deployment: DeployRequest) {
   };
   
   return (
-    <Tag color={status[deployment.status].color}>
-      {status[deployment.status].text}
+    <Tag color={formatStatus[status].color}>
+      {formatStatus[status].text}
     </Tag>
   );
 }
