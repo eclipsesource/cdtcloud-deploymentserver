@@ -6,9 +6,10 @@
     text-transform: uppercase;
 }
 
-th, td {
-border-bottom: 1px solid #ddd;
+th {
+background-color: #68b6ff;
+color: #000;
 }
 tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: #414141;
 }
