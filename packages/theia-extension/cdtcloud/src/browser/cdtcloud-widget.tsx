@@ -92,25 +92,24 @@ export class CdtcloudWidget extends ReactWidget {
           {<table>
             <thead>
               <tr key="head">
+                <th></th>
                 <th>ID</th>
                 <th>Status</th>
                 <th>Created At</th>
                 <th>Updated At</th>
-                <th>Artifact URL</th>
-                <th>Device ID</th>
+                <th>Device Type</th>
               </tr>
             </thead>
             <tbody>
               {this.deployments.map((deployment) => {
                 return (
                   <tr key={deployment.id}>
-                    <div style={{ display: "flex",  width: "15px", height: "15px", backgroundColor: getColor(deployment.status), borderRadius: "50%"  }}></div>
+                    <td><div style={{ display: "flex",  width: "15px", height: "15px", backgroundColor: getColor(deployment.status), borderRadius: "50%"  }}></div></td>
                     <td>{deployment.id}</td>
                     <td>{deployment.status}</td>
                     <td>{deployment.createdAt}</td>
                     <td>{deployment.updatedAt}</td>
-                    <td>{deployment.artifactUrl}</td>
-                    <td>{deployment.deviceId}</td>
+                    <td>{this.deviceList.find(device => device.id === deployment.deviceId).name}</td>
                   </tr>
                 );
               })}
