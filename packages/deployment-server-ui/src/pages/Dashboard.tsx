@@ -4,9 +4,12 @@ import defineFunctionalComponent from "../util/defineFunctionalComponent";
 import { Dashboard } from "deployment-server";
 import { useState, useEffect } from "react";
 import { useInterval } from "react-use";
+import classnames from 'classnames'
 
 import { Card, Divider, Row, Col, Statistic } from "antd";
 import "./Dashboard.css";
+import styles from '../components/Dashboard/DeploymentsOverTimeGraph.module.scss'
+
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
@@ -21,16 +24,25 @@ import {
 
 export default defineFunctionalComponent(function Dasboard() {
   const [data, setData] = useState<Dashboard>();
-  let [refreshFlip, setRefetchFlip] = useState(false);
+  const [refreshFlip, setRefetchFlip] = useState<boolean>(false);
+  const [chartTime, setChartTime] = useState(24)
+
+  const updateDashboardData = () => {
+    try {
+      fetch("/api/dashboard")
+        .then((res) => res.json())
+        .then((res) => setData(res));
+    } catch (e) {
+      console.log(e)
+    }
+  };
 
   useInterval(function () {
     setRefetchFlip(!refreshFlip);
   }, 3000);
 
   useEffect(() => {
-    fetch("/api/dashboard")
-      .then((res) => res.json())
-      .then((res) => setData(res));
+    updateDashboardData()
   }, [refreshFlip]);
 
   return (
@@ -139,8 +151,20 @@ export default defineFunctionalComponent(function Dasboard() {
       <Divider />
       <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="stretch">
         <Col span={12}>
-          <Card title="Deployments over Time Chart" style={{ height: "100%" }}>
-            <DeploymentsOverTimeGraph />
+          <Card
+            title="Deployments"
+            extra={
+              <div className={styles.topline}>
+                <div className={styles.dchooser}>
+                  {[6, 12, 24].map((t: number) =>
+                    <div className={classnames(styles.dtime, { [styles.selected]: chartTime === t })}
+                         onClick={() => setChartTime(t)}
+                    >{t}h</div>)}
+                </div>
+              </div>
+          }
+          >
+            <DeploymentsOverTimeGraph data={data?.deploymentsPerBucket} chartTime={chartTime}/>
           </Card>
         </Col>
         <Col span={12}>

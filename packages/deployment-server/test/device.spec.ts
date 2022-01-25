@@ -3,7 +3,9 @@ import prisma, { DeployRequest, Device, PrismaClient } from '@prisma/client'
 import type { Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import tap from 'tap'
-import { getLeastLoadedDevice } from '../src/devices/service'
+import { DeviceTypeWithCount } from '../src'
+import { determineStatus, withCount } from '../src/device-types/service'
+import { getLeastLoadedDevice, MAX_QUEUE_SIZE } from '../src/devices/service'
 import { closeServer, createServer } from '../src/server'
 import {
   createConnector,
@@ -290,7 +292,108 @@ test('Selects the device with the least amount of (relevant) deployments', async
   }
   await Promise.all(reqs)
 
-  const selectedDevice = await getLeastLoadedDevice(type.id)
+  const [selectedDevice, queueLength] = await getLeastLoadedDevice(type.id)
 
   t.match(selectedDevice, match)
+  t.equal(queueLength, 0)
+})
+
+test('determineStatus', async (t) => {
+  t.plan(4)
+
+  const type = await createDeviceType(db)
+
+  const getType = async (id: string): Promise<DeviceTypeWithCount> => {
+    const t = await db.deviceType.findUnique({
+      where: {
+        id
+      },
+      include: {
+        _count: {
+          select: {
+            devices: true
+
+          }
+        }
+      }
+
+    })
+
+    return withCount(t ?? type)
+  }
+
+  t.test('Returns UNAVAILABLE if no devices are associated', async (t) => {
+    const status = await determineStatus(await getType(type.id))
+
+    t.match(status, { status: 'UNAVAILABLE' })
+  })
+
+  t.test('Returns AVAILABLE if there is an availabe device to run deployments', async (t) => {
+    const device = await createDevice(db, {
+      connector: { create: {} },
+      type: { connect: { id: type.id } },
+      status: DeviceStatus.AVAILABLE
+    })
+    const status = await determineStatus(await getType(type.id))
+
+    t.match(status, { status: 'AVAILABLE' })
+
+    await db.device.delete({ where: { id: device.id } })
+  })
+
+  t.test('Returns QUEUEABLE if no devices are available but the queue is not full', async (t) => {
+    const device = await createDevice(db, {
+      connector: { create: {} },
+      type: { connect: { id: type.id } },
+      status: DeviceStatus.RUNNING
+    })
+
+    for (let i = 0; i < MAX_QUEUE_SIZE - 1; i++) {
+      await db.deployRequest.create({
+        data: {
+          artifactUrl: 'https://example.com/artifact.zip',
+          device: {
+            connect: {
+              id: device.id
+            }
+          },
+          status: DeployStatus.PENDING
+        }
+      })
+    }
+
+    const status = await determineStatus(await getType(type.id))
+
+    t.match(status, { status: 'QUEUEABLE', queueLength: MAX_QUEUE_SIZE - 1 })
+
+    await db.device.delete({ where: { id: device.id } })
+  })
+
+  t.test('Returns busy if the queue is full', async (t) => {
+    const device = await createDevice(db, {
+      connector: { create: {} },
+      type: { connect: { id: type.id } },
+      status: DeviceStatus.RUNNING
+    })
+
+    for (let i = 0; i < MAX_QUEUE_SIZE; i++) {
+      await db.deployRequest.create({
+        data: {
+          artifactUrl: 'https://example.com/artifact.zip',
+          device: {
+            connect: {
+              id: device.id
+            }
+          },
+          status: DeployStatus.PENDING
+        }
+      })
+    }
+
+    const status = await determineStatus(await getType(type.id))
+
+    t.match(status, { status: 'BUSY' })
+
+    await db.device.delete({ where: { id: device.id } })
+  })
 })
