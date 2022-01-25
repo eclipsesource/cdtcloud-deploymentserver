@@ -1,10 +1,11 @@
-import { DeployRequest, DeployStatus, DeviceType } from "deployment-server";
+import { DeployRequest, DeviceType } from "deployment-server";
 import { useEffect, useState } from "react";
 import defineFunctionalComponent from "../util/defineFunctionalComponent";
-import { Card, Col, Row, Tag } from "antd";
+import { Card, Col, Row } from "antd";
 import { useInterval } from "react-use";
 import { Device } from "@prisma/client";
 import { useParams } from "react-router-dom";
+import { StatusTag } from "../components/StatusTag";
 
 export default defineFunctionalComponent(function TypeId() {
   let [devices, setDevices] = useState<Device[]>([]);
@@ -17,29 +18,6 @@ export default defineFunctionalComponent(function TypeId() {
   useInterval(function () {
     setRefetchFlip(!refetchFlip);
   }, 5000);
-
-  const status: Record<DeployStatus, { color: string; text: string }> = {
-    SUCCESS: {
-      color: "green",
-      text: "SUCCESS",
-    },
-    TERMINATED: {
-      color: "yellow",
-      text: "TERMINATED",
-    },
-    FAILED: {
-      color: "red",
-      text: "ERROR",
-    },
-    PENDING: {
-      color: "blue",
-      text: "PENDING",
-    },
-    RUNNING: {
-      color: "grey",
-      text: "RUNNING",
-    },
-  };
 
   useEffect(() => {
     fetch(`/api/device-types/${id}`).then(async (res) => {
@@ -82,10 +60,7 @@ export default defineFunctionalComponent(function TypeId() {
       <div key={deployment.id}>
         <Card title={deployment.id} bordered={true} style={{ width: 200 }}>
           <p>
-            <Tag color={status[deployment.status].color}>
-              {" "}
-              {status[deployment.status].text}{" "}
-            </Tag>
+            <StatusTag {...deployment}/>
           </p>
         </Card>
       </div>
@@ -102,10 +77,7 @@ export default defineFunctionalComponent(function TypeId() {
         <Row gutter={[0, 16]}>
           <Card title={deployment.id} bordered={true} style={{ width: 200 }}>
             <p>
-              <Tag color={status[deployment.status].color}>
-                {" "}
-                {status[deployment.status].text}{" "}
-              </Tag>
+              <StatusTag {...deployment} />
             </p>
           </Card>
         </Row>
