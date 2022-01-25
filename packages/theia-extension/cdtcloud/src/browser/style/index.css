@@ -6,10 +6,18 @@
     text-transform: uppercase;
 }
 
-th {
+#deployments {
+    width: 100%;
+}
+#deployments th {
 background-color: #68b6ff;
 color: #000;
+padding: 5px;
 }
-tr:nth-child(even) {
+#deployments td {
+    padding: 5px;
+    }
+    
+#deployments tr:nth-child(even) {
     background-color: #414141;
 }

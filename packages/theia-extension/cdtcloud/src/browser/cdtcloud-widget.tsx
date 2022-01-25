@@ -96,7 +96,7 @@ export class CdtcloudWidget extends ReactWidget {
         <div id="past-deployments">
           <h2> Past Deployments</h2>
           {this.deployments.length > 0 ? (
-            <table>
+            <table id="deployments">
               <thead>
                 <tr key="head">
                   <th></th>
