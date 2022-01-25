@@ -5,11 +5,12 @@ import { format } from 'date-fns'
 
 import styles from './Graph.module.scss'
 
-type StateCount = { success: number, failed: number, terminated: number }
-type GraphEntry = { date: string } & StateCount
+type DeployCount = { SUCCESS: number, FAILED: number, TERMINATED: number }
+type DeployData = { issueCount: number } & DeployCount
+type GraphEntry = { date: string } & DeployCount
 
 interface Props {
-  data: Record<string, StateCount> | undefined
+  data: Record<string, DeployData> | undefined
 }
 
 const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd hh:mm')
@@ -19,13 +20,13 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph(props: 
 
     useEffect(() => {
       if (props.data != null) {
-        const dataArray = Object.entries<StateCount>(props.data)
+        const dataArray = Object.entries<DeployData>(props.data)
         const convertedData = dataArray.reduce<GraphEntry[]>((acc, [key, value]) => {
           return ([...acc, ({
             date: dateFormatter(Date.parse(key)),
-            success: value.success,
-            failed: value.failed,
-            terminated: value.terminated
+            SUCCESS: value.SUCCESS,
+            FAILED: value.FAILED,
+            TERMINATED: value.TERMINATED
           })])
         }, [])
         setGraphData(convertedData)
@@ -40,9 +41,9 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph(props: 
             <XAxis dataKey="date"/>
             <YAxis allowDecimals={false}/>
             <Tooltip/>
-            <Area type={'monotone'} dataKey={'success'} name={'Successful'} stackId={1} fill={"#b7eb8f"} stroke={"#52c41a"}/>
-            <Area type={'monotone'} dataKey={'failed'} name={'Failed'} stackId={2} fill={"#ffa39e"} stroke={"#cf1322"}/>
-            <Area type={'monotone'} dataKey={'terminated'} name={'Terminated'} stackId={2} fill={"#ffe58f"} stroke={"#faad14"}/>
+            <Area type={'monotone'} dataKey={'SUCCESS'} name={'Successful'} stackId={1} fill={"#b7eb8f"} stroke={"#52c41a"}/>
+            <Area type={'monotone'} dataKey={'FAILED'} name={'Failed'} stackId={2} fill={"#ffa39e"} stroke={"#cf1322"}/>
+            <Area type={'monotone'} dataKey={'TERMINATED'} name={'Terminated'} stackId={2} fill={"#ffe58f"} stroke={"#faad14"}/>
           </AreaChart>
         </ResponsiveContainer>
       </div>
