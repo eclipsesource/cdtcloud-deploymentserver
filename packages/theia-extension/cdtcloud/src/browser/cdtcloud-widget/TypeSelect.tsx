@@ -70,6 +70,7 @@ export const TypeSelect: FunctionComponent<{
               state.isFocused || state.isSelected
                 ? "var(--theia-menu-selectionForeground)"
                 : base.color,
+            ...dot(getColor(state.data.status)),
           }),
           singleValue: (base, { data }) => ({
             ...base,
