@@ -5,6 +5,7 @@ import Select from "react-select";
 interface Option {
   label: string;
   value: string;
+  status: string;
 }
 
 export const TypeSelect: FunctionComponent<{
@@ -14,8 +15,36 @@ export const TypeSelect: FunctionComponent<{
   let [board, setBoard] = useState<Option>({
     label: "No board Selected",
     value: "",
+    status: ""
   });
 
+  const dot = (color = 'transparent') => ({
+    alignItems: 'center',
+    display: 'flex',
+  
+    ':before': {
+      backgroundColor: color,
+      borderRadius: 10,
+      content: '" "',
+      display: 'block',
+      marginRight: 8,
+      height: 10,
+      width: 10,
+    },
+  });
+
+  function getColor(status: string) {
+    switch (status) {
+      case "DEPLOYING":
+        return "blue";
+      case "RUNNING":
+        return "gray";
+      case "AVAILABLE":
+        return "green";
+      case "MONITORING":
+        return "yellow";
+    }
+  }
   return (
     <div style={{ padding: "5px" }}>
       <Select
@@ -42,14 +71,15 @@ export const TypeSelect: FunctionComponent<{
                 ? "var(--theia-menu-selectionForeground)"
                 : base.color,
           }),
-          singleValue: (base) => ({
+          singleValue: (base, { data }) => ({
             ...base,
             color: "var(--theia-menu-foreground)",
+            ...dot(getColor(data.status))
           }),
         }}
         onChange={(e: Option) => {
           if (!e) return;
-          const newBoard = { label: e.label, value: e.value };
+          const newBoard = { label: e.label, value: e.value, status: e.status };
           setBoard(newBoard);
         }}
       />
