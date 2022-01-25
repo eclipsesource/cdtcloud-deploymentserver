@@ -60,7 +60,7 @@ export default defineFunctionalComponent(function TypeId() {
       <div key={deployment.id}>
         <Card title={deployment.id} bordered={true} style={{ width: 200 }}>
           <p>
-            <StatusTag {...deployment.status}/>
+            <StatusTag {...deployment}/>
           </p>
         </Card>
       </div>
@@ -77,7 +77,7 @@ export default defineFunctionalComponent(function TypeId() {
         <Row gutter={[0, 16]}>
           <Card title={deployment.id} bordered={true} style={{ width: 200 }}>
             <p>
-              <StatusTag {...deployment.status} />
+              <StatusTag {...deployment} />
             </p>
           </Card>
         </Row>
@@ -89,7 +89,7 @@ export default defineFunctionalComponent(function TypeId() {
       <Row justify="space-between">
         <Col>
           <h2>{deviceType ? deviceType.name : ""}</h2>
-          <li>Number of connected devices: {devices.length}</li>
+          <li>Number of devices: {devices.length}</li>
           <li>FQBN: {deviceType ? deviceType.fqbn : ""}</li>
           <li>{deviceType ? deviceType.fqbn : ""}</li>
           <Row>{pendingCards}</Row>

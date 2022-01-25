@@ -1,7 +1,15 @@
-import { DeployStatus } from "deployment-server";
+import { DeployStatus, Device, DeviceType } from "deployment-server";
 import { Tag } from "antd";
 
-export function StatusTag(status: DeployStatus) {
+interface Props {
+  id: string,
+  status: DeployStatus,
+  device?: Device & {
+    type: DeviceType
+  },
+}
+
+export const StatusTag = (props: Props) => {
   const formatStatus: Record<DeployStatus, { color: string; text: string }> = {
     SUCCESS: {
       color: "green",
@@ -26,8 +34,8 @@ export function StatusTag(status: DeployStatus) {
   };
   
   return (
-    <Tag color={formatStatus[status].color}>
-      {formatStatus[status].text}
+    <Tag color={formatStatus[props.status].color}>
+      {formatStatus[props.status].text}
     </Tag>
   );
 }
