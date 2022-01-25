@@ -22,7 +22,7 @@ import { DeploymentManager } from "./monitoring/DeploymentManager";
 export class CdtcloudWidget extends ReactWidget {
   deviceList: any[] = [];
   options: any[] = [];
-  selected: { label: string; value: string };
+  selected: { label: string; value: string, status: string };
   static readonly ID = "cdtcloud:widget";
   static readonly LABEL = "Cdtcloud Widget";
 
@@ -146,7 +146,7 @@ export class CdtcloudWidget extends ReactWidget {
     );
   }
 
-  protected handleChange(option: { label: string; value: string }): void {
+  protected handleChange(option: { label: string; value: string, status: string }): void {
     this.selected = option;
   }
 
