@@ -15,11 +15,12 @@ import {
   ExclamationCircleOutlined,
   SyncOutlined
 } from '@ant-design/icons'
+import { StatusTag } from '../StatusTag'
 import { format } from 'date-fns'
 import MonitoringTerminal from "../MonitoringTerminal"
 
-const {Item} = List
-const {Meta} = Item
+const { Item } = List
+const { Meta } = Item
 
 const formatStatus: Record<DeployStatus, { color: string; text: string, icon: JSX.Element }> = {
   SUCCESS: {
@@ -97,7 +98,7 @@ export const RecentDeploymentItem = (props: Props) => {
   }, [])
 
   return (
-    <CSSTransition timeout={750} classNames={"deployment"}>
+    <CSSTransition key={props.id} timeout={750} classNames={"deployment"}>
       <Item
         actions={[
           <Button

@@ -7,6 +7,7 @@ import { Provider } from 'react-redux'
 
 import App from "./App";
 import Types from "./pages/Types";
+import TypeId from "./pages/TypeId";
 import Devices from "./pages/Devices";
 import Deployments from "./pages/Deployments";
 import NotFound from "./pages/NotFound";
@@ -25,6 +26,7 @@ ReactDOM.render(
           <Routes>
             <Route path="/" element={<App />} />
             <Route path="types" element={<Types />} />
+            <Route path="types/:id" element={<TypeId />} />
             <Route path="devices" element={<Devices />} />
             <Route path="deployments" element={<Deployments />} />
             <Route path="*" element={<NotFound />} />
