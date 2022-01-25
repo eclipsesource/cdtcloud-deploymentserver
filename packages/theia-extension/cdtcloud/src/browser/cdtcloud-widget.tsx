@@ -104,7 +104,7 @@ export class CdtcloudWidget extends ReactWidget {
               {this.deployments.map((deployment) => {
                 return (
                   <tr key={deployment.id}>
-                    <td><div style={{ display: "flex",  width: "15px", height: "15px", backgroundColor: getColor(deployment.status), borderRadius: "50%"  }}></div></td>
+                    <td><div style={{ display: "flex",  width: "15px", height: "15px", backgroundColor: getColor(deployment.status), borderRadius: "50%", justifyContent: "center", alignItems: "center" }}></div></td>
                     <td>{deployment.id}</td>
                     <td>{deployment.status}</td>
                     <td>{deployment.createdAt}</td>
