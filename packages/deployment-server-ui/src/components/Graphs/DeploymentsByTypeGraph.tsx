@@ -12,7 +12,7 @@ interface Props {
   data: Record<string, TypeCount> | undefined
 }
 
-const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd hh:mm')
+const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd hh:mm aaaaa\'m\'')
 
 export default defineFunctionalComponent(function DeploymentsStatusGraph(props: Props) {
     const [graphData, setGraphData] = useState<GraphEntry[]>([])

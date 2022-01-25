@@ -14,7 +14,7 @@ interface Props {
   data: Record<string, DeployData> | undefined
 }
 
-const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd hh:mm')
+const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd hh:mm aaaaa\'m\'')
 
 export default defineFunctionalComponent(function IssueCountGraph(props: Props) {
     const [graphData, setGraphData] = useState<GraphEntry[]>([])
