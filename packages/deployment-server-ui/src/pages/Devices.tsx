@@ -4,9 +4,25 @@ import { FilterValue } from "antd/lib/table/interface";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import defineFunctionalComponent from "../util/defineFunctionalComponent";
+import { typeIdToName } from "../util/deviceMapping"
+
+type DevicesItem = { deviceTypeName: string } & Device
+
+const addNameToDevices = async (devices: Device[]): Promise<DevicesItem[]> => {
+  return await Promise.all(
+    devices.map(async (device) => {
+      try {
+        const deviceTypeName = await typeIdToName(device.deviceTypeId)
+        return {...device, deviceTypeName}
+      } catch {
+        return {...device, deviceTypeName: "Unknown"}
+      }
+    })
+  )
+}
 
 export default defineFunctionalComponent(function Devices() {
-  const [devices, setDevices] = useState<Device[]>(Array(15).fill({}));
+  const [devices, setDevices] = useState<DevicesItem[]>(Array(15).fill({}));
   const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>(
     Array(15).fill({})
   );
@@ -35,13 +51,15 @@ export default defineFunctionalComponent(function Devices() {
 
   useEffect(() => {
     fetch("/api/device-types").then(async (res) => {
-      setDeviceTypes(await res.json());
+      const types = await res.json()
+      const sortedTypes = types.sort((x: DeviceType, y: DeviceType) => x.name < y.name ? -1 : x.name > y.name ? 1 : 0)
+      setDeviceTypes(sortedTypes);
     });
   }, []);
 
   const columns: any[] = [
     {
-      title: "Device ID",
+      title: "ID",
       dataIndex: "id",
       key: "id",
     },
@@ -68,13 +86,13 @@ export default defineFunctionalComponent(function Devices() {
       },
     },
     {
-      title: "Connector ID",
+      title: "Connector",
       dataIndex: "connectorId",
       key: "connectorId",
     },
     {
-      title: "Device Type ID",
-      dataIndex: "deviceTypeId",
+      title: "Device Type",
+      dataIndex: "deviceTypeName",
       key: "deviceTypeId",
       filters: deviceTypes.map((deviceType: DeviceType) => {
         return { text: deviceType.name, value: deviceType.id };
@@ -89,7 +107,10 @@ export default defineFunctionalComponent(function Devices() {
   useEffect(() => {
     fetch("/api/devices")
       .then((res) => res.json())
-      .then(setDevices);
+      .then(async (res) => {
+        const devicesWithNames = await addNameToDevices(res)
+        setDevices(devicesWithNames)
+      });
   }, []);
 
   return (
