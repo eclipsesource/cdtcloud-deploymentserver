@@ -17,6 +17,7 @@ import { EditorManager } from "@theia/editor/lib/browser/editor-manager";
 import { WorkspaceService } from "@theia/workspace/lib/browser/workspace-service";
 import { FileUri } from "@theia/core/lib/node/file-uri";
 import { DeploymentManager } from "./monitoring/DeploymentManager";
+import { Table, Tag } from 'antd';
 
 @injectable()
 export class CdtcloudWidget extends ReactWidget {
@@ -63,6 +64,53 @@ export class CdtcloudWidget extends ReactWidget {
 
   render() {
     const header = `This widget enables you to deploy your code on a remote (Arduino-)board.`;
+    const getColor = (status: string) => {
+      switch(status) {
+        case 'PENDING': return 'blue';
+        case 'RUNNING': return 'gray';
+        case 'TERMINATED': return 'yellow';
+        case 'SUCCESS': return 'green';
+        case 'ERROR': return 'red';
+        default: return 'white';
+      }
+    } 
+    const columns = [
+      {
+        title: 'ID',
+        dataIndex: 'id',
+        key: 'id',
+      },
+      {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        render: (status: string) => (          
+                <Tag color={getColor(status)} key={status}>
+                  {status}
+                </Tag>
+              )
+      },
+      {
+        title: 'Created At',
+        dataIndex: 'createdAt',
+        key: 'createdAt',
+      },
+      {
+        title: 'Updated At',
+        key: 'updatedAt',
+        dataIndex: 'updatedAt',
+      },
+      {
+        title: 'Artifact URL',
+        dataIndex: 'artifactUrl',
+        key: 'artifactUrl',
+      },
+      {
+        title: 'Device ID',
+        dataIndex: 'deviceId',
+        key: 'deviceId',
+      },
+    ];
 
     return (
       <>
@@ -78,7 +126,8 @@ export class CdtcloudWidget extends ReactWidget {
 
         <div id="past-deployments">
           <h2> Past Deployments</h2>
-          <table>
+          <Table columns={columns} dataSource={this.deployments} />
+          {<table>
             <thead>
               <tr key="head">
                 <th>ID</th>
@@ -103,7 +152,7 @@ export class CdtcloudWidget extends ReactWidget {
                 );
               })}
             </tbody>
-          </table>
+          </table>}
         </div>
       </>
     );
