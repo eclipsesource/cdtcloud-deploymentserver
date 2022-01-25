@@ -12,11 +12,11 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
-  DownloadOutlined,
   ExclamationCircleOutlined,
   SyncOutlined
 } from '@ant-design/icons'
 import { format } from 'date-fns'
+import MonitoringTerminal from "../MonitoringTerminal"
 
 const {Item} = List
 const {Meta} = Item
@@ -74,12 +74,16 @@ export const RecentDeploymentItem = (props: Props) => {
   const [artifactUrl, setArtifactUrl] = useState<string>()
   const [fileName, setFileName] = useState<string>()
   const [artifactUnavailable, setArtifactUnavailable] = useState<boolean>(false)
+  const [monitorOpen, setMonitorOpen] = useState<boolean>(false)
 
   useEffect(() => {
     if (props.artifactUrl != null) {
       createDownloadUrl(props.artifactUrl)
         .then(setArtifactUrl)
-        .catch(console.log)
+        .catch((e) => {
+          console.log(e)
+          setArtifactUnavailable(true)
+        })
       setFileName(props.artifactUrl.split('/').pop())
     } else {
       setArtifactUnavailable(true)
@@ -98,13 +102,16 @@ export const RecentDeploymentItem = (props: Props) => {
         actions={[
           <Button
             type="primary"
-            href={`/deployment/${props.id}`}
+            icon={<FontAwesomeIcon icon={'terminal'} style={{marginRight: '0.5em'}}/>}
+            disabled={props.status !== "RUNNING"}
+            onClick={() => setMonitorOpen(true)}
           >
-            View Deployment
+            Monitor
           </Button>,
           <Button
             type="primary"
             href={`/device/${props.device.id}`}
+            icon={<FontAwesomeIcon icon={'microchip'} style={{marginRight: '0.5em'}}/>}
           >
             View Device
           </Button>,
@@ -112,7 +119,7 @@ export const RecentDeploymentItem = (props: Props) => {
             <Button
               type={"primary"}
               disabled={artifactUnavailable}
-              icon={<DownloadOutlined/>}
+              icon={<FontAwesomeIcon icon={'download'} style={{marginRight: '0.5em'}}/>}
               href={artifactUrl}
               download={fileName}
             >
@@ -121,6 +128,7 @@ export const RecentDeploymentItem = (props: Props) => {
           </Tooltip>
         ]}
       >
+        <MonitoringTerminal deploymentId={props.id} deployStatus={props.status} open={monitorOpen} deviceName={props.device.type.name}/>
         <Meta
           style={{flex: "auto"}}
           avatar={
