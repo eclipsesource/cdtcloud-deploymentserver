@@ -14,7 +14,9 @@ export default defineFunctionalComponent(function TypeId() {
   let [refetchFlip, setRefetchFlip] = useState(false);
 
   const { id } = useParams()
-
+  function findDeviceById(id: string) {
+    return devices.find((device) => id === device.id)
+  }
   useInterval(function () {
     setRefetchFlip(!refetchFlip);
   }, 5000);
@@ -45,7 +47,7 @@ export default defineFunctionalComponent(function TypeId() {
     })
     .then(res => {
       setDeployments(
-        res.filter(deployment => ((deployment.deviceId) === devices.find(device => (deployment.deviceId === device.id))?.id))
+        res.filter(deployment => ((deployment.deviceId) === findDeviceById(deployment.deviceId)?.id))
       )
     });
   }, [refetchFlip]);
@@ -54,7 +56,7 @@ export default defineFunctionalComponent(function TypeId() {
     .filter(
       (deployment) =>
         deployment.status === "PENDING" &&
-        devices.find((device) => deployment.deviceId === device.id)
+        findDeviceById(deployment.deviceId)
     )
     .map((deployment: DeployRequest) => (
       <div key={deployment.id}>
@@ -70,7 +72,7 @@ export default defineFunctionalComponent(function TypeId() {
     .filter(
       (deployment) =>
         deployment.status !== "PENDING" &&
-        devices.find((device) => deployment.deviceId === device.id)
+        findDeviceById(deployment.deviceId)
     )
     .map((deployment: DeployRequest) => (
       <div key={deployment.id}>
