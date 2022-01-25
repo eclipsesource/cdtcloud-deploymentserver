@@ -93,11 +93,10 @@ export class CdtcloudWidget extends ReactWidget {
             <thead>
               <tr key="head">
                 <th></th>
-                <th>ID</th>
                 <th>Status</th>
                 <th>Created At</th>
                 <th>Updated At</th>
-                <th>Device Type</th>
+                <th>Deployed To</th>
               </tr>
             </thead>
             <tbody>
@@ -105,7 +104,6 @@ export class CdtcloudWidget extends ReactWidget {
                 return (
                   <tr key={deployment.id}>
                     <td><div style={{ display: "flex",  width: "15px", height: "15px", backgroundColor: getColor(deployment.status), borderRadius: "50%", justifyContent: "center", alignItems: "center" }}></div></td>
-                    <td>{deployment.id}</td>
                     <td>{deployment.status}</td>
                     <td>{deployment.createdAt}</td>
                     <td>{deployment.updatedAt}</td>
