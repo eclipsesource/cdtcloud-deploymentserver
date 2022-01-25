@@ -67,7 +67,7 @@ export class CdtcloudWidget extends ReactWidget {
     function getColor(status: string) {
       switch (status) {
         case 'PENDING': return 'blue';
-        case 'RUNNING': return 'grey';
+        case 'RUNNING': return 'gray';
         case 'TERMINATED': return 'yellow';
         case 'SUCCESS': return 'green';
         case 'ERROR': return 'red';
@@ -92,7 +92,8 @@ export class CdtcloudWidget extends ReactWidget {
           {<table>
             <thead>
               <tr key="head">
-                <th><th>ID</th>Status</th>
+                <th>ID</th>
+                <th>Status</th>
                 <th>Created At</th>
                 <th>Updated At</th>
                 <th>Artifact URL</th>
