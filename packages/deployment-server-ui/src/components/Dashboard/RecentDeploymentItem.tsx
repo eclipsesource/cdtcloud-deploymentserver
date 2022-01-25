@@ -5,32 +5,10 @@ import { useState } from 'react'
 import { Device } from '@prisma/client'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom'
+import { StatusTag } from '../StatusTag'
 
 const { Item } = List;
 const { Meta } = Item;
-
-const formatStatus: Record<DeployStatus, { color: string; text: string }> = {
-  SUCCESS: {
-    color: "green",
-    text: "SUCCESS",
-  },
-  TERMINATED: {
-    color: "yellow",
-    text: "TERMINATED",
-  },
-  FAILED: {
-    color: "red",
-    text: "ERROR",
-  },
-  PENDING: {
-    color: "blue",
-    text: "PENDING",
-  },
-  RUNNING: {
-    color: "grey",
-    text: "RUNNING",
-  },
-};
 
 interface Props {
   id: string,
@@ -54,9 +32,7 @@ export const RecentDeploymentItem = (props: Props) => {
     >
       <Meta
         avatar={
-          <Tag color={formatStatus[props.status].color}>
-            {formatStatus[props.status].text}
-          </Tag>
+          <StatusTag {...props} />
         }
         title={
           <>
