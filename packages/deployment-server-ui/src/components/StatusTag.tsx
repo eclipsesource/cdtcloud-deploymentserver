@@ -1,5 +1,6 @@
-import { DeployStatus, Device, DeviceType } from "deployment-server";
+import { DeployStatus, DeviceType } from "deployment-server";
 import { Tag } from "antd";
+import { Device } from "@prisma/client";
 
 interface Props {
   id: string,
