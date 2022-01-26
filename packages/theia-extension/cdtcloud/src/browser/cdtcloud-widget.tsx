@@ -145,7 +145,6 @@ export class CdtcloudWidget extends ReactWidget {
   protected async getDeviceList(): Promise<void> {
     try {
       this.deviceTypeList = await this.deviceTypeService.getDeviceList();
-      console.log(this.deviceTypeList)
       this.options = this.deviceTypeList.map(({ id, name, status }) => ({
         label: name,
         value: id,
