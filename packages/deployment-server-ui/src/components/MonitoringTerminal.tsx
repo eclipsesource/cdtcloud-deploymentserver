@@ -3,6 +3,7 @@ import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import type { DeployStatus } from "deployment-server"
 import { Modal } from "antd"
+import { useWebsocket } from "../services/WebsocketService"
 
 interface Props {
   deploymentId: string,
@@ -62,7 +63,7 @@ const MonitoringTerminal = (props: Props) => {
         ws.onopen = () => setSocketOpen(true)
         ws.onclose = () => {
           if (props.deployStatus === "RUNNING") {
-            setSocketOpen(false)
+            setSocketOpen(true)
             setReconAttempts(reconAttempts + 1)
           }
         }
@@ -78,7 +79,8 @@ const MonitoringTerminal = (props: Props) => {
         newSocket.ws = ws
       }
 
-    if (terminalOpen && props.deployStatus === "RUNNING") {
+    if (terminalOpen && props.deployStatus === "RUNNING" && !socketOpen) {
+      console.log("here")
       openSocket().catch(console.log)
     }
 
