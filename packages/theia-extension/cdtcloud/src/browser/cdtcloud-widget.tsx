@@ -103,7 +103,6 @@ export class CdtcloudWidget extends ReactWidget {
                   <th>Status</th>
                   <th>Created At</th>
                   <th>Updated At</th>
-                  <th>Deployed To</th>
                 </tr>
               </thead>
               <tbody>
