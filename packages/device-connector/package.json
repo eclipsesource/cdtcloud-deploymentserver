@@ -35,7 +35,6 @@
     "close-with-grace": "^1.1.0",
     "dotenv": "^10.0.0",
     "esbuild-node-loader": "^0.6.3",
-    "fs": "^0.0.1-security",
     "google-protobuf": "^3.19.1",
     "pino": "^7.6.2",
     "pino-pretty": "^7.3.0",
