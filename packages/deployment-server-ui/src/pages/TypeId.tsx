@@ -1,12 +1,13 @@
 import { DeployRequest, Device, DeviceTypeResource } from "deployment-server";
 import React, { useEffect, useState } from "react";
 import defineFunctionalComponent from "../util/defineFunctionalComponent";
-import { Card, Col, Row, Spin, Statistic } from "antd";
+import { Card, Col, Divider, Row, Spin, Statistic } from "antd";
 import { useInterval } from "react-use";
 import { useParams } from "react-router-dom";
 import { StatusTag } from "../components/StatusTag";
 import DeploymentsByTypeGraph from "../components/Graphs/DeploymentsByTypeGraph";
 import DeploymentsStatusGraph from "../components/Graphs/DeploymentsStatusGraph";
+import IssueCountGraph from "../components/Graphs/IssueCountGraph";
 
 export default defineFunctionalComponent(function TypeId() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -115,55 +116,87 @@ export default defineFunctionalComponent(function TypeId() {
       {loading ? (
         <Spin tip={"Loading..."} />
       ) : (
-        <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 16 }, 20]}>
-          <Col span={12}>
-            <Card title={deviceType ? deviceType.name : ""}>
-              <Statistic
-                title="Number of devices"
-                value={devices.length}
-                prefix={""}
-                valueStyle={{ color: "black" }}
-              />
-              <Statistic
-                title="Total Deploys"
-                value={""}
-                prefix={""}
-                valueStyle={{ color: "black" }}
-              />
-              <li>: {deviceType ? deviceType.fqbn : ""}</li>
-              <li>{deviceType ? deviceType.fqbn : ""}</li>
-            </Card>
-
-            <Card title="Graph 1">
-              <DeploymentsStatusGraph
-                data={deviceType!.history
-                }
-              />
-            </Card>
-            <Card title="Graph 2">
-              <DeploymentsByTypeGraph
-                data={deviceType!.history
-                }
-              />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card
-              title="Pending Deployments"
-              style={{ height: "850px", overflow: "auto" }}
-            >
-              <Row>{pendingCards}</Row>
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card
-              title="Finished Deployments"
-              style={{ height: "850px", overflow: "auto" }}
-            >
-              <Row align="middle">{otherCards}</Row>
-            </Card>
-          </Col>
-        </Row>
+        <div>
+          <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 16 }, 20]} align="middle">
+            <Col span={12}>
+              <Card title={deviceType ? deviceType.name : ""} style={{ height: "400px", overflow: "auto" }}>
+                <Row>
+                  <Col span={8}>
+                    <Statistic
+                      title="Number of devices"
+                      value={devices.length}
+                      prefix={""}
+                      valueStyle={{ color: "black" }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title="Current Queue Length"
+                      value={deviceType ? deviceType.queueLength : "0"}
+                      prefix={""}
+                      valueStyle={{ color: "black" }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title="FQBN"
+                      value={deviceType ? deviceType.fqbn : "0"}
+                      prefix={""}
+                      eStyle={{ color: "black" }}
+                    />
+                  </Col>
+                </Row>
+                <Row>
+                  <Col span={8}>
+                    <Statistic
+                      title="Status"
+                      value={deviceType ? deviceType.status : ""}
+                      prefix={""}
+                      valueStyle={{ color: "black" }}
+                    />
+                  </Col>
+                  <Col span={16}>
+                    <Statistic
+                      title="Device Type ID"
+                      value={deviceType ? deviceType.id : "0"}
+                      prefix={""}
+                      valueStyle={{ color: "black" }}
+                    />
+                  </Col>
+                 
+                </Row>
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card
+                title="Pending Deployments"
+                style={{ height: "400px", overflow: "auto" }}
+              >
+                <Row>{pendingCards}</Row>
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card
+                title="Finished Deployments"
+                style={{ maxHeight: "400px", overflow: "auto" }}
+              >
+                <Row>{otherCards}</Row>
+              </Card>
+            </Col>
+          </Row>
+          <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 16 }, 20]}>
+            <Col span={12}>
+              <Card title="Deployments Status">
+                <DeploymentsStatusGraph data={deviceType!.history} />
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card title="Issues Over Time">
+                <IssueCountGraph data={deviceType!.history} />
+              </Card>
+            </Col>
+          </Row>
+        </div>
       )}
     </main>
   );
