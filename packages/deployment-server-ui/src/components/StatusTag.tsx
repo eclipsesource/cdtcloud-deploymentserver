@@ -1,42 +1,61 @@
-import { DeployStatus, DeviceType } from "deployment-server";
+import { DeployStatus, DeviceStatus } from "deployment-server";
 import { Tag } from "antd";
-import { Device } from "@prisma/client";
+import React from "react"
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+  DesktopOutlined,
+  ExclamationCircleOutlined,
+  PlayCircleOutlined,
+  SyncOutlined
+} from "@ant-design/icons"
+import classnames from "classnames"
+
+import styles from "./StatusTag.module.scss"
 
 interface Props {
-  id: string,
-  status: DeployStatus,
-  device?: Device & {
-    type: DeviceType
-  },
+  status: DeployStatus | DeviceStatus,
+  addIcon?: boolean
 }
 
 export const StatusTag = (props: Props) => {
-  const formatStatus: Record<DeployStatus, { color: string; text: string }> = {
+  const formatStatus: Record<DeployStatus | DeviceStatus, { icon: JSX.Element }> = {
     SUCCESS: {
-      color: "green",
-      text: "SUCCESS",
+      icon: <CheckCircleOutlined/>
     },
     TERMINATED: {
-      color: "yellow",
-      text: "TERMINATED",
+      icon: <ExclamationCircleOutlined/>
     },
     FAILED: {
-      color: "red",
-      text: "ERROR",
+      icon: <CloseCircleOutlined/>
     },
     PENDING: {
-      color: "blue",
-      text: "PENDING",
+      icon: <ClockCircleOutlined/>
     },
     RUNNING: {
-      color: "grey",
-      text: "RUNNING",
+      icon: <SyncOutlined spin/>
     },
-  };
+    AVAILABLE: {
+      icon: <CheckCircleOutlined/>
+    },
+    UNAVAILABLE: {
+      icon: <CloseCircleOutlined/>
+    },
+    DEPLOYING: {
+      icon: <PlayCircleOutlined/>
+    },
+    MONITORING: {
+      icon: <DesktopOutlined/>
+    }
+  }
   
   return (
-    <Tag color={formatStatus[props.status].color}>
-      {formatStatus[props.status].text}
+    <Tag
+      className={classnames(styles.label, styles[props.status.toLowerCase()])}
+      icon={props.addIcon ? formatStatus[props.status].icon : undefined}
+    >
+      {props.status}
     </Tag>
   );
 }
