@@ -10,7 +10,7 @@ export const CrossedIcon = (props: Props): JSX.Element => {
   return (
     <div className={styles.crossed}>
       {props.icon}
-      <FontAwesomeIcon icon={'slash'} className={styles.slash}/>
+      <FontAwesomeIcon icon='slash' className={styles.slash} />
     </div>
   )
 }

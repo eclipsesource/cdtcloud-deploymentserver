@@ -29,23 +29,23 @@ export const connectorEvent = async (resp: ServerMessage): Promise<void> => {
 
     switch (event) {
       case 'add':
-        icon = <FontAwesomeIcon icon={'plug'} />
+        icon = <FontAwesomeIcon icon='plug' />
         titleEvent = 'added'
         break
       case 'remove':
-        icon = <CrossedIcon icon={<FontAwesomeIcon icon={'plug'} />}/>
+        icon = <CrossedIcon icon={<FontAwesomeIcon icon='plug' />} />
         titleEvent = 'removed'
         break
       case 'connect':
-        icon = <LinkOutlined/>
+        icon = <LinkOutlined />
         titleEvent = 'connected'
         break
       case 'disconnect':
         titleEvent = 'disconnected'
-        icon = <DisconnectOutlined/>
+        icon = <DisconnectOutlined />
         break
       default:
-        icon = <InfoOutlined/>
+        icon = <InfoOutlined />
         titleEvent = 'Info'
         break
     }
@@ -71,15 +71,15 @@ export const deviceEvent = async (resp: ServerMessage): Promise<void> => {
 
     switch (event) {
       case 'add':
-        icon = <FontAwesomeIcon icon={'microchip'} />
+        icon = <FontAwesomeIcon icon='microchip' />
         titleEvent = 'added'
         break
       case 'remove':
-        icon = <CrossedIcon icon={<FontAwesomeIcon icon={'microchip'} />}/>
+        icon = <CrossedIcon icon={<FontAwesomeIcon icon='microchip' />} />
         titleEvent = 'removed'
         break
       default:
-        icon = <InfoOutlined/>
+        icon = <InfoOutlined />
         titleEvent = 'Info'
         break
     }
@@ -88,9 +88,9 @@ export const deviceEvent = async (resp: ServerMessage): Promise<void> => {
     const deviceMessage = (
       <>
         Id: {device.id}
-        <br/>
+        <br />
         Connector: {device.connectorId}
-        <br/>
+        <br />
         Type: {deviceTypeName}
       </>
     )

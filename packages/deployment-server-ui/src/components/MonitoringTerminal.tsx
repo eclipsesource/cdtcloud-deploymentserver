@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from 'react'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
-import type { DeployStatus } from "deployment-server"
-import { Modal } from "antd"
+import type { DeployStatus } from 'deployment-server'
+import { Modal } from 'antd'
 
 interface Props {
-  deploymentId: string,
-  deviceName: string,
-  deployStatus: keyof typeof DeployStatus,
+  deploymentId: string
+  deviceName: string
+  deployStatus: keyof typeof DeployStatus
   open: boolean
 }
 
@@ -26,24 +26,24 @@ const MonitoringTerminal = (props: Props) => {
   const [reconAttempts, setReconAttempts] = useState<number>(0)
 
   // TODO: fix
-  //const prefix = `${c.red("Monitor")}${c.bgYellow("@")}${c.blueBright("DevieName")}${c.bgYellow("$")} `
+  // const prefix = `${c.red("Monitor")}${c.bgYellow("@")}${c.blueBright("DevieName")}${c.bgYellow("$")} `
   const prefix = `Monitor@${props.deviceName}$`
 
   useEffect(() => {
     if (props.open) {
       terminal = new Terminal({
-        fontFamily: `'Fira Mono', monospace`,
+        fontFamily: '\'Fira Mono\', monospace',
         fontSize: 15,
         fontWeight: 900,
         theme: {
-          background: "black",
-          foreground: "#5eff00"
+          background: 'black',
+          foreground: '#5eff00'
         }
       })
 
       terminal.loadAddon(fitAddon)
 
-      terminal.open(document.getElementById("xterm")!)
+      terminal.open(document.getElementById('xterm')!)
 
       setTerminalOpen(true)
 
@@ -55,39 +55,39 @@ const MonitoringTerminal = (props: Props) => {
 
   // TODO: temporary hackfix
   useEffect(() => {
-    let newSocket = {ws: null} as { ws: WebSocket | null }
+    const newSocket = { ws: null } as { ws: WebSocket | null }
 
-      async function openSocket() {
-        const ws = await createWebsocket(`/api/deployments/${props.deploymentId}/stream`)
-        ws.onopen = () => setSocketOpen(true)
-        ws.onclose = () => {
-          if (props.deployStatus === "RUNNING") {
-            setSocketOpen(false)
-            setReconAttempts(reconAttempts + 1)
-          }
+    async function openSocket () {
+      const ws = await createWebsocket(`/api/deployments/${props.deploymentId}/stream`)
+      ws.onopen = () => setSocketOpen(true)
+      ws.onclose = () => {
+        if (props.deployStatus === 'RUNNING') {
+          setSocketOpen(false)
+          setReconAttempts(reconAttempts + 1)
         }
-        ws.onmessage = (message) => {
-          const data = message.data.toString().trim()
-          if (data != null && data !== "") {
-            console.log(message.data.toString())
-            terminal.writeln(`${prefix}${message.data.toString()}`)
-          }
-        }
-        ws.onerror = console.error
-        setSocket(ws)
-        newSocket.ws = ws
       }
+      ws.onmessage = (message) => {
+        const data = message.data.toString().trim()
+        if (data != null && data !== '') {
+          console.log(message.data.toString())
+          terminal.writeln(`${prefix}${message.data.toString()}`)
+        }
+      }
+      ws.onerror = console.error
+      setSocket(ws)
+      newSocket.ws = ws
+    }
 
-    if (terminalOpen && props.deployStatus === "RUNNING") {
+    if (terminalOpen && props.deployStatus === 'RUNNING') {
       openSocket().catch(console.log)
     }
 
-    if (props.deployStatus !== "RUNNING" && socketOpen) {
+    if (props.deployStatus !== 'RUNNING' && socketOpen) {
       socket?.close()
     }
 
     return () => {
-      if (newSocket.ws) {
+      if (newSocket.ws != null) {
         newSocket.ws.close()
       }
     }
@@ -99,8 +99,9 @@ const MonitoringTerminal = (props: Props) => {
       centered
       visible={props.open}
     >
-      <div id={"xterm"} style={{height: "100%", width: "100%"}}/>
-    </Modal>)
+      <div id='xterm' style={{ height: '100%', width: '100%' }} />
+    </Modal>
+  )
 }
 
 export default MonitoringTerminal

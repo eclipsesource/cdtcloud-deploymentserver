@@ -1,23 +1,23 @@
-import { Layout } from "antd";
-import { CdtCloudHeader } from "./CdtCloudHeader";
-import { CdtCloudSidebar } from "./CdtCloudSidebar";
-import type { FunctionComponent } from "react";
+import { Layout } from 'antd'
+import { CdtCloudHeader } from './CdtCloudHeader'
+import { CdtCloudSidebar } from './CdtCloudSidebar'
+import type { FunctionComponent } from 'react'
 import { useWebsocket } from '../services/WebsocketService'
 import React, { useEffect, useState } from 'react'
 import { connectorEvent, deviceEvent } from './Notification'
 import { fetchDashboardAsync } from '../reducers/DashboardReducer'
 import { useAppDispatch } from '../app/hooks'
 
-import "./CdtCloudMain.css";
+import './CdtCloudMain.css'
 import { useInterval } from 'react-use'
 
-const { Content } = Layout;
+const { Content } = Layout
 
 export const CdtCloudMain: FunctionComponent<{}> = ({ children }) => {
-  const [refreshFlip, setRefreshFlip] = useState<boolean>(false);
+  const [refreshFlip, setRefreshFlip] = useState<boolean>(false)
   const [ready, setReady] = useState<boolean>(false)
   const { open, subscribe, subs } = useWebsocket('/api/dashboard/notifications', ready)
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
     if (open) {
@@ -37,17 +37,17 @@ export const CdtCloudMain: FunctionComponent<{}> = ({ children }) => {
   }, 3000)
 
   return (
-    <Layout style={{ height: "100vh" }}>
+    <Layout style={{ height: '100vh' }}>
       <CdtCloudHeader />
-      <Layout hasSider={true}>
+      <Layout hasSider>
         <CdtCloudSidebar />
-        <Layout style={{ padding: "24px 24px 24px" }}>
+        <Layout style={{ padding: '24px 24px 24px' }}>
           <Content
-            className="site-layout-background"
+            className='site-layout-background'
             style={{
               padding: 24,
               margin: 0,
-              minHeight: 280,
+              minHeight: 280
             }}
           >
             {children}
@@ -55,5 +55,5 @@ export const CdtCloudMain: FunctionComponent<{}> = ({ children }) => {
         </Layout>
       </Layout>
     </Layout>
-  );
-};
+  )
+}

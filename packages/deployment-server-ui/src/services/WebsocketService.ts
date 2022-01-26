@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 export interface ServerMessage {
-  type: string,
+  type: string
   data: any
 }
 
@@ -10,17 +10,16 @@ const createWebsocket = async (route: string): Promise<WebSocket> => {
   return new WebSocket(url)
 }
 
-
 export const useWebsocket = (route: string, condition: boolean = true) => {
   const [socket, setSocket] = useState<WebSocket>()
   const [open, setOpen] = useState<boolean>(false)
-  const [subs, setSubs] = useState<((obj: any) => void)[]>([])
+  const [subs, setSubs] = useState<Array<(obj: any) => void>>([])
   const [reconAttempts, setReconAttempts] = useState<number>(0)
 
   useEffect(() => {
     // Object to avoid clones of sockets
-    let newSocket = { ws: null } as { ws: WebSocket | null }
-    async function openSocket() {
+    const newSocket = { ws: null } as { ws: WebSocket | null }
+    async function openSocket () {
       const ws = await createWebsocket(route)
       ws.onopen = () => setOpen(true)
       ws.onclose = () => {
@@ -36,14 +35,14 @@ export const useWebsocket = (route: string, condition: boolean = true) => {
     }
 
     return () => {
-      if (newSocket.ws) {
+      if (newSocket.ws != null) {
         newSocket.ws.close()
       }
     }
   }, [route, reconAttempts, condition])
 
   useEffect(() => {
-    if (socket) {
+    if (socket != null) {
       socket.onmessage = (message) => {
         const resp = JSON.parse(message.data)
         subs.forEach((eventFun: (resp: ServerMessage) => void) => eventFun(resp))

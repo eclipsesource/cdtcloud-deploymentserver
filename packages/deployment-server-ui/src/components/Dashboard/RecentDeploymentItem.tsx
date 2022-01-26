@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom'
 import { StatusTag } from '../StatusTag'
 import { format } from 'date-fns'
-import MonitoringTerminal from "../MonitoringTerminal"
+import MonitoringTerminal from '../MonitoringTerminal'
 
 import colors from '../../Colors.module.scss'
 
@@ -14,19 +14,19 @@ const { Item } = List
 const { Meta } = Item
 
 interface Props {
-  id: string,
-  status: DeployStatus,
+  id: string
+  status: DeployStatus
   device: Device & {
     type: DeviceType
-  },
-  artifactUrl: string | null,
-  details?: boolean,
-  created?: Date,
+  }
+  artifactUrl: string | null
+  details?: boolean
+  created?: Date
   updated?: Date
 }
 
 const createDownloadUrl = async (url: string) => {
-  const response = await fetch(url, {method: 'GET'})
+  const response = await fetch(url, { method: 'GET' })
   const content = await response.blob()
   return URL.createObjectURL(new Blob([content]))
 }
@@ -61,29 +61,29 @@ export const RecentDeploymentItem = (props: Props) => {
   }, [])
 
   return (
-    <CSSTransition key={props.id} timeout={750} classNames={"deployment"}>
+    <CSSTransition key={props.id} timeout={750} classNames='deployment'>
       <Item
         actions={[
           <Button
-            type="primary"
-            icon={<FontAwesomeIcon icon={'terminal'} style={{marginRight: '0.5em'}}/>}
-            disabled={props.status !== "RUNNING"}
+            type='primary'
+            icon={<FontAwesomeIcon icon='terminal' style={{ marginRight: '0.5em' }} />}
+            disabled={props.status !== 'RUNNING'}
             onClick={() => setMonitorOpen(true)}
           >
             Monitor
           </Button>,
           <Button
-            type="primary"
+            type='primary'
             href={`/device/${props.device.id}`}
-            icon={<FontAwesomeIcon icon={'microchip'} style={{marginRight: '0.5em'}}/>}
+            icon={<FontAwesomeIcon icon='microchip' style={{ marginRight: '0.5em' }} />}
           >
             View Device
           </Button>,
-          <Tooltip title={artifactUnavailable ? "Artifact unavailable for download" : ""}>
+          <Tooltip title={artifactUnavailable ? 'Artifact unavailable for download' : ''}>
             <Button
-              type={"primary"}
+              type='primary'
               disabled={artifactUnavailable}
-              icon={<FontAwesomeIcon icon={'download'} style={{marginRight: '0.5em'}}/>}
+              icon={<FontAwesomeIcon icon='download' style={{ marginRight: '0.5em' }} />}
               href={artifactUrl}
               download={fileName}
             >
@@ -92,11 +92,11 @@ export const RecentDeploymentItem = (props: Props) => {
           </Tooltip>
         ]}
       >
-        <MonitoringTerminal deploymentId={props.id} deployStatus={props.status} open={monitorOpen} deviceName={props.device.type.name}/>
+        <MonitoringTerminal deploymentId={props.id} deployStatus={props.status} open={monitorOpen} deviceName={props.device.type.name} />
         <Meta
-          style={{flex: "auto"}}
+          style={{ flex: 'auto' }}
           avatar={
-            <StatusTag status={props.status} addIcon/>
+            <StatusTag status={props.status} addIcon />
           }
           title={
             <>
@@ -105,44 +105,42 @@ export const RecentDeploymentItem = (props: Props) => {
               </Link>
               <Tooltip title={`Device: ${props.device.id}`}>
                 <FontAwesomeIcon
-                  icon={'info-circle'}
+                  icon='info-circle'
                   color={colors.info}
-                  style={{marginLeft: '0.5em'}}
+                  style={{ marginLeft: '0.5em' }}
                 />
               </Tooltip>
             </>
           }
           description={
-            showId ?
-              <Typography.Text style={{color: 'rgba(0, 0, 0, 0.3)'}}>
+            showId
+              ? <Typography.Text style={{ color: 'rgba(0, 0, 0, 0.3)' }}>
                 {props.id}
               </Typography.Text>
-              :
-              <Typography.Link onClick={() => setShowId(true)}>
+              : <Typography.Link onClick={() => setShowId(true)}>
                 Show Deployment Id
-              </Typography.Link>
+                </Typography.Link>
           }
         />
-        {props.details && props.created && props.updated ?
-          <Row style={{textAlign: 'center', justifyContent: 'center', flex: "auto"}}>
+        {props.details && (props.created != null) && (props.updated != null)
+          ? <Row style={{ textAlign: 'center', justifyContent: 'center', flex: 'auto' }}>
             <Col span={8}>
               <div>
                 Created
-                <br/>
+                <br />
                 {dateFormatter(Date.parse(props.created.toString()))}
               </div>
             </Col>
             <Col span={8}>
               <div>
                 Last Update
-                <br/>
+                <br />
                 {dateFormatter(Date.parse(props.updated.toString()))}
               </div>
             </Col>
-          </Row>
-          :
-          undefined
-        }
+            </Row>
+          : undefined}
       </Item>
-    </CSSTransition>)
+    </CSSTransition>
+  )
 }

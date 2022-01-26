@@ -1,30 +1,30 @@
-import type { DeviceTypeWithCount } from "deployment-server";
+import type { DeviceTypeWithCount } from 'deployment-server'
 
-import { useState, useEffect } from "react";
-import { Card, Divider, List, Skeleton } from "antd";
-import { FilterOutlined, InfoOutlined } from "@ant-design/icons";
+import { useState, useEffect } from 'react'
+import { Card, Divider, List, Skeleton } from 'antd'
+import { FilterOutlined, InfoOutlined } from '@ant-design/icons'
 
-import { defineFunctionalComponent } from "../util/defineFunctionalComponent";
-import SkeletonButton from "antd/lib/skeleton/Button";
+import { defineFunctionalComponent } from '../util/defineFunctionalComponent'
+import SkeletonButton from 'antd/lib/skeleton/Button'
 
-const { Meta } = Card;
+const { Meta } = Card
 
 const isType = (
   type: DeviceTypeWithCount | {}
 ): type is DeviceTypeWithCount => {
-  return typeof type === "object" && "id" in type;
-};
+  return typeof type === 'object' && 'id' in type
+}
 
-export default defineFunctionalComponent(function Types() {
-  const [types, setTypes] = useState<DeviceTypeWithCount[] | {}[]>(
+export default defineFunctionalComponent(function Types () {
+  const [types, setTypes] = useState<DeviceTypeWithCount[] | Array<{}>>(
     Array(15).fill({})
-  );
+  )
 
   useEffect(() => {
-    fetch("/api/device-types")
-      .then((res) => res.json())
-      .then(setTypes);
-  }, []);
+    fetch('/api/device-types')
+      .then(async (res) => await res.json())
+      .then(setTypes)
+  }, [])
 
   return (
     <>
@@ -32,10 +32,10 @@ export default defineFunctionalComponent(function Types() {
       <Divider />
       <List
         style={{
-          overflow: "scroll",
-          overflowX: "hidden",
-          padding: "24px",
-          maxHeight: "calc(100% - 60px)",
+          overflow: 'scroll',
+          overflowX: 'hidden',
+          padding: '24px',
+          maxHeight: 'calc(100% - 60px)'
         }}
         grid={{ gutter: 16 }}
         dataSource={types}
@@ -49,7 +49,7 @@ export default defineFunctionalComponent(function Types() {
                     <img
                       alt={`${type.name} example image`}
                       height={220}
-                      src="https://picsum.photos/300/220"
+                      src='https://picsum.photos/300/220'
                     />
                   }
                   actions={[<FilterOutlined />, <InfoOutlined />]}
@@ -57,11 +57,11 @@ export default defineFunctionalComponent(function Types() {
                   <Meta
                     title={type.name}
                     description={type.fqbn}
-                    style={{ padding: "24px 0px" }}
+                    style={{ padding: '24px 0px' }}
                   />
                 </Card>
               </List.Item>
-            );
+            )
           } else {
             return (
               <List.Item key={`placeholder-${index}`}>
@@ -69,18 +69,18 @@ export default defineFunctionalComponent(function Types() {
                   hoverable
                   cover={
                     <Skeleton.Image
-                      style={{ width: "300px", height: "220px" }}
+                      style={{ width: '300px', height: '220px' }}
                     />
                   }
                   actions={[<SkeletonButton />, <SkeletonButton />]}
                 >
-                  <Skeleton loading={true} paragraph={{ rows: 1 }}></Skeleton>
+                  <Skeleton loading paragraph={{ rows: 1 }} />
                 </Card>
               </List.Item>
-            );
+            )
           }
         }}
       />
     </>
-  );
-});
+  )
+})

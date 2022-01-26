@@ -1,6 +1,6 @@
-import { DeployStatus, DeviceStatus } from "deployment-server";
-import { Tag } from "antd";
-import React from "react"
+import { DeployStatus, DeviceStatus } from 'deployment-server'
+import { Tag } from 'antd'
+import React from 'react'
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -9,47 +9,47 @@ import {
   ExclamationCircleOutlined,
   PlayCircleOutlined,
   SyncOutlined
-} from "@ant-design/icons"
-import classnames from "classnames"
+} from '@ant-design/icons'
+import classnames from 'classnames'
 
-import styles from "./StatusTag.module.scss"
+import styles from './StatusTag.module.scss'
 
 interface Props {
-  status: DeployStatus | DeviceStatus,
+  status: DeployStatus | DeviceStatus
   addIcon?: boolean
 }
 
 export const StatusTag = (props: Props) => {
   const formatStatus: Record<DeployStatus | DeviceStatus, { icon: JSX.Element }> = {
     SUCCESS: {
-      icon: <CheckCircleOutlined/>
+      icon: <CheckCircleOutlined />
     },
     TERMINATED: {
-      icon: <ExclamationCircleOutlined/>
+      icon: <ExclamationCircleOutlined />
     },
     FAILED: {
-      icon: <CloseCircleOutlined/>
+      icon: <CloseCircleOutlined />
     },
     PENDING: {
-      icon: <ClockCircleOutlined/>
+      icon: <ClockCircleOutlined />
     },
     RUNNING: {
-      icon: <SyncOutlined spin/>
+      icon: <SyncOutlined spin />
     },
     AVAILABLE: {
-      icon: <CheckCircleOutlined/>
+      icon: <CheckCircleOutlined />
     },
     UNAVAILABLE: {
-      icon: <CloseCircleOutlined/>
+      icon: <CloseCircleOutlined />
     },
     DEPLOYING: {
-      icon: <PlayCircleOutlined/>
+      icon: <PlayCircleOutlined />
     },
     MONITORING: {
-      icon: <DesktopOutlined/>
+      icon: <DesktopOutlined />
     }
   }
-  
+
   return (
     <Tag
       className={classnames(styles.label, styles[props.status.toLowerCase()])}
@@ -57,5 +57,5 @@ export const StatusTag = (props: Props) => {
     >
       {props.status}
     </Tag>
-  );
+  )
 }
