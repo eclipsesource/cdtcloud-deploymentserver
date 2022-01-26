@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import type { DeployStatus } from 'deployment-server'
@@ -19,7 +19,7 @@ const createWebsocket = async (route: string): Promise<WebSocket> => {
 let terminal: Terminal
 const fitAddon = new FitAddon()
 
-const MonitoringTerminal = (props: Props) => {
+const MonitoringTerminal = (props: Props): JSX.Element => {
   const [socketOpen, setSocketOpen] = useState<boolean>(false)
   const [terminalOpen, setTerminalOpen] = useState<boolean>(false)
   const [socket, setSocket] = useState<WebSocket>()
@@ -43,7 +43,7 @@ const MonitoringTerminal = (props: Props) => {
 
       terminal.loadAddon(fitAddon)
 
-      terminal.open(document.getElementById('xterm')!)
+      terminal.open(document.getElementById('xterm') as HTMLElement)
 
       setTerminalOpen(true)
 
@@ -55,9 +55,9 @@ const MonitoringTerminal = (props: Props) => {
 
   // TODO: temporary hackfix
   useEffect(() => {
-    const newSocket = { ws: null } as { ws: WebSocket | null }
+    const newSocket: { ws: WebSocket | null } = { ws: null }
 
-    async function openSocket () {
+    async function openSocket (): Promise<void> {
       const ws = await createWebsocket(`/api/deployments/${props.deploymentId}/stream`)
       ws.onopen = () => setSocketOpen(true)
       ws.onclose = () => {
@@ -66,7 +66,7 @@ const MonitoringTerminal = (props: Props) => {
           setReconAttempts(reconAttempts + 1)
         }
       }
-      ws.onmessage = (message) => {
+      ws.onmessage = (message: MessageEvent<string>) => {
         const data = message.data.toString().trim()
         if (data != null && data !== '') {
           console.log(message.data.toString())

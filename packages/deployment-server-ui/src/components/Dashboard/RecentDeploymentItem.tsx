@@ -1,14 +1,14 @@
 import { Button, Col, List, Row, Tooltip, Typography } from 'antd'
 import { CSSTransition } from 'react-transition-group'
 import { DeployStatus, DeviceType, Device } from 'deployment-server'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom'
 import { StatusTag } from '../StatusTag'
-import { format } from 'date-fns'
 import MonitoringTerminal from '../MonitoringTerminal'
 
 import colors from '../../Colors.module.scss'
+import { dateFormatter } from '../../util/dateFormatter'
 
 const { Item } = List
 const { Meta } = Item
@@ -25,15 +25,13 @@ interface Props {
   updated?: Date
 }
 
-const createDownloadUrl = async (url: string) => {
+const createDownloadUrl = async (url: string): Promise<string> => {
   const response = await fetch(url, { method: 'GET' })
   const content = await response.blob()
   return URL.createObjectURL(new Blob([content]))
 }
 
-const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'LLL-dd - hh:mm:ss')
-
-export const RecentDeploymentItem = (props: Props) => {
+export const RecentDeploymentItem = (props: Props): JSX.Element => {
   const [showId, setShowId] = useState<boolean>(false)
   const [artifactUrl, setArtifactUrl] = useState<string>()
   const [fileName, setFileName] = useState<string>()
@@ -65,6 +63,7 @@ export const RecentDeploymentItem = (props: Props) => {
       <Item
         actions={[
           <Button
+            key='monitor'
             type='primary'
             icon={<FontAwesomeIcon icon='terminal' style={{ marginRight: '0.5em' }} />}
             disabled={props.status !== 'RUNNING'}
@@ -73,13 +72,14 @@ export const RecentDeploymentItem = (props: Props) => {
             Monitor
           </Button>,
           <Button
+            key='view'
             type='primary'
             href={`/device/${props.device.id}`}
             icon={<FontAwesomeIcon icon='microchip' style={{ marginRight: '0.5em' }} />}
           >
             View Device
           </Button>,
-          <Tooltip title={artifactUnavailable ? 'Artifact unavailable for download' : ''}>
+          <Tooltip title={artifactUnavailable ? 'Artifact unavailable for download' : ''} key='download'>
             <Button
               type='primary'
               disabled={artifactUnavailable}
@@ -114,31 +114,37 @@ export const RecentDeploymentItem = (props: Props) => {
           }
           description={
             showId
-              ? <Typography.Text style={{ color: 'rgba(0, 0, 0, 0.3)' }}>
-                {props.id}
-              </Typography.Text>
-              : <Typography.Link onClick={() => setShowId(true)}>
-                Show Deployment Id
+              ? (
+                <Typography.Text style={{ color: 'rgba(0, 0, 0, 0.3)' }}>
+                  {props.id}
+                </Typography.Text>
+                )
+              : (
+                <Typography.Link onClick={() => setShowId(true)}>
+                  Show Deployment Id
                 </Typography.Link>
+                )
           }
         />
-        {props.details && (props.created != null) && (props.updated != null)
-          ? <Row style={{ textAlign: 'center', justifyContent: 'center', flex: 'auto' }}>
-            <Col span={8}>
-              <div>
-                Created
-                <br />
-                {dateFormatter(Date.parse(props.created.toString()))}
-              </div>
-            </Col>
-            <Col span={8}>
-              <div>
-                Last Update
-                <br />
-                {dateFormatter(Date.parse(props.updated.toString()))}
-              </div>
-            </Col>
+        {props.details != null && (props.created != null) && (props.updated != null)
+          ? (
+            <Row style={{ textAlign: 'center', justifyContent: 'center', flex: 'auto' }}>
+              <Col span={8}>
+                <div>
+                  Created
+                  <br />
+                  {dateFormatter(Date.parse(props.created.toString()))}
+                </div>
+              </Col>
+              <Col span={8}>
+                <div>
+                  Last Update
+                  <br />
+                  {dateFormatter(Date.parse(props.updated.toString()))}
+                </div>
+              </Col>
             </Row>
+            )
           : undefined}
       </Item>
     </CSSTransition>

@@ -1,7 +1,6 @@
 import { Header } from 'antd/lib/layout/layout'
-import Logo from '/src/logo.png'
 
-export function CdtCloudHeader () {
+export function CdtCloudHeader (): JSX.Element {
   return (
     <Header className='header'>
       <div className='logo' />

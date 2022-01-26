@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import defineFunctionalComponent from '../../util/defineFunctionalComponent'
 import { format } from 'date-fns'
@@ -13,7 +13,7 @@ interface Props {
   data: Record<string, DeployData> | undefined
 }
 
-const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd hh:mm aaaaa\'m\'')
+const dateFormatter = (timestamp: number): string => format(new Date(timestamp), 'MM-dd hh:mm aaaaa\'m\'')
 
 export default defineFunctionalComponent(function DeploymentsStatusGraph (props: Props) {
   const [graphData, setGraphData] = useState<GraphEntry[]>([])
@@ -48,5 +48,4 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph (props:
       </ResponsiveContainer>
     </div>
   )
-}
-)
+})

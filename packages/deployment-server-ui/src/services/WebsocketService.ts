@@ -5,21 +5,31 @@ export interface ServerMessage {
   data: any
 }
 
+interface UseWebSocketReturn {
+
+  open: boolean
+  subs: Array<(obj: any) => void>
+  attempts: number
+  send?: ((payload: any) => void)
+  subscribe: (eventFun: (resp: ServerMessage) => Promise<void>) => () => void
+}
+
 const createWebsocket = async (route: string): Promise<WebSocket> => {
   const url = `${window.location.protocol === 'https' ? 'wss' : 'ws'}://${window.location.host}${route}`
   return new WebSocket(url)
 }
 
-export const useWebsocket = (route: string, condition: boolean = true) => {
+export const useWebsocket = (route: string, condition: boolean = true): UseWebSocketReturn => {
   const [socket, setSocket] = useState<WebSocket>()
   const [open, setOpen] = useState<boolean>(false)
-  const [subs, setSubs] = useState<Array<(obj: any) => void>>([])
+  const [subs, setSubs] = useState<Array<(obj: any) => Promise<void>>>([])
   const [reconAttempts, setReconAttempts] = useState<number>(0)
 
   useEffect(() => {
     // Object to avoid clones of sockets
-    const newSocket = { ws: null } as { ws: WebSocket | null }
-    async function openSocket () {
+    const newSocket: { ws: WebSocket | null } = { ws: null }
+
+    async function openSocket (): Promise<void> {
       const ws = await createWebsocket(route)
       ws.onopen = () => setOpen(true)
       ws.onclose = () => {
@@ -31,7 +41,7 @@ export const useWebsocket = (route: string, condition: boolean = true) => {
       newSocket.ws = ws
     }
     if (condition) {
-      openSocket()
+      void openSocket()
     }
 
     return () => {
@@ -55,7 +65,7 @@ export const useWebsocket = (route: string, condition: boolean = true) => {
     subs,
     attempts: reconAttempts,
     send: (payload: any) => socket?.send(JSON.stringify(payload)),
-    subscribe: (eventFun: (resp: ServerMessage) => void) => {
+    subscribe: (eventFun: (resp: ServerMessage) => Promise<void>) => {
       if (!subs.includes(eventFun)) {
         setSubs([...subs, eventFun])
       }
@@ -63,5 +73,3 @@ export const useWebsocket = (route: string, condition: boolean = true) => {
     }
   }
 }
-
-export type useWebsocket = typeof useWebsocket

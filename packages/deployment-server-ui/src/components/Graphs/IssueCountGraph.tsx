@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import defineFunctionalComponent from '../../util/defineFunctionalComponent'
 import { format } from 'date-fns'
@@ -14,7 +14,7 @@ interface Props {
   data: Record<string, DeployData> | undefined
 }
 
-const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd hh:mm aaaaa\'m\'')
+const dateFormatter = (timestamp: number): string => format(new Date(timestamp), 'MM-dd hh:mm aaaaa\'m\'')
 
 export default defineFunctionalComponent(function IssueCountGraph (props: Props) {
   const [graphData, setGraphData] = useState<GraphEntry[]>([])
@@ -23,7 +23,8 @@ export default defineFunctionalComponent(function IssueCountGraph (props: Props)
     if (props.data != null) {
       const dataArray = Object.entries<DeployData>(props.data)
       const convertedData = dataArray.reduce<GraphEntry[]>((acc, [key, value]) => {
-        const noIssue = Object.values(value.deployCount).reduce((last, current) => last + current, 0)
+        const noIssue = Object.values(value.deployCount).reduce<number>((last, current: number) => last + current, 0)
+
         return ([...acc, ({
           date: dateFormatter(Date.parse(key)),
           total: [noIssue, value.issueCount + noIssue],
@@ -54,5 +55,4 @@ export default defineFunctionalComponent(function IssueCountGraph (props: Props)
       </ResponsiveContainer>
     </div>
   )
-}
-)
+})

@@ -9,19 +9,19 @@ import {
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
-export function CdtCloudSidebar () {
+export function CdtCloudSidebar (): JSX.Element {
   const [current, setCurrent] = useState(location.pathname)
 
   useEffect(() => {
-    if (location) {
-      if (current !== location.pathname) {
-        setCurrent(location.pathname)
-      }
+    if (current !== location.pathname) {
+      setCurrent(location.pathname)
     }
   }, [location, current])
-  function handleClick (e: any) {
+
+  const handleClick = (e: any): void => {
     setCurrent(e.key)
   }
+
   return (
     <Sider width={200} className='site-layout-background'>
       <Menu

@@ -1,5 +1,4 @@
 import { List } from 'antd'
-import React from 'react'
 import { TransitionGroup } from 'react-transition-group'
 import './RecentDeploymentList.css'
 
@@ -25,8 +24,8 @@ export default defineFunctionalComponent(function RecentDeploymentList (props: P
               device={item.device}
               artifactUrl={item.artifactUrl}
               details={props.details}
-              created={props.details ? item.createdAt : undefined}
-              updated={props.details ? item.updatedAt : undefined}
+              created={props.details != null ? item.createdAt : undefined}
+              updated={props.details != null ? item.updatedAt : undefined}
             />
           ))
           : undefined}

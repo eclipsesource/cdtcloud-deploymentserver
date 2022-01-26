@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { dateFormatter } from '../../util/dateFormatter'
 import defineFunctionalComponent from '../../util/defineFunctionalComponent'
-import { format } from 'date-fns'
 
 import styles from './Graph.module.scss'
 
@@ -11,8 +11,6 @@ type GraphEntry = Array<Record<string, TypeCount>>
 interface Props {
   data: Record<string, TypeCount> | undefined
 }
-
-const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd hh:mm aaaaa\'m\'')
 
 export default defineFunctionalComponent(function DeploymentsStatusGraph (props: Props) {
   const [graphData, setGraphData] = useState<GraphEntry[]>([])
@@ -42,10 +40,10 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph (props:
           {graphData.map((value, index) => {
             const key = Object.keys(value)[index]
             if (key == null || key === 'date') {
-              return
+              return null
             }
-            return <Area type='monotone' dataKey={key} name={key} />
-          })}
+            return <Area type='monotone' dataKey={key} name={key} key={key} />
+          }).filter((value) => value != null)}
         </AreaChart>
       </ResponsiveContainer>
     </div>

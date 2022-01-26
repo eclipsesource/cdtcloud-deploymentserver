@@ -1,5 +1,5 @@
 import { DeployRequest, DeviceType, Device } from 'deployment-server'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import defineFunctionalComponent from '../util/defineFunctionalComponent'
 import { Card, Col, Row } from 'antd'
 import { useInterval } from 'react-use'
@@ -12,8 +12,9 @@ export default defineFunctionalComponent(function TypeId () {
   const [deployments, setDeployments] = useState<DeployRequest[]>([])
   const [refetchFlip, setRefetchFlip] = useState(false)
 
-  const { id } = useParams()
-  function findDeviceById (id: string) {
+  const { id = '' } = useParams()
+
+  function findDeviceById (id: string): Device | undefined {
     return devices.find((device) => id === device.id)
   }
   useInterval(function () {
@@ -24,6 +25,7 @@ export default defineFunctionalComponent(function TypeId () {
     fetch(`/api/device-types/${id}`).then(async (res) => {
       setDeviceType(await res.json())
     })
+      .catch(console.error)
   }, [])
 
   useEffect(() => {
@@ -37,6 +39,7 @@ export default defineFunctionalComponent(function TypeId () {
           res.filter((device) => device.deviceTypeId === id)
         )
       })
+      .catch(console.error)
   }, [])
 
   useEffect(() => {
@@ -49,6 +52,7 @@ export default defineFunctionalComponent(function TypeId () {
           res.filter(deployment => ((deployment.deviceId) === findDeviceById(deployment.deviceId)?.id))
         )
       })
+      .catch(console.error)
   }, [refetchFlip])
 
   const pendingCards = deployments

@@ -24,6 +24,7 @@ export default defineFunctionalComponent(function Types () {
     fetch('/api/device-types')
       .then(async (res) => await res.json())
       .then(setTypes)
+      .catch(console.error)
   }, [])
 
   return (
@@ -52,7 +53,7 @@ export default defineFunctionalComponent(function Types () {
                       src='https://picsum.photos/300/220'
                     />
                   }
-                  actions={[<FilterOutlined />, <InfoOutlined />]}
+                  actions={[<FilterOutlined key={1} />, <InfoOutlined key={2} />]}
                 >
                   <Meta
                     title={type.name}
@@ -72,7 +73,7 @@ export default defineFunctionalComponent(function Types () {
                       style={{ width: '300px', height: '220px' }}
                     />
                   }
-                  actions={[<SkeletonButton />, <SkeletonButton />]}
+                  actions={[<SkeletonButton key={1} />, <SkeletonButton key={2} />]}
                 >
                   <Skeleton loading paragraph={{ rows: 1 }} />
                 </Card>

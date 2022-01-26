@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Cell,
   Pie,
@@ -20,7 +20,7 @@ interface Props {
   }
 }
 
-export const DeploymentStatusPie = (props: Props) => {
+export const DeploymentStatusPie = (props: Props): JSX.Element => {
   const [graphData, setGraphData] = useState<DataEntries>([])
 
   useEffect(() => {

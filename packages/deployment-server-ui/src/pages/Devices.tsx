@@ -1,7 +1,7 @@
 import { Device, DeviceType } from 'deployment-server'
 import { Table, TablePaginationConfig } from 'antd'
 import { FilterValue } from 'antd/lib/table/interface'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import defineFunctionalComponent from '../util/defineFunctionalComponent'
 import { typeIdToName } from '../util/deviceMapping'
@@ -42,19 +42,19 @@ export default defineFunctionalComponent(function Devices () {
     deviceTypeId: []
   })
 
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [, setSearchParams] = useSearchParams()
 
-  function handleChange (
+  const handleChange = (
     _pagination: TablePaginationConfig,
     filters: Record<string, FilterValue | null>
-  ) {
+  ): void => {
     const params: Record<string, string | string[]> = {
       status: [],
       deviceTypeId: []
     }
     setFilters(filters)
     for (const [key, value] of Object.entries(filters)) {
-      if (value != null) params[key] = value.map((val) => '' + val)
+      if (value != null) params[key] = value.map((val) => val.toString())
     }
     setSearchParams(params)
   }
@@ -64,7 +64,7 @@ export default defineFunctionalComponent(function Devices () {
       const types = await res.json()
       const sortedTypes = types.sort((x: DeviceType, y: DeviceType) => x.name < y.name ? -1 : x.name > y.name ? 1 : 0)
       setDeviceTypes(sortedTypes)
-    })
+    }).catch(console.error)
   }, [])
 
   const columns: any[] = [
@@ -121,7 +121,7 @@ export default defineFunctionalComponent(function Devices () {
         const devicesWithNames = await formatDevices(res)
         setDevices(devicesWithNames)
         setLoading(false)
-      })
+      }).catch(console.error)
   }, [])
 
   return (
