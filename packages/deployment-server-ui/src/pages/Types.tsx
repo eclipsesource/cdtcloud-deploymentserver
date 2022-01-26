@@ -121,7 +121,7 @@ export default defineFunctionalComponent(function Types() {
                 overflow: "scroll",
                 overflowX: "hidden",
                 padding: "24px",
-                maxHeight: "520px",
+                maxHeight: "620px",
               }}
               grid={{ gutter: 32 }}
               dataSource={typesData.data}

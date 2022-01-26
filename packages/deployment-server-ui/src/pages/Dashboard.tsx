@@ -7,6 +7,7 @@ import classnames from "classnames"
 import { Card, Divider, Row, Col, Statistic, Spin, Result } from "antd"
 import {
   CheckCircleOutlined,
+  ClockCircleOutlined,
   CloseCircleOutlined,
   ExclamationCircleOutlined,
   FieldTimeOutlined,
@@ -14,6 +15,7 @@ import {
   LockOutlined,
   PlayCircleOutlined,
   RocketOutlined,
+  ShrinkOutlined,
   SyncOutlined
 } from "@ant-design/icons"
 import { useAppSelector } from "../app/hooks"
@@ -118,7 +120,7 @@ export default defineFunctionalComponent(function Dashboard() {
                     <Statistic
                       title="Deploying Devices"
                       value={dashboardState.data ? (dashboardState.data as Dashboard).deviceOverview.DEPLOYING : 0}
-                      prefix={<SyncOutlined spin/>}
+                      prefix={<SyncOutlined/>}
                       valueStyle={{color: "blue"}}
                     />
                   </Col>
@@ -141,11 +143,40 @@ export default defineFunctionalComponent(function Dashboard() {
             </Col>
             <Col span={8}>
               <Card
-                title="Supported Board Types"
+                title="Board Types"
                 extra={<a href="/types">All Board Types</a>}
                 style={{height: "100%"}}
               >
-                <h2>27</h2>
+               <Row gutter={[{xs: 8, sm: 16, md: 24, lg: 32}, 20]}>
+                  <Col span={12}>
+                    <Statistic
+                      title="Supported Board Types"
+                      value={"27"}
+                      prefix={<HddOutlined/>}
+                      valueStyle={{color: "green"}}
+                    />
+                    <Statistic
+                      title="Most Used Device"
+                      value={"Arduino Due"}
+                      prefix={""}
+                      valueStyle={{color: "black"}}
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <Statistic
+                      title="Connected Board Types"
+                      value={"2/27"}
+                      prefix={<ShrinkOutlined />}
+                      valueStyle={{color: "grey"}}
+                    />
+                    <Statistic
+                      title="Average Queue Length"
+                      value={"~182 seconds"}
+                      prefix={<ClockCircleOutlined/>}
+                      valueStyle={{color: "red"}}
+                    />
+                  </Col>
+                </Row>
               </Card>
             </Col>
           </Row>
