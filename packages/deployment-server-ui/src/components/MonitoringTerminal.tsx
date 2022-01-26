@@ -2,13 +2,16 @@ import React, { useEffect, useState } from "react"
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import type { DeployStatus } from "deployment-server"
-import { Modal } from "antd"
+import { Button, Modal } from "antd"
+
+import styles from "./MonitoringTerminal.module.scss"
 
 interface Props {
   deploymentId: string,
   deviceName: string,
   deployStatus: keyof typeof DeployStatus,
-  open: boolean
+  open: boolean,
+  setOpen: (state: boolean) => void
 }
 
 const createWebsocket = async (route: string): Promise<WebSocket> => {
@@ -62,7 +65,7 @@ const MonitoringTerminal = (props: Props) => {
         ws.onopen = () => setSocketOpen(true)
         ws.onclose = () => {
           if (props.deployStatus === "RUNNING") {
-            setSocketOpen(false)
+            setSocketOpen(true)
             setReconAttempts(reconAttempts + 1)
           }
         }
@@ -78,7 +81,7 @@ const MonitoringTerminal = (props: Props) => {
         newSocket.ws = ws
       }
 
-    if (terminalOpen && props.deployStatus === "RUNNING") {
+    if (terminalOpen && props.deployStatus === "RUNNING" && !socketOpen) {
       openSocket().catch(console.log)
     }
 
@@ -98,6 +101,13 @@ const MonitoringTerminal = (props: Props) => {
       title={`${props.deviceName} Monitor`}
       centered
       visible={props.open}
+      className={styles.modal}
+      footer={
+        <Button key="close" type={"primary"} onClick={() => props.setOpen(false)}>
+          Close
+        </Button>
+      }
+      onCancel={() => props.setOpen(false)}
     >
       <div id={"xterm"} style={{height: "100%", width: "100%"}}/>
     </Modal>)
