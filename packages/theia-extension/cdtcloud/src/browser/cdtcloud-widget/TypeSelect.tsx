@@ -18,6 +18,14 @@ export const TypeSelect: FunctionComponent<{
     status: ""
   });
 
+  useEffect(() => {
+    const updatedSelectionFromOptions = options.find(
+      (option) => option.value === board.value
+    );
+    if (updatedSelectionFromOptions != null)
+      setBoard(updatedSelectionFromOptions);
+  }, [options]);
+  
   const dot = (color = 'transparent') => ({
     alignItems: 'center',
     display: 'flex',
