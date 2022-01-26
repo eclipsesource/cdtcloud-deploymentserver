@@ -1,8 +1,8 @@
 module.exports = {
   root: true,
-  extends: ['standard-with-typescript', 'standard-jsx', 'standard-react'],
-  parser: '@typescript-eslint/parser',
+  extends: ['standard-with-typescript', 'standard-jsx', 'standard-react', 'plugin:react/jsx-runtime'],
   parserOptions: {
-    project: './tsconfig.json'
+    tsconfigRootDir: __dirname,
+    project: 'tsconfig.json'
   }
 }
