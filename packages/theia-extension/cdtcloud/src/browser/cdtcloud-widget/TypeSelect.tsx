@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import Select from "react-select";
 
 interface Option {
@@ -44,14 +44,14 @@ export const TypeSelect: FunctionComponent<{
   function getColor(status: string) {
     switch (status) {
       case "QUEUEABLE":
-        return "yellow";
+        return "#faad14";
       case "AVAILABLE":
-        return "green";
+        return "#52c41a";
       case "BUSY":
       case "UNAVAILABLE":
-        return "red";
+        return "#cf1322";
       default: 
-        return "grey";
+        return "#1890ff";
     }
   }
   return (

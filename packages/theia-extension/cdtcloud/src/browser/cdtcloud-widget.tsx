@@ -67,17 +67,17 @@ export class CdtcloudWidget extends ReactWidget {
     function getColor(status: string) {
       switch (status) {
         case "PENDING":
-          return "blue";
+          return "#707070";
         case "RUNNING":
-          return "gray";
+          return "#1890ff";
         case "TERMINATED":
-          return "yellow";
+          return "#faad14";
         case "SUCCESS":
-          return "green";
+          return "#52c41a";
         case "ERROR":
-          return "red";
+          return "#cf1322";
         default:
-          return "white";
+          return "#ffffff";
       }
     }
 
