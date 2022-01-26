@@ -82,7 +82,6 @@ const MonitoringTerminal = (props: Props) => {
       }
 
     if (terminalOpen && props.deployStatus === "RUNNING" && !socketOpen) {
-      console.log("here")
       openSocket().catch(console.log)
     }
 
