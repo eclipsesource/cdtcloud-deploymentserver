@@ -61,7 +61,7 @@ export default defineFunctionalComponent(function TypeId() {
       <div key={deployment.id}>
         <Card title={deployment.id} bordered={true} style={{ width: 200 }}>
           <p>
-            <StatusTag status={deployment.status}/>
+            <StatusTag status={deployment.status} addIcon/>
           </p>
         </Card>
       </div>
@@ -78,7 +78,7 @@ export default defineFunctionalComponent(function TypeId() {
         <Row gutter={[0, 16]}>
           <Card title={deployment.id} bordered={true} style={{ width: 200 }}>
             <p>
-              <StatusTag status={deployment.status}/>
+              <StatusTag status={deployment.status} addIcon/>
             </p>
           </Card>
         </Row>

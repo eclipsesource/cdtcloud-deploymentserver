@@ -127,7 +127,7 @@ export default defineFunctionalComponent(function Devices() {
   return (
     <main>
       <h2>Devices</h2>
-      <Table dataSource={devices} columns={columns} onChange={handleChange} loading={loading}/>;
+      <Table dataSource={devices} columns={columns} onChange={handleChange} loading={loading} tableLayout={"fixed"}/>;
     </main>
   );
 });
