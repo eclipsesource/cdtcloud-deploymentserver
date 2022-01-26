@@ -92,7 +92,7 @@ export const RecentDeploymentItem = (props: Props) => {
           </Tooltip>
         ]}
       >
-        <MonitoringTerminal deploymentId={props.id} deployStatus={props.status} open={monitorOpen} deviceName={props.device.type.name}/>
+        <MonitoringTerminal deploymentId={props.id} deployStatus={props.status} open={monitorOpen} deviceName={props.device.type.name} setOpen={setMonitorOpen}/>
         <Meta
           style={{flex: "auto"}}
           avatar={

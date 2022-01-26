@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react"
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import type { DeployStatus } from "deployment-server"
-import { Modal } from "antd"
-import { useWebsocket } from "../services/WebsocketService"
+import { Button, Modal } from "antd"
+
+import styles from "./MonitoringTerminal.module.scss"
 
 interface Props {
   deploymentId: string,
   deviceName: string,
   deployStatus: keyof typeof DeployStatus,
-  open: boolean
+  open: boolean,
+  setOpen: (state: boolean) => void
 }
 
 const createWebsocket = async (route: string): Promise<WebSocket> => {
@@ -100,6 +102,13 @@ const MonitoringTerminal = (props: Props) => {
       title={`${props.deviceName} Monitor`}
       centered
       visible={props.open}
+      className={styles.modal}
+      footer={
+        <Button key="close" type={"primary"} onClick={() => props.setOpen(false)}>
+          Close
+        </Button>
+      }
+      onCancel={() => props.setOpen(false)}
     >
       <div id={"xterm"} style={{height: "100%", width: "100%"}}/>
     </Modal>)
