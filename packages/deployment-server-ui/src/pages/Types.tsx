@@ -1,63 +1,122 @@
-import type { DeviceTypeWithCount } from "deployment-server";
+import type {
+  DeployRequest,
+  Device,
+  DeviceTypeResource,
+  DeviceTypeWithCount,
+} from "deployment-server";
 
 import { useState, useEffect } from "react";
 import { Card, Divider, List, Skeleton } from "antd";
-import { FilterOutlined, InfoOutlined } from "@ant-design/icons";
+import {
+  BookOutlined,
+  FilterOutlined,
+  InfoOutlined,
+  QuestionCircleOutlined,
+} from "@ant-design/icons";
 
 import { defineFunctionalComponent } from "../util/defineFunctionalComponent";
 import SkeletonButton from "antd/lib/skeleton/Button";
-import MegaTest from "../ressources/mega.svg";
-import { AutoComplete, Row, Col } from "antd";
-import DeploymentsByTypeGraph from "../components/Graphs/DeploymentsByTypeGraph";
+
+import { Row, Col } from "antd";
+import { useInterval } from "react-use";
+import { useParams } from "react-router-dom";
+import typesData from "../resources/typesData.json";
+
 
 const { Meta } = Card;
 
-const isType = (
-  type: DeviceTypeWithCount | {}
-): type is DeviceTypeWithCount => {
-  return typeof type === "object" && "id" in type;
-};
-
 export default defineFunctionalComponent(function Types() {
-  const [types, setTypes] = useState<DeviceTypeWithCount[] | {}[]>(
-    Array(15).fill({})
-  );
+  const [loading, setLoading] = useState<boolean>(true);
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [deviceType, setDeviceType] = useState<DeviceTypeResource>();
+  const [deployments, setDeployments] = useState<DeployRequest[]>([]);
+  const [refetchFlip, setRefetchFlip] = useState(false);
 
-  const [graphData, setGraphData] = useState([]);
+  const listData = typesData.data.entries.toString();
+
+  const { id } = useParams();
+  function findDeviceById(id: string) {
+    return devices.find((device) => id === device.id);
+  }
+
+  useInterval(function () {
+    setRefetchFlip(!refetchFlip);
+  }, 1000);
 
   useEffect(() => {
-    fetch("/api/deployments/")
-      .then((res) => res.json())
-      .then((res) => setGraphData(res.history));
-  }, []);
+    const fetchAsync = async () => {
+      const typesRes = await fetch(`/api/device-types/${id}`);
+      const types = await typesRes.json();
+      setDeviceType(types);
 
+      const devRes = await fetch(`/api/devices`);
+      const devs = await devRes.json();
+      setDevices(devs.filter((dev: Device) => dev.deviceTypeId === id));
+
+      const deployRes = await fetch("/api/deployments");
+      const deploys = await deployRes.json();
+      setDeployments(
+        deploys.filter(
+          (deployment) =>
+            deployment.deviceId === findDeviceById(deployment.deviceId)?.id
+        )
+      );
+    };
+
+    fetchAsync();
+  }, []);
 
   useEffect(() => {
-    fetch("/api/device-types")
-      .then((res) => res.json())
-      .then(setTypes);
-  }, []);
+    if (
+      devices != null &&
+      deviceType != null &&
+      deployments != null &&
+      loading
+    ) {
+      setLoading(false);
+      console.log(deviceType);
+    }
+  }, [devices, deviceType, deployments]);
+
+  useEffect(() => {
+    const fetchAsync = async () => {
+      const typesRes = await fetch(`/api/device-types/${id}`);
+      const types = await typesRes.json();
+      setDeviceType(types);
+
+      const deployRes = await fetch("/api/deployments");
+      const deploys = await deployRes.json();
+      setDeployments(
+        deploys.filter(
+          (deployment) =>
+            deployment.deviceId === findDeviceById(deployment.deviceId)?.id
+        )
+      );
+    };
+
+    fetchAsync();
+  }, [refetchFlip]);
 
   return (
     <>
-      <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="middle">
+      {/*    <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="middle">
         <Col span={12}>
           <Card title="Graph 1" style={{ height: "100%" }}>
-            <DeploymentsByTypeGraph data={graphData} />
+            <DeploymentsByTypeGraph data={deviceType?.history} />
           </Card>
         </Col>
         <Col span={12}>
           <Card title="Graph B" style={{ height: "100%" }}>
-            <DeploymentsByTypeGraph data={graphData} />
+            <DeploymentStatusPie data={deployments} />
           </Card>
         </Col>
-      </Row>
-
+      </Row> */}
+      <Divider />
       <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="middle">
-        <Divider />
         <Col span={24}>
           <Card>
             <List
+            header={<h2>Supported Board Types</h2>}
               style={{
                 overflow: "scroll",
                 overflowX: "hidden",
@@ -65,27 +124,34 @@ export default defineFunctionalComponent(function Types() {
                 maxHeight: "520px",
               }}
               grid={{ gutter: 32 }}
-              dataSource={types}
+              dataSource={typesData.data}
               renderItem={(type, index) => {
-                if (isType(type)) {
+                if (true) {
                   return (
-                    <List.Item key={type.id}>
+                    <List.Item key={index}>
                       <Card
                         size="small"
                         hoverable
                         style={{ width: 240 }}
                         cover={
                           <img
-                            alt={`${type.name} example image`}
-                            height={"100%"}
-                            src={MegaTest}
+                            alt={`${type.Name}`}
+                            height={"100px"}
+                            src={type.SVG}
                           />
                         }
-                        actions={[<FilterOutlined />, <InfoOutlined />]}
+                        actions={[
+                          <a href={type.Link} target="_blank">
+                            <InfoOutlined />
+                          </a>,
+                          <a href={type.Link} target="_blank">
+                            <BookOutlined />
+                          </a>,
+                        ]}
                       >
                         <Meta
-                          title={type.name}
-                          description={"FQBN:" + type.fqbn}
+                          title={type.Name}
+                          description={"Click to inspect"}
                           style={{ padding: "24px px" }}
                         />
                       </Card>
