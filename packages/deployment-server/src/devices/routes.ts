@@ -95,6 +95,15 @@ export default function deviceRoutes (router: Router): void {
           data: req.body
         })
 
+        // Temporary fix
+        if (req.body.status === DeviceStatus.UNAVAILABLE) {
+          try {
+            await broadcastDeviceChange(device, 'remove')
+          } catch (e) {
+            logger.error(e)
+          }
+        }
+
         return res.json(device)
       } catch (e) {
         if (e instanceof PrismaClientKnownRequestError && e.code === 'P2025') {

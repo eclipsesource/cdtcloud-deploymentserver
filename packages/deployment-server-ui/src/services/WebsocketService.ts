@@ -11,7 +11,7 @@ const createWebsocket = async (route: string): Promise<WebSocket> => {
 }
 
 
-export const useWebsocket = (route: string) => {
+export const useWebsocket = (route: string, condition: boolean = true) => {
   const [socket, setSocket] = useState<WebSocket>()
   const [open, setOpen] = useState<boolean>(false)
   const [subs, setSubs] = useState<((obj: any) => void)[]>([])
@@ -31,14 +31,16 @@ export const useWebsocket = (route: string) => {
       setSocket(ws)
       newSocket.ws = ws
     }
-    openSocket()
+    if (condition) {
+      openSocket()
+    }
 
     return () => {
       if (newSocket.ws) {
         newSocket.ws.close()
       }
     }
-  }, [route, reconAttempts])
+  }, [route, reconAttempts, condition])
 
   useEffect(() => {
     if (socket) {
@@ -63,3 +65,4 @@ export const useWebsocket = (route: string) => {
   }
 }
 
+export type useWebsocket = typeof useWebsocket
