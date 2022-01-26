@@ -35,14 +35,15 @@ export const TypeSelect: FunctionComponent<{
 
   function getColor(status: string) {
     switch (status) {
-      case "DEPLOYING":
-        return "blue";
-      case "RUNNING":
-        return "gray";
+      case "QUEUEABLE":
+        return "yellow";
       case "AVAILABLE":
         return "green";
-      case "MONITORING":
-        return "yellow";
+      case "BUSY":
+      case "UNAVAILABLE":
+        return "red";
+      default: 
+        return "grey";
     }
   }
   return (

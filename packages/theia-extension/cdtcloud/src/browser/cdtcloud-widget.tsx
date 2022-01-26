@@ -20,7 +20,7 @@ import { DeploymentManager } from "./monitoring/DeploymentManager";
 
 @injectable()
 export class CdtcloudWidget extends ReactWidget {
-  deviceList: any[] = [];
+  deviceTypeList: any[] = [];
   options: any[] = [];
   selected: { label: string; value: string, status: string };
   static readonly ID = "cdtcloud:widget";
@@ -126,13 +126,6 @@ export class CdtcloudWidget extends ReactWidget {
                       <td>{deployment.status}</td>
                       <td>{deployment.createdAt}</td>
                       <td>{deployment.updatedAt}</td>
-                      <td>
-                        {
-                          this.deviceList.find(
-                            (device) => device.id === deployment.deviceId
-                          ).name
-                        }
-                      </td>
                     </tr>
                   );
                 })}
@@ -152,8 +145,9 @@ export class CdtcloudWidget extends ReactWidget {
 
   protected async getDeviceList(): Promise<void> {
     try {
-      this.deviceList = await this.deviceTypeService.getDeviceList();
-      this.options = this.deviceList.map(({ id, name, status }) => ({
+      this.deviceTypeList = await this.deviceTypeService.getDeviceList();
+      console.log(this.deviceTypeList)
+      this.options = this.deviceTypeList.map(({ id, name, status }) => ({
         label: name,
         value: id,
         status: status
@@ -165,7 +159,7 @@ export class CdtcloudWidget extends ReactWidget {
   }
 
   protected async deployOnBoard(board: any): Promise<void> {
-    const selectedBoard = this.deviceList.find((obj) => {
+    const selectedBoard = this.deviceTypeList.find((obj) => {
       return obj.id === board.value;
     });
     const sketchUri = this.workspaceService.workspace?.resource;
