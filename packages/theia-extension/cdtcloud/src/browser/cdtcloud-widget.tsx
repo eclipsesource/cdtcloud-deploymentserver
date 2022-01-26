@@ -199,7 +199,7 @@ export class CdtcloudWidget extends ReactWidget {
       } catch (err) {
         console.log(err);
       }
-    }, 5000) as unknown as number;
+    }, 1500) as unknown as number;
   }
 
   dispose(): void {
