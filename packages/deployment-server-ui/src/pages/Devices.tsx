@@ -72,33 +72,13 @@ export default defineFunctionalComponent(function Devices() {
       title: "ID",
       dataIndex: "id",
       key: "id",
-    },
-    {
-      title: "Status",
-      dataIndex: "statusTag",
-      key: "status",
-      filters: (
-        Object.entries(DeviceStatus) as Array<
-          [
-            keyof typeof DeviceStatus,
-            typeof DeviceStatus[keyof typeof DeviceStatus]
-          ]
-        >
-      ).reduce<
-        Array<{
-          text: keyof typeof DeviceStatus;
-          value: typeof DeviceStatus[keyof typeof DeviceStatus];
-        }>
-      >((acc, [key, value]) => [...acc, { text: key, value: value }], []),
-      filteredValue: filters.status || null,
-      onFilter: (value: string, record: Device) => {
-        return record.status === value;
-      },
+      width: 350
     },
     {
       title: "Connector",
       dataIndex: "connectorId",
       key: "connectorId",
+      width: 350
     },
     {
       title: "Device Type",
@@ -110,6 +90,30 @@ export default defineFunctionalComponent(function Devices() {
       filteredValue: filters.deviceTypeId || null,
       onFilter: (value: string, record: Device) => {
         return record.deviceTypeId === value;
+      },
+    },
+    {
+      title: "Status",
+      dataIndex: "statusTag",
+      key: "status",
+      width: 180,
+      fixed: "right",
+      filters: (
+        Object.entries(DeviceStatus) as Array<
+          [
+            keyof typeof DeviceStatus,
+            typeof DeviceStatus[keyof typeof DeviceStatus]
+          ]
+          >
+      ).reduce<
+        Array<{
+          text: keyof typeof DeviceStatus;
+          value: typeof DeviceStatus[keyof typeof DeviceStatus];
+        }>
+        >((acc, [key, value]) => [...acc, { text: key, value: value }], []),
+      filteredValue: filters.status || null,
+      onFilter: (value: string, record: Device) => {
+        return record.status === value;
       },
     },
   ];

@@ -6,8 +6,8 @@ import { format } from 'date-fns'
 import styles from './Graph.module.scss'
 
 // TODO: redundant types anf function
-type DeployCount = { SUCCESS: number, FAILED: number, TERMINATED: number }
-type DeployData = { issueCount: number, deployCount: DeployCount }
+type deploymentCount = { SUCCESS: number, FAILED: number, TERMINATED: number }
+type DeployData = { issueCount: number, deploymentCount: deploymentCount }
 type GraphEntry = { date: string, total: number[], noIssue: number }
 
 interface Props {
@@ -23,7 +23,7 @@ export default defineFunctionalComponent(function IssueCountGraph(props: Props) 
       if (props.data != null) {
         const dataArray = Object.entries<DeployData>(props.data)
         const convertedData = dataArray.reduce<GraphEntry[]>((acc, [key, value]) => {
-          const noIssue = Object.values(value.deployCount).reduce((last, current) => last + current, 0)
+          const noIssue = Object.values(value.deploymentCount).reduce((last, current) => last + current, 0)
           return ([...acc, ({
             date: dateFormatter(Date.parse(key)),
             total: [noIssue, value.issueCount + noIssue],

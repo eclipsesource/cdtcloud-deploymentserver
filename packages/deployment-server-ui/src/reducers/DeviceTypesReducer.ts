@@ -1,13 +1,13 @@
 import { createSlice, Dispatch, PayloadAction } from "@reduxjs/toolkit"
-import type { Dashboard } from "deployment-server";
+import type { DeviceTypeResource } from "deployment-server"
 
 interface ISetDeviceTypes {
   type: string,
-  payload: Dashboard
+  payload: DeviceTypeResource
 }
 
 interface State {
-  data: Dashboard | null
+  data: DeviceTypeResource | null
 }
 
 export const deviceTypesSlice = createSlice({
@@ -16,7 +16,7 @@ export const deviceTypesSlice = createSlice({
     data: null
   },
   reducers: {
-    setDeviceTypes: (state: State, action:PayloadAction<Dashboard>) => {
+    setDeviceTypes: (state: State, action:PayloadAction<DeviceTypeResource>) => {
       state.data = action.payload;
     }
   }
