@@ -5,9 +5,9 @@ import { format } from 'date-fns'
 
 import styles from './Graph.module.scss'
 
-type DeployCount = { SUCCESS: number, FAILED: number, TERMINATED: number }
-type DeployData = { issueCount: number, deployCount: DeployCount }
-type GraphEntry = { date: string } & DeployCount
+type deploymentCount = { SUCCESS: number, FAILED: number, TERMINATED: number }
+type DeployData = { issueCount: number, deploymentCount: deploymentCount }
+type GraphEntry = { date: string } & deploymentCount
 
 interface Props {
   data: Record<string, DeployData> | undefined
@@ -24,9 +24,9 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph(props: 
         const convertedData = dataArray.reduce<GraphEntry[]>((acc, [key, value]) => {
           return ([...acc, ({
             date: dateFormatter(Date.parse(key)),
-            SUCCESS: value.deployCount.SUCCESS,
-            FAILED: value.deployCount.FAILED,
-            TERMINATED: value.deployCount.TERMINATED
+            SUCCESS: value.deploymentCount.SUCCESS,
+            FAILED: value.deploymentCount.FAILED,
+            TERMINATED: value.deploymentCount.TERMINATED
           })])
         }, [])
         setGraphData(convertedData)
