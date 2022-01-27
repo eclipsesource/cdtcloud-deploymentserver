@@ -20,9 +20,9 @@ import { DeploymentManager } from "./monitoring/DeploymentManager";
 
 @injectable()
 export class CdtcloudWidget extends ReactWidget {
-  deviceList: any[] = [];
+  deviceTypeList: any[] = [];
   options: any[] = [];
-  selected: { label: string; value: string };
+  selected: { label: string; value: string, status: string };
   static readonly ID = "cdtcloud:widget";
   static readonly LABEL = "Cdtcloud Widget";
 
@@ -64,6 +64,23 @@ export class CdtcloudWidget extends ReactWidget {
   render() {
     const header = `This widget enables you to deploy your code on a remote (Arduino-)board.`;
 
+    function getColor(status: string) {
+      switch (status) {
+        case "PENDING":
+          return "#707070";
+        case "RUNNING":
+          return "#1890ff";
+        case "TERMINATED":
+          return "#faad14";
+        case "SUCCESS":
+          return "#52c41a";
+        case "ERROR":
+          return "#cf1322";
+        default:
+          return "#ffffff";
+      }
+    }
+
     return (
       <>
         <div id="widget-container">
@@ -78,47 +95,60 @@ export class CdtcloudWidget extends ReactWidget {
 
         <div id="past-deployments">
           <h2> Past Deployments</h2>
-          <table>
-            <thead>
-              <tr key="head">
-                <th>ID</th>
-                <th>Status</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Artifact URL</th>
-                <th>Device ID</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.deployments.map((deployment) => {
-                return (
-                  <tr key={deployment.id}>
-                    <td>{deployment.id}</td>
-                    <td>{deployment.status}</td>
-                    <td>{deployment.createdAt}</td>
-                    <td>{deployment.updatedAt}</td>
-                    <td>{deployment.artifactUrl}</td>
-                    <td>{deployment.deviceId}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          {this.deployments.length > 0 ? (
+            <table id="deployments">
+              <thead>
+                <tr key="head">
+                  <th></th>
+                  <th>Status</th>
+                  <th>Created At</th>
+                  <th>Updated At</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.deployments.map((deployment) => {
+                  return (
+                    <tr key={deployment.id}>
+                      <td>
+                        <div
+                          style={{
+                            display: "flex",
+                            width: "15px",
+                            height: "15px",
+                            backgroundColor: getColor(deployment.status),
+                            borderRadius: "50%",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        ></div>
+                      </td>
+                      <td>{deployment.status}</td>
+                      <td>{deployment.createdAt}</td>
+                      <td>{deployment.updatedAt}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <p>No deployments have been sent so far.</p>
+          )}
         </div>
       </>
     );
   }
 
-  protected handleChange(option: { label: string; value: string }): void {
+  protected handleChange(option: { label: string; value: string, status: string }): void {
     this.selected = option;
   }
 
   protected async getDeviceList(): Promise<void> {
     try {
-      this.deviceList = await this.deviceTypeService.getDeviceList();
-      this.options = this.deviceList.map(({ id, name }) => ({
+      this.deviceTypeList = await this.deviceTypeService.getDeviceList();
+      this.options = this.deviceTypeList.map(({ id, name, status }) => ({
         label: name,
         value: id,
+        status: status
       }));
       this.update();
     } catch (err) {
@@ -127,7 +157,7 @@ export class CdtcloudWidget extends ReactWidget {
   }
 
   protected async deployOnBoard(board: any): Promise<void> {
-    const selectedBoard = this.deviceList.find((obj) => {
+    const selectedBoard = this.deviceTypeList.find((obj) => {
       return obj.id === board.value;
     });
     const sketchUri = this.workspaceService.workspace?.resource;
@@ -169,7 +199,7 @@ export class CdtcloudWidget extends ReactWidget {
       } catch (err) {
         console.log(err);
       }
-    }, 5000) as unknown as number;
+    }, 1500) as unknown as number;
   }
 
   dispose(): void {
