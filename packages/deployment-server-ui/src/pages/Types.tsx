@@ -20,7 +20,7 @@ import SkeletonButton from "antd/lib/skeleton/Button";
 import { Row, Col } from "antd";
 import { useInterval } from "react-use";
 import { useParams } from "react-router-dom";
-import typesData from "../resources/typesData.json";
+import typesData from "../resources/typesDataReduced.json";
 
 
 const { Meta } = Card;
@@ -31,8 +31,6 @@ export default defineFunctionalComponent(function Types() {
   const [deviceType, setDeviceType] = useState<DeviceTypeResource>();
   const [deployments, setDeployments] = useState<DeployRequest[]>([]);
   const [refetchFlip, setRefetchFlip] = useState(false);
-
-  const listData = typesData.data.entries.toString();
 
   const { id } = useParams();
   function findDeviceById(id: string) {
@@ -121,7 +119,7 @@ export default defineFunctionalComponent(function Types() {
                 overflow: "scroll",
                 overflowX: "hidden",
                 padding: "24px",
-                maxHeight: "620px",
+                maxHeight: "740px",
               }}
               grid={{ gutter: 32 }}
               dataSource={typesData.data}
