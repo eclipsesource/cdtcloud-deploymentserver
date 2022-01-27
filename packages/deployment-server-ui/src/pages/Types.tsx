@@ -51,6 +51,7 @@ export default defineFunctionalComponent(function Types() {
       const deploys = await deployRes.json();
       setDeployments(
         deploys.filter(
+          // @ts-ignore: Unreachable code error
           (deployment) =>
             deployment.deviceId === findDeviceById(deployment.deviceId)?.id
         )
@@ -82,6 +83,7 @@ export default defineFunctionalComponent(function Types() {
       const deploys = await deployRes.json();
       setDeployments(
         deploys.filter(
+          // @ts-ignore: Unreachable code error
           (deployment) =>
             deployment.deviceId === findDeviceById(deployment.deviceId)?.id
         )

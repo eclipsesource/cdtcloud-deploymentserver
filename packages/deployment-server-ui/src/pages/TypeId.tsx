@@ -39,6 +39,7 @@ export default defineFunctionalComponent(function TypeId() {
       const deploys = await deployRes.json();
       setDeployments(
         deploys.filter(
+          // @ts-ignore: Unreachable code error
           (deployment) =>
             deployment.deviceId === findDeviceById(deployment.deviceId)?.id
         )
@@ -70,6 +71,7 @@ export default defineFunctionalComponent(function TypeId() {
       const deploys = await deployRes.json();
       setDeployments(
         deploys.filter(
+          // @ts-ignore: Unreachable code error
           (deployment) =>
             deployment.deviceId === findDeviceById(deployment.deviceId)?.id
         )
@@ -142,7 +144,7 @@ export default defineFunctionalComponent(function TypeId() {
                       title="FQBN"
                       value={deviceType ? deviceType.fqbn : "0"}
                       prefix={""}
-                      eStyle={{ color: "black" }}
+                      valueStyle={{ color: "black" }}
                     />
                   </Col>
                 </Row>
