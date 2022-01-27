@@ -3,102 +3,142 @@
         {
             "Name": "Arduino BT",
             "Link": "https://docs.arduino.cc/retired/boards/arduino-BT#summary",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_bt07_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_bt07_breadboard.svg",
+            "ID": "486363c6-79e0-4546-b507-e1519e826c55",
+            "FQBN": "arduino:avr:bt"
         },
         {
             "Name": "Arduino Esplora",
             "Link": "https://www.arduino.cc/en/Main.ArduinoBoardEsplora",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_Esplora_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_Esplora_breadboard.svg",
+            "ID": "6f98c3a1-03c2-421e-b221-e9246c59039a",
+            "FQBN": "arduino:avr:esplora"
         },
         {
             "Name": "Arduino Ethernet",
             "Link": "https://docs.arduino.cc/retired/boards/arduino-ethernet-rev3-without-poe",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/develop/svg/core/breadboard/Arduino-Ethernet-v11_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/develop/svg/core/breadboard/Arduino-Ethernet-v11_breadboard.svg",
+            "ID": "5349a5f7-256d-4972-bcbc-86b427847f56",
+            "FQBN": "arduino:avr:ethernet"
         },
         {
             "Name": "Arduino Fio",
             "Link": "https://www.arduino.cc/en/pmwiki.php?n=Main/ArduinoBoardFio",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino-Fio-v22_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino-Fio-v22_breadboard.svg",
+            "ID": "83fa1762-89bf-4c39-8aab-a6e030904607",
+            "FQBN": "arduino:avr:fio"
         },
         {
             "Name": "Arduino Leonardo",
             "Link": "https://www.arduino.cc/en/Main/Arduino_BoardLeonardo",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_Leonardo_Rev3_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_Leonardo_Rev3_breadboard.svg",
+            "ID": "a47f96a0-fb59-425c-a6a4-46ef404e8751",
+            "FQBN": "arduino:avr:leonardo"
         },
         {
             "Name": "Arduino Leonardo ETH",
             "Link": "https://docs.arduino.cc/retired/boards/arduino-leonardo-eth",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_Leonardo_Rev3_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_Leonardo_Rev3_breadboard.svg",
+            "ID": "ffbf319b-9d2f-41d5-9adb-1e6ff652deff",
+            "FQBN": "arduino:avr:leonardoeth"
         },
         {
             "Name": "Arduino Mega ADK",
             "Link": "https://docs.arduino.cc/retired/boards/arduino-mega-adk-rev3",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_ADK_MEGA_2560-Rev3_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_ADK_MEGA_2560-Rev3_breadboard.svg",
+            "ID": "039eb815-0cb3-4a03-9c1e-59f577b3bb6a",
+            "FQBN": "arduino:avr:megaADK"
         },
         {
             "Name": "Arduino Mega or Mega 2560",
             "Link": "https://docs.arduino.cc/hardware/mega-2560",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_MEGA_2560-Rev3_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_MEGA_2560-Rev3_breadboard.svg",
+            "ID": "507240aa-1e7b-40d6-96bd-7edb964ac92a",
+            "FQBN": "arduino:avr:mega"
         },
         {
             "Name": "Arduino Micro",
             "Link": "https://docs.arduino.cc/hardware/micro",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_Micro_Rev03_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_Micro_Rev03_breadboard.svg",
+            "ID": "e05e60f8-da92-44de-9d17-c060c0237cf9",
+            "FQBN": "arduino:avr:micro"
         },
         {
             "Name": "Arduino Mini",
             "Link": "https://www.arduino.cc/en/pmwiki.php?n=Main/ArduinoBoardProMini",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/arduino_mini_usb_adapter.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/arduino_mini_usb_adapter.svg",
+            "ID": "18d638b4-ae21-4485-b500-6b47b386754a",
+            "FQBN": "arduino:avr:mini"
         },
         {
             "Name": "Arduino Nano",
             "Link": "https://docs.arduino.cc/hardware/nano",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino%20Nano3_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino%20Nano3_breadboard.svg",
+            "ID": "9926442b-785f-4be4-bf57-1a5756a0f4e2",
+            "FQBN": "arduino:avr:nano"
         },
         {
             "Name": "Arduino Pro or Pro Mini",
             "Link": "https://docs.arduino.cc/retired/boards/arduino-pro",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino-Pro-Mini_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino-Pro-Mini_breadboard.svg",
+            "ID": "9ecdbb31-a4ba-4776-94b0-d03fcf39453c",
+            "FQBN": "arduino:avr:pro"
         },
         {
             "Name": "Arduino Uno",
             "Link": "https://docs.arduino.cc/hardware/uno-rev3",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/arduino_Uno_Rev3_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/arduino_Uno_Rev3_breadboard.svg",
+            "ID": "90d178ae-37a3-40eb-b322-d56142d76ac7",
+            "FQBN": "arduino:avr:uno"
         },
         {
             "Name": "Arduino Uno WiFi",
             "Link": "https://docs.arduino.cc/hardware/uno-wifi-rev2",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/arduino_uno(rev3)-icsp_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/arduino_uno(rev3)-icsp_breadboard.svg",
+            "ID": "a47ce743-b525-4052-ab67-e36f4029316f",
+            "FQBN": "arduino:avr:unowifi"
         },
         {
             "Name": "Arduino Yún",
             "Link": "https://docs.arduino.cc/retired/boards/arduino-yun",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/arduino_Yun(rev1)_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/arduino_Yun(rev1)_breadboard.svg",
+            "ID": "71e169bc-b00d-453a-a200-a011dd47c555",
+            "FQBN": "arduino:avr:yun"
         },
         {
             "Name": "LilyPad Arduino",
             "Link": "https://docs.arduino.cc/retired/boards/lilypad-arduino-main-board",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/LilyPad_Arduino_USB_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/LilyPad_Arduino_USB_breadboard.svg",
+            "ID": "08c781ca-0ef7-4ed6-a0a0-da072908900f",
+            "FQBN": "arduino:avr:lilypad"
         },
         {
             "Name": "LilyPad Arduino USB",
             "Link": "https://www.arduino.cc/en/Main/ArduinoBoardLilyPadUSB&",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/LilyPad_Arduino_USB_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/LilyPad_Arduino_USB_breadboard.svg",
+            "ID": "8540e527-86e2-4730-a4e4-9b66bb596a4f",
+            "FQBN": "arduino:avr:LilyPadUSB"
         },
         {
             "Name": "Linino One",
             "Link": "https://docs.platformio.org/en/stable/boards/atmelavr/one.html",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/linino_one(rev1)_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/linino_one(rev1)_breadboard.svg",
+            "ID": "909b3711-78ea-4846-afd3-1ada773d6301",
+            "FQBN": "arduino:avr:one"
         },
         {
-            "Name": "Arduino Due (Programming Port",
+            "Name": "Arduino Due (Programming Port)",
             "Link": "https://docs.arduino.cc/hardware/due",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_DUE_V02b_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_DUE_V02b_breadboard.svg",
+            "ID": "db43a8a0-dccb-41a3-9809-e62a5e547343",
+            "FQBN": "arduino:sam:arduino_due_x_dbg"
         },
         {
-            "Name": "Arduino Due (Native USB",
+            "Name": "Arduino Due (Native USB Port)",
             "Link": "https://docs.arduino.cc/hardware/due",
-            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_DUE_V02b_breadboard.svg"
+            "SVG": "https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_DUE_V02b_breadboard.svg",
+            "ID": "75e650be-9d01-4354-a106-1ff2d79e4a82",
+            "FQBN": "arduino:sam:arduino_due_x"
         }
     ]
 }
