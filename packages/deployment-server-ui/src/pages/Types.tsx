@@ -2,16 +2,12 @@ import type {
   DeployRequest,
   Device,
   DeviceTypeResource,
-  DeviceTypeWithCount,
 } from "deployment-server";
 
 import { useState, useEffect } from "react";
-import { Card, Divider, List, Skeleton } from "antd";
+import { Card, List, Skeleton } from "antd";
 import {
   BookOutlined,
-  FilterOutlined,
-  InfoOutlined,
-  QuestionCircleOutlined,
   ZoomInOutlined,
 } from "@ant-design/icons";
 
