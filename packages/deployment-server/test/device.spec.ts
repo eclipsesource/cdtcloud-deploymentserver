@@ -10,9 +10,12 @@ import { closeServer, createServer } from '../src/server'
 import {
   createConnector,
   createDevice,
-  createDeviceType
+  createDeviceType,
+  randomDeviceTypeData
 } from './util/factory'
+import { WebSocket } from 'ws'
 import { fetch } from './util/fetch'
+import { registerConnector } from '../src/connectors/queue'
 
 const { before, teardown, test } = tap
 const { DeviceStatus, DeployStatus } = prisma
@@ -112,7 +115,7 @@ test('Are deleted when the device type is deleted', async (t) => {
   t.notOk(device)
 })
 
-test('Can be removed', async (t) => {
+test('Can be removed (deleting associated deployments)', async (t) => {
   const device = await createDevice(db)
 
   const response = await fetch(`${baseUrl}/devices/${device.id}`, {
@@ -121,6 +124,138 @@ test('Can be removed', async (t) => {
 
   t.ok(response.ok, 'Response is not ok')
   t.match(await response.json(), device)
+})
+
+test('Can be deprovisioned (keeping deployment information)', async (t) => {
+  const device = await createDevice(db, {
+    connector: {
+      create: {}
+    },
+    type: {
+      create: { ...randomDeviceTypeData() }
+    },
+    status: DeviceStatus.AVAILABLE
+  })
+
+  registerConnector({ id: device.connectorId })
+
+  const deployment = await fetch(`${baseUrl}/deployments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      deviceTypeId: device.deviceTypeId,
+      artifactUri: 'https://example.com/artifact.zip'
+    })
+  })
+
+  t.ok(deployment.ok)
+
+  const deploymentBody = (await deployment.json()) as DeployRequest
+
+  t.test('Deployment stream opens and closes', (sub) => {
+    sub.plan(2)
+    const deploymentStream = new WebSocket(`ws://${address.address}:${address.port}/api/deployments/${deploymentBody.id}/stream`)
+
+    deploymentStream.onopen = () => {
+      sub.ok(true, 'Websocket is open')
+    }
+
+    deploymentStream.onclose = () => {
+      sub.ok(true, 'Websocket is closed')
+    }
+  })
+
+  const response = await fetch(`${baseUrl}/devices/${device.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      status: DeviceStatus.UNAVAILABLE
+    })
+  })
+
+  t.ok(response.ok)
+  t.match(await response.json(), {
+    ...device,
+    status: DeviceStatus.UNAVAILABLE
+  })
+
+  const deploymentResponseAfterDeviceCloses = await fetch(`${baseUrl}/deployments/${deploymentBody.id}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(async (r) => await r.json()) as DeployRequest
+
+  t.match(deploymentResponseAfterDeviceCloses, {
+    ...deployment,
+    status: DeployStatus.TERMINATED
+  })
+})
+
+test('Deprovisioning does not affect completed deploys', async (t) => {
+  const device = await createDevice(db, {
+    connector: {
+      create: {}
+    },
+    type: {
+      create: { ...randomDeviceTypeData() }
+    },
+    status: DeviceStatus.AVAILABLE
+  })
+
+  registerConnector({ id: device.connectorId })
+
+  const deployment = await fetch(`${baseUrl}/deployments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      deviceTypeId: device.deviceTypeId,
+      artifactUri: 'https://example.com/artifact.zip'
+    })
+  })
+
+  t.ok(deployment.ok, 'Response is ok')
+
+  const deploymentBody = (await deployment.json()) as DeployRequest
+
+  await fetch(`${baseUrl}/deployments/${deploymentBody.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      status: DeployStatus.SUCCESS
+    })
+  })
+
+  const response = await fetch(`${baseUrl}/devices/${device.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      status: DeviceStatus.UNAVAILABLE
+    })
+  })
+
+  t.ok(response.ok)
+  t.match(await response.json(), {
+    ...device,
+    status: DeviceStatus.UNAVAILABLE
+  })
+
+  const deploymentResponseAfterDeviceCloses = await fetch(`${baseUrl}/deployments/${deploymentBody.id}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(async (r) => await r.json()) as DeployRequest
+
+  t.match(deploymentResponseAfterDeviceCloses, deployment)
 })
 
 test('Removes related deployments', async (t) => {
