@@ -13,7 +13,7 @@ export const TypeSelect: FunctionComponent<{
   deployOnBoard: Function;
 }> = ({ options, deployOnBoard }) => {
   let [board, setBoard] = useState<Option>({
-    label: "No board Selected",
+    label: "No Board Selected",
     value: "",
     status: ""
   });
@@ -50,12 +50,10 @@ export const TypeSelect: FunctionComponent<{
       case "BUSY":
       case "UNAVAILABLE":
         return "#cf1322";
-      default: 
-        return "#1890ff";
     }
   }
   return (
-    <div style={{ padding: "5px" }}>
+    <div >
       <Select
         value={board}
         options={options}

@@ -1,12 +1,16 @@
+#widget-container {
+    padding: 20px;
+    max-width: 450px;   
+}
+
 #widget-container h2 {
     color: var(--theia-ui-font-color1);
     font-size: 12px;
     font-weight: 400;
-    padding: 10px;
     text-transform: uppercase;
 }
 
-#deployments {
+#deployments table {
     width: 100%;
 }
 #deployments th {
@@ -16,8 +20,10 @@ padding: 5px;
 }
 #deployments td {
     padding: 5px;
-    }
+}
     
 #deployments tr:nth-child(even) {
     background-color: #414141;
+
 }
+

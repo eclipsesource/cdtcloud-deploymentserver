@@ -5,7 +5,6 @@ import {
   postConstruct,
   inject,
 } from "@theia/core/shared/inversify";
-import { AlertMessage } from "@theia/core/lib/browser/widgets/alert-message";
 import { ReactWidget } from "@theia/core/lib/browser/widgets/react-widget";
 import { MessageService } from "@theia/core";
 import {
@@ -62,8 +61,6 @@ export class CdtcloudWidget extends ReactWidget {
   }
 
   render() {
-    const header = `This widget enables you to deploy your code on a remote (Arduino-)board.`;
-
     function getColor(status: string) {
       switch (status) {
         case "PENDING":
@@ -84,55 +81,55 @@ export class CdtcloudWidget extends ReactWidget {
     return (
       <>
         <div id="widget-container">
-          <AlertMessage type="INFO" header={header} />
 
           <h2> Select a Board to deploy your code on from this list</h2>
           <TypeSelect
             options={this.options}
             deployOnBoard={this.deployOnBoard.bind(this)}
           />
-        </div>
 
-        <div id="past-deployments">
-          <h2> Past Deployments</h2>
-          {this.deployments.length > 0 ? (
-            <table id="deployments">
-              <thead>
-                <tr key="head">
-                  <th></th>
-                  <th>Status</th>
-                  <th>Created At</th>
-                  <th>Updated At</th>
-                </tr>
-              </thead>
-              <tbody>
-                {this.deployments.map((deployment) => {
-                  return (
-                    <tr key={deployment.id}>
-                      <td>
-                        <div
-                          style={{
-                            display: "flex",
-                            width: "15px",
-                            height: "15px",
-                            backgroundColor: getColor(deployment.status),
-                            borderRadius: "50%",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        ></div>
-                      </td>
-                      <td>{deployment.status}</td>
-                      <td>{deployment.createdAt}</td>
-                      <td>{deployment.updatedAt}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          ) : (
-            <p>No deployments have been sent so far.</p>
-          )}
+          <div id="deployments">
+            <h2>Recent Deployments</h2>
+            {this.deployments.length > 0 ? (
+              <table>
+                <thead>
+                  <tr key="head">
+                    <th></th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {this.deployments.map((deployment) => {
+                    return (
+                      <tr key={deployment.id}>
+                        <td>
+                          <div
+                            style={{
+                              display: "flex",
+                              width: "15px",
+                              height: "15px",
+                              backgroundColor: getColor(deployment.status),
+                              borderRadius: "50%",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          ></div>
+                        </td>
+                        <td>{deployment.status}</td>
+                        <td>{deployment.createdAt}</td>
+                        <td>{deployment.updatedAt}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <p>No deployments have been sent so far.</p>
+            )
+            }
+          </div>
         </div>
       </>
     );
