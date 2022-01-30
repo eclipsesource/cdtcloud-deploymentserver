@@ -1,29 +1,29 @@
 #widget-container {
-    padding: 20px;
-    max-width: 450px;   
+  padding: 20px;
+  max-width: 450px;
 }
 
 #widget-container h2 {
-    color: var(--theia-ui-font-color1);
-    font-size: 12px;
-    font-weight: 400;
-    text-transform: uppercase;
+  color: var(--theia-ui-font-color1);
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
 }
 
 #deployments table {
-    width: 100%;
+  width: 100%;
 }
+
 #deployments th {
-background-color: #68b6ff;
-color: #000;
-padding: 5px;
+  background-color: #68b6ff;
+  color: #000;
+  padding: 5px;
 }
+
 #deployments td {
-    padding: 5px;
+  padding: 5px;
 }
-    
+
 #deployments tr:nth-child(even) {
-    background-color: #414141;
-
+  background-color: #414141;
 }
-

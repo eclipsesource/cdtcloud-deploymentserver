@@ -64,17 +64,17 @@ export class CdtcloudWidget extends ReactWidget {
     function getColor(status: string) {
       switch (status) {
         case "PENDING":
-          return "#707070";
+          return {color: "#ffffff", background: "#808080", border: "#707070"};
         case "RUNNING":
-          return "#1890ff";
+          return {color:"#1890ff", background: "#e6f7ff", border: "#91d5ff"};
         case "TERMINATED":
-          return "#faad14";
+          return {color: "#faad14", background: "#fffbe6", border: "#ffe58f"};
         case "SUCCESS":
-          return "#52c41a";
+          return {color: "#52c41a", background: "#f6ffed", border: "#b7eb8f"};
         case "FAILED":
-          return "#cf1322";
+          return {color: "#cf1322", background: "#fff1f0", border: "#ffa39e"};
         default:
-          return "#ffffff";
+          return {color: "#ffffff", background: "#ffffff", border: "#ffffff"};
       }
     }
 
@@ -93,8 +93,7 @@ export class CdtcloudWidget extends ReactWidget {
             {this.deployments.length > 0 ? (
               <table>
                 <thead>
-                  <tr key="head">
-                    <th></th>
+                  <tr key="head">   
                     <th>Status</th>
                     <th>Created At</th>
                     <th>Updated At</th>
@@ -106,18 +105,21 @@ export class CdtcloudWidget extends ReactWidget {
                       <tr key={deployment.id}>
                         <td>
                           <div
-                            style={{
-                              display: "flex",
-                              width: "15px",
-                              height: "15px",
-                              backgroundColor: getColor(deployment.status),
-                              borderRadius: "50%",
-                              justifyContent: "center",
-                              alignItems: "center",
-                            }}
-                          ></div>
-                        </td>
-                        <td>{deployment.status}</td>
+                          style={{
+                            display: "flex",
+                            width: "95%",
+                            height: "100%",
+                            color: getColor(deployment.status).color,
+                            backgroundColor: getColor(deployment.status).background,
+                            borderRadius: "5px",
+                            border: `2px solid ${getColor(deployment.status).border}`,
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          {deployment.status}
+                        </div>
+                      </td>
                         <td>{deployment.createdAt}</td>
                         <td>{deployment.updatedAt}</td>
                       </tr>
@@ -127,8 +129,7 @@ export class CdtcloudWidget extends ReactWidget {
               </table>
             ) : (
               <p>No deployments have been sent so far.</p>
-            )
-            }
+            )}
           </div>
         </div>
       </>

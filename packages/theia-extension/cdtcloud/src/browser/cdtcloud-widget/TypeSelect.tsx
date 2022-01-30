@@ -15,7 +15,7 @@ export const TypeSelect: FunctionComponent<{
   let [board, setBoard] = useState<Option>({
     label: "No Board Selected",
     value: "",
-    status: ""
+    status: "",
   });
 
   useEffect(() => {
@@ -25,16 +25,16 @@ export const TypeSelect: FunctionComponent<{
     if (updatedSelectionFromOptions != null)
       setBoard(updatedSelectionFromOptions);
   }, [options]);
-  
-  const dot = (color = 'transparent') => ({
-    alignItems: 'center',
-    display: 'flex',
-  
-    ':before': {
+
+  const dot = (color = "transparent") => ({
+    alignItems: "center",
+    display: "flex",
+
+    ":before": {
       backgroundColor: color,
       borderRadius: 10,
       content: '" "',
-      display: 'block',
+      display: "block",
       marginRight: 8,
       height: 10,
       width: 10,
@@ -52,8 +52,20 @@ export const TypeSelect: FunctionComponent<{
         return "#cf1322";
     }
   }
+
+  function getStyle(status: string) {
+    return {
+      display: "flex",
+      width: "15px",
+      height: "15px",
+      backgroundColor: getColor(status),
+      borderRadius: "50%",
+      justifyContent: "center",
+      alignItems: "center",
+    };
+  }
   return (
-    <div >
+    <div>
       <Select
         value={board}
         options={options}
@@ -82,7 +94,7 @@ export const TypeSelect: FunctionComponent<{
           singleValue: (base, { data }) => ({
             ...base,
             color: "var(--theia-menu-foreground)",
-            ...dot(getColor(data.status))
+            ...dot(getColor(data.status)),
           }),
         }}
         onChange={(e: Option) => {
@@ -104,6 +116,29 @@ export const TypeSelect: FunctionComponent<{
       >
         Deploy on Board
       </button>
+
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <div style={getStyle("AVAILABLE")}></div>
+            </td>
+            <td>Board is available</td>
+          </tr>
+          <tr>
+            <td>
+              <div style={getStyle("QUEUEABLE")}></div>
+            </td>
+            <td>Board is queueable</td>
+          </tr>
+          <tr>
+            <td>
+              <div style={getStyle("UNAVAILABLE")}></div>
+            </td>
+            <td>Board is unavailable</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 };
