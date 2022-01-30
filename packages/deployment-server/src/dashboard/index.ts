@@ -14,4 +14,5 @@ export interface Dashboard {
   deploymentOverview: Record<DeployRequest['status'], number>
   deviceOverview: Record<Device['status'], number>
   deploymentsPerBucket: Record<string, number>
+  mostUsedDeviceType: string
 }

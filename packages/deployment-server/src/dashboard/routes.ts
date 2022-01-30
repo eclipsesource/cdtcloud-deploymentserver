@@ -11,6 +11,20 @@ export default function dashboardRoutes (router: Router): void {
     validate<Dashboard>({}),
     async (req, res, next) => {
       try {
+        const [{ mostUsedDeviceType }] = await req.db.$queryRaw`
+          SELECT
+            "DeviceType"."name" as "mostUsedDeviceType"
+          FROM
+            "DeployRequest"
+          LEFT JOIN "Device" ON "Device".id = "DeployRequest"."deviceId"
+          LEFT JOIN "DeviceType" ON "DeviceType".id = "Device"."deviceTypeId"
+          GROUP BY
+            "DeviceType"."name"
+          ORDER BY
+            COUNT("DeviceType"."name") DESC
+          LIMIT 1
+        ` as [{mostUsedDeviceType: string}]
+
         const recentDeployments = await req.db.deployRequest.findMany({
           take: 5,
           include: {
@@ -62,7 +76,8 @@ export default function dashboardRoutes (router: Router): void {
           deployRequestCount,
           deviceOverview,
           deviceCount,
-          deploymentsPerBucket
+          deploymentsPerBucket,
+          mostUsedDeviceType
         })
       } catch (e) {
         next(e)
