@@ -21,7 +21,7 @@ import { DeploymentManager } from "./monitoring/DeploymentManager";
 export class CdtcloudWidget extends ReactWidget {
   deviceTypeList: any[] = [];
   options: any[] = [];
-  selected: { label: string; value: string, status: string };
+  selected: { label: string; value: string; status: string };
   static readonly ID = "cdtcloud:widget";
   static readonly LABEL = "Cdtcloud Widget";
 
@@ -64,24 +64,23 @@ export class CdtcloudWidget extends ReactWidget {
     function getColor(status: string) {
       switch (status) {
         case "PENDING":
-          return {color: "#ffffff", background: "#808080", border: "#707070"};
+          return { color: "#ffffff", background: "#808080", border: "#707070" };
         case "RUNNING":
-          return {color:"#1890ff", background: "#e6f7ff", border: "#91d5ff"};
+          return { color: "#1890ff", background: "#e6f7ff", border: "#91d5ff" };
         case "TERMINATED":
-          return {color: "#faad14", background: "#fffbe6", border: "#ffe58f"};
+          return { color: "#faad14", background: "#fffbe6", border: "#ffe58f" };
         case "SUCCESS":
-          return {color: "#52c41a", background: "#f6ffed", border: "#b7eb8f"};
+          return { color: "#52c41a", background: "#f6ffed", border: "#b7eb8f" };
         case "FAILED":
-          return {color: "#cf1322", background: "#fff1f0", border: "#ffa39e"};
+          return { color: "#cf1322", background: "#fff1f0", border: "#ffa39e" };
         default:
-          return {color: "#ffffff", background: "#ffffff", border: "#ffffff"};
+          return { color: "#ffffff", background: "#ffffff", border: "#ffffff" };
       }
     }
 
     return (
       <>
         <div id="widget-container">
-
           <h2> Select a Board to deploy your code on from this list</h2>
           <TypeSelect
             options={this.options}
@@ -93,7 +92,7 @@ export class CdtcloudWidget extends ReactWidget {
             {this.deployments.length > 0 ? (
               <table>
                 <thead>
-                  <tr key="head">   
+                  <tr key="head">
                     <th>Status</th>
                     <th>Created At</th>
                     <th>Updated At</th>
@@ -105,21 +104,24 @@ export class CdtcloudWidget extends ReactWidget {
                       <tr key={deployment.id}>
                         <td>
                           <div
-                          style={{
-                            display: "flex",
-                            width: "95%",
-                            height: "100%",
-                            color: getColor(deployment.status).color,
-                            backgroundColor: getColor(deployment.status).background,
-                            borderRadius: "5px",
-                            border: `2px solid ${getColor(deployment.status).border}`,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          {deployment.status}
-                        </div>
-                      </td>
+                            style={{
+                              display: "flex",
+                              width: "95%",
+                              height: "100%",
+                              color: getColor(deployment.status).color,
+                              backgroundColor: getColor(deployment.status)
+                                .background,
+                              borderRadius: "5px",
+                              border: `2px solid ${
+                                getColor(deployment.status).border
+                              }`,
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            {deployment.status}
+                          </div>
+                        </td>
                         <td>{deployment.createdAt}</td>
                         <td>{deployment.updatedAt}</td>
                       </tr>
@@ -136,7 +138,11 @@ export class CdtcloudWidget extends ReactWidget {
     );
   }
 
-  protected handleChange(option: { label: string; value: string, status: string }): void {
+  protected handleChange(option: {
+    label: string;
+    value: string;
+    status: string;
+  }): void {
     this.selected = option;
   }
 
@@ -146,7 +152,7 @@ export class CdtcloudWidget extends ReactWidget {
       this.options = this.deviceTypeList.map(({ id, name, status }) => ({
         label: name,
         value: id,
-        status: status
+        status: status,
       }));
       this.update();
     } catch (err) {
