@@ -75,7 +75,7 @@ export default defineFunctionalComponent(function Dashboard() {
                   <Col span={8}>
                     <Statistic
                       title="Running Deploys"
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).deployRequestCount : 0}
+                      value={dashboardState.data ? (dashboardState.data as Dashboard).deploymentOverview.RUNNING : 0}
                       prefix={<PlayCircleOutlined/>}
                       valueStyle={{color: "grey"}}
                     />
@@ -171,9 +171,9 @@ export default defineFunctionalComponent(function Dashboard() {
                     />
                     <Statistic
                       title="Average Queue Length"
-                      value={"~182 seconds"}
+                      value={"~90 seconds"}
                       prefix={<ClockCircleOutlined/>}
-                      valueStyle={{color: "red"}}
+                      valueStyle={{color: "warning"}}
                     />
                   </Col>
                 </Row>
@@ -182,7 +182,7 @@ export default defineFunctionalComponent(function Dashboard() {
           </Row>
           <Divider/>
           <Row gutter={[{xs: 8, sm: 16, md: 24, lg: 32}, 20]} align="stretch">
-            <Col span={12}>
+            <Col span={11}>
               <Card
                 title="Deployments"
                 extra={
@@ -195,6 +195,7 @@ export default defineFunctionalComponent(function Dashboard() {
                     </div>
                   </div>
                 }
+                style={{height: "100%", overflow: "auto"}}
               >
                 <DeploymentsOverTimeGraph
                   data={dashboardState.data ? (dashboardState.data as Dashboard).deploymentsPerBucket : undefined}
@@ -202,11 +203,11 @@ export default defineFunctionalComponent(function Dashboard() {
                 />
               </Card>
             </Col>
-            <Col span={12}>
+            <Col span={13}>
               <Card
                 title="Recent Deployments "
                 extra={<a href="/deployments">All Deployments</a>}
-                style={{height: "100%"}}
+                style={{maxHeight: "480px", overflow: "auto"}}
               >
                 <RecentDeploymentList
                   data={dashboardState.data ? (dashboardState.data as Dashboard).recentDeployments : undefined}

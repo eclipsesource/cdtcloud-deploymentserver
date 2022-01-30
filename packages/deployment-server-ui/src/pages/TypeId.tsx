@@ -8,6 +8,7 @@ import { StatusTag } from "../components/StatusTag";
 import DeploymentsByTypeGraph from "../components/Graphs/DeploymentsByTypeGraph";
 import DeploymentsStatusGraph from "../components/Graphs/DeploymentsStatusGraph";
 import IssueCountGraph from "../components/Graphs/IssueCountGraph";
+import Meta from "antd/lib/card/Meta";
 
 export default defineFunctionalComponent(function TypeId() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -89,26 +90,49 @@ export default defineFunctionalComponent(function TypeId() {
     .map((deployment: DeployRequest) => (
       <div key={deployment.id}>
         <Row gutter={[0, 16]}>
-          <Card title={deployment.id} bordered={true} style={{ width: 320 }}>
-            <p>
-              <StatusTag status={deployment.status} addIcon />
-            </p>
-          </Card>
+        <Card
+          bordered={true}
+          style={{ width: 260 }}
+          cover={<StatusTag status={deployment.status} addIcon />}
+        >
+          <Meta  description={deployment.id } />
+        </Card>
         </Row>
+      </div>
+    ));
+
+  const currentCards = deployments
+    .filter(
+      (deployment) =>
+        deployment.status === "RUNNING" && findDeviceById(deployment.deviceId)
+    )
+    .map((deployment: DeployRequest) => (
+      <div key={deployment.id}>
+       <Card
+          bordered={true}
+          style={{ width: 260 }}
+          cover={<StatusTag status={deployment.status} addIcon />}
+        >
+          <Meta  description={deployment.id } />
+        </Card>
       </div>
     ));
 
   const otherCards = deployments
     .filter(
       (deployment) =>
-        deployment.status !== "PENDING" && findDeviceById(deployment.deviceId)
+        deployment.status !== "PENDING" &&
+        deployment.status !== "RUNNING" &&
+        findDeviceById(deployment.deviceId)
     )
     .map((deployment: DeployRequest) => (
       <div key={deployment.id}>
-        <Card title={deployment.id} bordered={true} style={{ width: 320 }}>
-          <p>
-            <StatusTag status={deployment.status} addIcon />
-          </p>
+        <Card
+          bordered={true}
+          style={{ width: 260 }}
+          cover={<StatusTag status={deployment.status} addIcon />}
+        >
+          <Meta  description={deployment.id } />
         </Card>
       </div>
     ));
@@ -120,18 +144,21 @@ export default defineFunctionalComponent(function TypeId() {
       ) : (
         <div>
           <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 16 }, 20]} align="middle">
-            <Col span={12}>
-              <Card title={deviceType ? deviceType.name : ""} style={{ height: "400px", overflow: "auto" }}>
+            <Col span={9}>
+              <Card
+                title={deviceType ? deviceType.name : ""}
+                style={{ height: "400px", overflow: "auto" }}
+              >
                 <Row>
-                  <Col span={8}>
+                  <Col span={12}>
                     <Statistic
                       title="Number of devices"
-                      value={devices.length}
+                      value={deviceType ? deviceType.numberOfDevices : "0"}
                       prefix={""}
                       valueStyle={{ color: "black" }}
                     />
                   </Col>
-                  <Col span={8}>
+                  <Col span={12}>
                     <Statistic
                       title="Current Queue Length"
                       value={deviceType ? deviceType.queueLength : "0"}
@@ -139,7 +166,9 @@ export default defineFunctionalComponent(function TypeId() {
                       valueStyle={{ color: "black" }}
                     />
                   </Col>
-                  <Col span={8}>
+                </Row>
+                <Row>
+                  <Col span={24}>
                     <Statistic
                       title="FQBN"
                       value={deviceType ? deviceType.fqbn : "0"}
@@ -149,7 +178,7 @@ export default defineFunctionalComponent(function TypeId() {
                   </Col>
                 </Row>
                 <Row>
-                  <Col span={8}>
+                  <Col span={12}>
                     <Statistic
                       title="Status"
                       value={deviceType ? deviceType.status : ""}
@@ -157,7 +186,7 @@ export default defineFunctionalComponent(function TypeId() {
                       valueStyle={{ color: "black" }}
                     />
                   </Col>
-                  <Col span={16}>
+                  <Col span={12}>
                     <Statistic
                       title="Device Type ID"
                       value={deviceType ? deviceType.id : "0"}
@@ -165,11 +194,10 @@ export default defineFunctionalComponent(function TypeId() {
                       valueStyle={{ color: "black" }}
                     />
                   </Col>
-                 
                 </Row>
               </Card>
             </Col>
-            <Col span={6}>
+            <Col span={5}>
               <Card
                 title="Pending Deployments"
                 style={{ height: "400px", overflow: "auto" }}
@@ -177,10 +205,18 @@ export default defineFunctionalComponent(function TypeId() {
                 <Row>{pendingCards}</Row>
               </Card>
             </Col>
-            <Col span={6}>
+            <Col span={5}>
+              <Card
+                title="Current Deployments"
+                style={{ height: "400px", overflow: "auto" }}
+              >
+                <Row>{currentCards}</Row>
+              </Card>
+            </Col>
+            <Col span={5}>
               <Card
                 title="Finished Deployments"
-                style={{ maxHeight: "400px", overflow: "auto" }}
+                style={{ height: "400px", overflow: "auto" }}
               >
                 <Row>{otherCards}</Row>
               </Card>

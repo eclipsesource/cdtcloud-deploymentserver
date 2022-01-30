@@ -1,6 +1,6 @@
 import defineFunctionalComponent from "../util/defineFunctionalComponent";
 import RecentDeploymentList from "../components/Dashboard/RecentDeploymentList";
-import { Card, Divider, Result, Spin } from "antd";
+import { Card, Col, Divider, Result, Row, Spin } from "antd";
 import { useAppSelector } from "../app/hooks";
 import React, { useEffect, useState } from "react";
 import type { Dashboard } from "deployment-server";
@@ -15,7 +15,9 @@ export default defineFunctionalComponent(function Deployments() {
   return (
     <main style={{ height: "100%" }}>
       <h2>Deployments</h2>
-      <Card>
+      <Row>
+        <Col span={24}>
+      <Card style={{maxHeight: "416px", overflow: "auto"}}>
         {dashboardState.loading && !dashboardState.error ? (
           <div className={styles.loadouter}>
             <Spin tip={"Loading..."} />
@@ -37,6 +39,8 @@ export default defineFunctionalComponent(function Deployments() {
           />
         )}
       </Card>
+      </Col>
+      </Row>
       <Card> 
         <DeploymentsOverTimeGraph  data={dashboardState.data ? (dashboardState.data as Dashboard).deploymentsPerBucket : undefined}
                   chartTime={chartTime}/>

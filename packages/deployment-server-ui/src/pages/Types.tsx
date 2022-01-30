@@ -6,10 +6,7 @@ import type {
 
 import { useState, useEffect } from "react";
 import { Card, List, Skeleton } from "antd";
-import {
-  BookOutlined,
-  ZoomInOutlined,
-} from "@ant-design/icons";
+import { BookOutlined, ZoomInOutlined } from "@ant-design/icons";
 
 import { defineFunctionalComponent } from "../util/defineFunctionalComponent";
 import SkeletonButton from "antd/lib/skeleton/Button";
@@ -51,7 +48,7 @@ export default defineFunctionalComponent(function Types() {
       const deploys = await deployRes.json();
       setDeployments(
         deploys.filter(
-          // @ts-ignore: Unreachable code error
+          // @ts-ignore: ignore type warning
           (deployment) =>
             deployment.deviceId === findDeviceById(deployment.deviceId)?.id
         )
@@ -95,85 +92,50 @@ export default defineFunctionalComponent(function Types() {
 
   return (
     <>
-      {/*    <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="middle">
-        <Col span={12}>
-          <Card title="Graph 1" style={{ height: "100%" }}>
-            <DeploymentsByTypeGraph data={deviceType?.history} />
-          </Card>
-        </Col>
-        <Col span={12}>
-          <Card title="Graph B" style={{ height: "100%" }}>
-            <DeploymentStatusPie data={deployments} />
-          </Card>
-        </Col>
-      </Row> */}
       <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="middle">
         <Col span={24}>
-          
-            <List
-              header={<h2>Supported Board Types</h2>}
-              style={{
-                overflow: "scroll",
-                overflowX: "hidden",
-                padding: "24px",
-                maxHeight: "750px",
-              }}
-              grid={{ gutter: 32 }}
-              dataSource={typesData.data}
-              renderItem={(type, index) => {
-                if (true) {
-                  return (
-                    <List.Item key={index}>
-                      <Card
-                        hoverable
-                        style={{ width: 220 }}
-                        cover={
-                          <img
-                            alt={`${type.Name}`}
-                            height={"100px"}
-                            src={type.SVG}
-                          />
-                        }
-                        actions={[
-                          <Link to={"/types/" + type.ID}>
-                            <ZoomInOutlined/> Inspect
-                          </Link>,
-                          <a href={type.Link} target="_blank">
-                            <BookOutlined /> Docs
-                          </a>,
-                        ]}
-                      >
-                        <Meta
-                          title={type.Name}
-                          description={"FQBN:" + type.FQBN}
-                          style={{ padding: "24px px" }}
-                        />
-                      </Card>
-                    </List.Item>
-                  );
-                } else {
-                  return (
-                    <List.Item key={`placeholder-${index}`}>
-                      <Card
-                        hoverable
-                        cover={
-                          <Skeleton.Image
-                            style={{ width: "300px", height: "220px" }}
-                          />
-                        }
-                        actions={[<SkeletonButton />, <SkeletonButton />]}
-                      >
-                        <Skeleton
-                          loading={true}
-                          paragraph={{ rows: 1 }}
-                        ></Skeleton>
-                      </Card>
-                    </List.Item>
-                  );
-                }
-              }}
-            />
-          
+          <List
+            header={<h2>Supported Board Types</h2>}
+            style={{
+              overflow: "scroll",
+              overflowX: "hidden",
+              padding: "24px",
+              maxHeight: "750px",
+            }}
+            grid={{ gutter: 32 }}
+            dataSource={typesData.data}
+            renderItem={(type, index) => {
+              return (
+                <List.Item key={index}>
+                  <Card
+                    hoverable
+                    style={{ width: 220 }}
+                    cover={
+                      <img
+                        alt={`${type.Name}`}
+                        height={"100px"}
+                        src={type.SVG}
+                      />
+                    }
+                    actions={[
+                      <Link to={"/types/" + type.ID}>
+                        <ZoomInOutlined /> Inspect
+                      </Link>,
+                      <a href={type.Link} target="_blank">
+                        <BookOutlined /> Docs
+                      </a>,
+                    ]}
+                  >
+                    <Meta
+                      title={type.Name}
+                      description={"FQBN:" + type.FQBN}
+                      style={{ padding: "24px px" }}
+                    />
+                  </Card>
+                </List.Item>
+              );
+            }}
+          />
         </Col>
       </Row>
     </>

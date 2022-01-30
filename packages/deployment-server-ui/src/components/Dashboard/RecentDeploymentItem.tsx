@@ -74,7 +74,7 @@ export const RecentDeploymentItem = (props: Props) => {
           </Button>,
           <Button
             type="primary"
-            href={`/device/${props.device.id}`}
+            href={`/types/${props.device.deviceTypeId}`}
             icon={<FontAwesomeIcon icon={'microchip'} style={{marginRight: '0.5em'}}/>}
           >
             View Device
