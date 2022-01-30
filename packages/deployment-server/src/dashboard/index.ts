@@ -15,4 +15,5 @@ export interface Dashboard {
   deviceOverview: Record<Device['status'], number>
   deploymentsPerBucket: Record<string, number>
   mostUsedDeviceType: string
+  averageQueueTime: number
 }
