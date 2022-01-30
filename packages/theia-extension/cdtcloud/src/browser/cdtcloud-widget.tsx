@@ -71,7 +71,7 @@ export class CdtcloudWidget extends ReactWidget {
           return "#faad14";
         case "SUCCESS":
           return "#52c41a";
-        case "ERROR":
+        case "FAILED":
           return "#cf1322";
         default:
           return "#ffffff";
