@@ -1,4 +1,4 @@
-import { Button, Col, List, Row, Tooltip, Typography } from 'antd'
+import { Button, Col, List, Modal, Row, Tooltip, Typography } from "antd"
 import { CSSTransition } from 'react-transition-group'
 import { DeployStatus, DeviceType, Device } from 'deployment-server'
 import React, { useEffect, useState } from 'react'
@@ -9,6 +9,7 @@ import { format } from 'date-fns'
 import MonitoringTerminal from "../MonitoringTerminal"
 
 import colors from '../../Colors.module.scss'
+import styles from "./RecentDeploymentItem.module.scss"
 
 const { Item } = List
 const { Meta } = Item
@@ -92,7 +93,21 @@ export const RecentDeploymentItem = (props: Props) => {
           </Tooltip>
         ]}
       >
-        <MonitoringTerminal deploymentId={props.id} deployStatus={props.status} open={monitorOpen} deviceName={props.device.type.name} setOpen={setMonitorOpen}/>
+        <Modal
+          title={`${props.device.type.name} Monitor`}
+          centered
+          visible={monitorOpen}
+          className={styles.modal}
+          width={"70%"}
+          footer={
+            <Button key="close" type={"primary"} onClick={() => setMonitorOpen(false)}>
+              Close
+            </Button>
+          }
+          onCancel={() => setMonitorOpen(false)}
+        >
+          <MonitoringTerminal deploymentId={props.id} deployStatus={props.status} deviceName={props.device.type.name}/>
+        </Modal>
         <Meta
           style={{flex: "auto"}}
           avatar={

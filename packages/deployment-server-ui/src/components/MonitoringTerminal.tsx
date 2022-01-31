@@ -1,116 +1,102 @@
-import React, { useEffect, useState } from "react"
+import React, { CSSProperties, useEffect, useState } from "react"
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import type { DeployStatus } from "deployment-server"
-import { Button, Modal } from "antd"
+import { useMonitor } from "../services/MonitoringService"
 
-import styles from "./MonitoringTerminal.module.scss"
+import "./xterm.css";
 
 interface Props {
   deploymentId: string,
   deviceName: string,
   deployStatus: keyof typeof DeployStatus,
-  open: boolean,
-  setOpen: (state: boolean) => void
+  style?: CSSProperties,
+  className?: string
 }
-
-const createWebsocket = async (route: string): Promise<WebSocket> => {
-  const url = `${window.location.protocol === 'https' ? 'wss' : 'ws'}://${window.location.host}${route}`
-  return new WebSocket(url)
-}
-
-let terminal: Terminal
-const fitAddon = new FitAddon()
 
 const MonitoringTerminal = (props: Props) => {
-  const [socketOpen, setSocketOpen] = useState<boolean>(false)
-  const [terminalOpen, setTerminalOpen] = useState<boolean>(false)
-  const [socket, setSocket] = useState<WebSocket>()
-  const [reconAttempts, setReconAttempts] = useState<number>(0)
-
-  // TODO: fix
-  //const prefix = `${c.red("Monitor")}${c.bgYellow("@")}${c.blueBright("DevieName")}${c.bgYellow("$")} `
-  const prefix = `Monitor@${props.deviceName}$`
+  const [terminalElement, setTerminalElement] = useState<JSX.Element>()
+  const [terminal, setTerminal] = useState<Terminal>()
+  const [created, setCreated] = useState<boolean>(false)
+  const fitAddon = new FitAddon()
+  const prefix = `\u001b[1;31mMonitor\u001b[1;33m\@\u001b[1;36m${props.deviceName}\u001b[1;33m\$\u001b[0m `
 
   useEffect(() => {
-    if (props.open) {
-      terminal = new Terminal({
+    // Object to avoid clones of sockets
+    let newTerminal = { term: null } as { term: Terminal | null }
+    if (terminal == null) {
+      const term = new Terminal({
         fontFamily: `'Fira Mono', monospace`,
-        fontSize: 15,
-        fontWeight: 900,
+        fontSize: 14,
+        convertEol: true,
+        disableStdin: true,
+        rendererType: "dom",
+        cursorBlink: false,
         theme: {
           background: "black",
-          foreground: "#5eff00"
+          foreground: "white",
+          cursor: undefined
         }
       })
 
-      terminal.loadAddon(fitAddon)
+      // Handle EOL events
+      term.onLineFeed((() => {
+        // Add prefix to new line
+        term.write(prefix)
+      }))
 
-      terminal.open(document.getElementById("xterm")!)
+      setTerminal(term)
+      newTerminal.term = term
 
-      setTerminalOpen(true)
-
-      terminal.write(`${prefix} huhu`)
-
-      fitAddon.fit()
+      setCreated(true)
     }
-  }, [props.open])
+  }, [])
 
-  // TODO: temporary hackfix
   useEffect(() => {
-    let newSocket = {ws: null} as { ws: WebSocket | null }
-
-      async function openSocket() {
-        const ws = await createWebsocket(`/api/deployments/${props.deploymentId}/stream`)
-        ws.onopen = () => setSocketOpen(true)
-        ws.onclose = () => {
-          if (props.deployStatus === "RUNNING") {
-            setSocketOpen(true)
-            setReconAttempts(reconAttempts + 1)
-          }
-        }
-        ws.onmessage = (message) => {
-          const data = message.data.toString().trim()
-          if (data != null && data !== "") {
-            console.log(message.data.toString())
-            terminal.writeln(`${prefix}${message.data.toString()}`)
-          }
-        }
-        ws.onerror = console.error
-        setSocket(ws)
-        newSocket.ws = ws
-      }
-
-    if (terminalOpen && props.deployStatus === "RUNNING" && !socketOpen) {
-      openSocket().catch(console.log)
-    }
-
-    if (props.deployStatus !== "RUNNING" && socketOpen) {
-      socket?.close()
-    }
+    setTerminalElement(<div id={`xterm-${props.deploymentId}`} style={props.style} className={props.className}/>)
 
     return () => {
-      if (newSocket.ws) {
-        newSocket.ws.close()
+      setTerminalElement(undefined)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (terminal != null && terminalElement != null) {
+    const parent = document.getElementById(`xterm-${props.deploymentId}`)
+      if (parent != null) {
+        terminal.loadAddon(fitAddon)
+        terminal.open(parent)
+        fitAddon.fit()
       }
     }
-  }, [reconAttempts, terminalOpen, props.deployStatus])
+  }, [created, terminalElement])
+
+  useEffect(() => {
+    if (terminal != null) {
+      terminal.clear()
+      terminal.writeln(`${prefix}Start Monitoring`)
+    }
+  }, [props.deploymentId, created])
+
+  const { open, subscribe } = useMonitor(props.deploymentId, props.deployStatus)
+
+  useEffect(() => {
+    if (open && created) {
+      subscribe((message) => {
+        const data = typeof message.data === 'string' ? message.data.trim() : new Uint8Array(message.data)
+
+        if (data != null && data !== "" && data.length != 0) {
+          terminal?.writeln(data);
+        }
+      })
+    }
+  }, [open, created])
 
   return (
-    <Modal
-      title={`${props.deviceName} Monitor`}
-      centered
-      visible={props.open}
-      className={styles.modal}
-      footer={
-        <Button key="close" type={"primary"} onClick={() => props.setOpen(false)}>
-          Close
-        </Button>
-      }
-      onCancel={() => props.setOpen(false)}
-    >
-      <div id={"xterm"} style={{height: "100%", width: "100%"}}/>
-    </Modal>)
+    <div style={{height: "100%", width: "100%"}}>
+      {terminalElement}
+    </div>
+  )
 }
 
 export default MonitoringTerminal
