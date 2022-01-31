@@ -5,7 +5,6 @@ import {
   postConstruct,
   inject,
 } from "@theia/core/shared/inversify";
-import { AlertMessage } from "@theia/core/lib/browser/widgets/alert-message";
 import { ReactWidget } from "@theia/core/lib/browser/widgets/react-widget";
 import { MessageService } from "@theia/core";
 import {
@@ -22,7 +21,7 @@ import { DeploymentManager } from "./monitoring/DeploymentManager";
 export class CdtcloudWidget extends ReactWidget {
   deviceTypeList: any[] = [];
   options: any[] = [];
-  selected: { label: string; value: string, status: string };
+  selected: { label: string; value: string; status: string };
   static readonly ID = "cdtcloud:widget";
   static readonly LABEL = "Cdtcloud Widget";
 
@@ -62,83 +61,88 @@ export class CdtcloudWidget extends ReactWidget {
   }
 
   render() {
-    const header = `This widget enables you to deploy your code on a remote (Arduino-)board.`;
-
     function getColor(status: string) {
       switch (status) {
         case "PENDING":
-          return "#707070";
+          return { color: "#ffffff", background: "#808080", border: "#707070" };
         case "RUNNING":
-          return "#1890ff";
+          return { color: "#1890ff", background: "#e6f7ff", border: "#91d5ff" };
         case "TERMINATED":
-          return "#faad14";
+          return { color: "#faad14", background: "#fffbe6", border: "#ffe58f" };
         case "SUCCESS":
-          return "#52c41a";
-        case "ERROR":
-          return "#cf1322";
+          return { color: "#52c41a", background: "#f6ffed", border: "#b7eb8f" };
+        case "FAILED":
+          return { color: "#cf1322", background: "#fff1f0", border: "#ffa39e" };
         default:
-          return "#ffffff";
+          return { color: "#ffffff", background: "#ffffff", border: "#ffffff" };
       }
     }
 
     return (
       <>
         <div id="widget-container">
-          <AlertMessage type="INFO" header={header} />
-
           <h2> Select a Board to deploy your code on from this list</h2>
           <TypeSelect
             options={this.options}
             deployOnBoard={this.deployOnBoard.bind(this)}
           />
-        </div>
 
-        <div id="past-deployments">
-          <h2> Past Deployments</h2>
-          {this.deployments.length > 0 ? (
-            <table id="deployments">
-              <thead>
-                <tr key="head">
-                  <th></th>
-                  <th>Status</th>
-                  <th>Created At</th>
-                  <th>Updated At</th>
-                </tr>
-              </thead>
-              <tbody>
-                {this.deployments.map((deployment) => {
-                  return (
-                    <tr key={deployment.id}>
-                      <td>
-                        <div
-                          style={{
-                            display: "flex",
-                            width: "15px",
-                            height: "15px",
-                            backgroundColor: getColor(deployment.status),
-                            borderRadius: "50%",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        ></div>
-                      </td>
-                      <td>{deployment.status}</td>
-                      <td>{deployment.createdAt}</td>
-                      <td>{deployment.updatedAt}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          ) : (
-            <p>No deployments have been sent so far.</p>
-          )}
+          <div id="deployments">
+            <h2>Recent Deployments</h2>
+            {this.deployments.length > 0 ? (
+              <table>
+                <thead>
+                  <tr key="head">
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {this.deployments.map((deployment) => {
+                    return (
+                      <tr key={deployment.id}>
+                        <td>
+                          <div
+                            style={{
+                              display: "flex",
+                              width: "95%",
+                              height: "100%",
+                              color: getColor(deployment.status).color,
+                              backgroundColor: getColor(deployment.status)
+                                .background,
+                              borderRadius: "5px",
+                              border: `2px solid ${
+                                getColor(deployment.status).border
+                              }`,
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            {deployment.status}
+                          </div>
+                        </td>
+                        <td>{deployment.createdAt}</td>
+                        <td>{deployment.updatedAt}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <p>No deployments have been sent so far.</p>
+            )}
+          </div>
         </div>
       </>
     );
   }
 
-  protected handleChange(option: { label: string; value: string, status: string }): void {
+  protected handleChange(option: {
+    label: string;
+    value: string;
+    status: string;
+  }): void {
     this.selected = option;
   }
 
@@ -148,7 +152,7 @@ export class CdtcloudWidget extends ReactWidget {
       this.options = this.deviceTypeList.map(({ id, name, status }) => ({
         label: name,
         value: id,
-        status: status
+        status: status,
       }));
       this.update();
     } catch (err) {
