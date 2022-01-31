@@ -7,7 +7,7 @@ import { typeIdToName } from '../util/deviceMapping'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CrossedIcon } from './CrossedIcon'
 
-export const openNotification = async (title: string, content: JSX.Element, icon: JSX.Element): Promise<void> => {
+export const openNotification = async (title: string | JSX.Element, content: JSX.Element, icon: JSX.Element): Promise<void> => {
   notification.info({
     message: title,
     icon,
@@ -85,15 +85,18 @@ export const deviceEvent = async (resp: ServerMessage): Promise<void> => {
     }
 
     const deviceTypeName = await typeIdToName(device.deviceTypeId)
+    const title = (<a href={'/devices'} style={{ color: 'black' }}>{`Device ${titleEvent}`}</a>)
     const deviceMessage = (
-      <>
+      <a href={'/devices'} style={{ color: 'black' }}>
         Id: {device.id}
         <br/>
         Connector: {device.connectorId}
         <br/>
-        Type: {deviceTypeName}
-      </>
+        <a href={`types/${device.deviceTypeId}`} style={{ color: 'black' }}>
+          Type: {deviceTypeName}
+        </a>
+      </a>
     )
-    await openNotification(`Device ${titleEvent}`, deviceMessage, icon)
+    await openNotification(title, deviceMessage, icon)
   }
 }
