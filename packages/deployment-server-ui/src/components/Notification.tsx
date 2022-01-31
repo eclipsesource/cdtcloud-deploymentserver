@@ -1,19 +1,27 @@
 import { notification } from 'antd'
 import { DisconnectOutlined, InfoOutlined, LinkOutlined } from '@ant-design/icons'
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { Connector, Device } from 'deployment-server'
 import { ServerMessage } from '../services/WebsocketService'
 import { typeIdToName } from '../util/deviceMapping'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CrossedIcon } from './CrossedIcon'
 
-export const openNotification = async (title: string | JSX.Element, content: JSX.Element, icon: JSX.Element): Promise<void> => {
+import styles from './Notification.module.scss'
+
+export const openNotification = async (
+  title: string | JSX.Element, content: JSX.Element, icon: JSX.Element,
+  className?: string, style?: CSSProperties, onClick?: () => void
+): Promise<void> => {
   notification.info({
     message: title,
     icon,
     description: content,
     placement: 'bottomRight',
-    duration: 8
+    duration: 8,
+    className,
+    style,
+    onClick
   })
 }
 
@@ -85,18 +93,18 @@ export const deviceEvent = async (resp: ServerMessage): Promise<void> => {
     }
 
     const deviceTypeName = await typeIdToName(device.deviceTypeId)
-    const title = (<a href={'/devices'} style={{ color: 'black' }}>{`Device ${titleEvent}`}</a>)
+    const title = `Device ${titleEvent}`
     const deviceMessage = (
-      <a href={'/devices'} style={{ color: 'black' }}>
+      <>
         Id: {device.id}
         <br/>
         Connector: {device.connectorId}
         <br/>
-        <a href={`types/${device.deviceTypeId}`} style={{ color: 'black' }}>
-          Type: {deviceTypeName}
-        </a>
-      </a>
+        Type: {deviceTypeName}
+      </>
     )
-    await openNotification(title, deviceMessage, icon)
+    await openNotification(title, deviceMessage, icon, styles.clickable, undefined, () => {
+      location.href = '/devices'
+    })
   }
 }
