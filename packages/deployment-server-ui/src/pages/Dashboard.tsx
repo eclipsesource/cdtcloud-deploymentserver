@@ -148,32 +148,29 @@ export default defineFunctionalComponent(function Dashboard() {
                 style={{height: "100%"}}
               >
                <Row gutter={[{xs: 8, sm: 16, md: 24, lg: 32}, 20]}>
-                  <Col span={12}>
+                  <Col span={24}>
                     <Statistic
-                      title="Supported Board Types"
-                      value={"27"}
-                      prefix={<HddOutlined/>}
-                      valueStyle={{color: "green"}}
-                    />
-                    <Statistic
-                      title="Most Used Device"
-                      value={"Arduino Due"}
-                      prefix={""}
-                      valueStyle={{color: "black"}}
+                    title="Most Used Board Type"
+                    value={dashboardState.data ? (dashboardState.data as Dashboard).mostUsedDeviceType : ""}
+                    prefix={""}
+                    valueStyle={{color: "black"}}
                     />
                   </Col>
                   <Col span={12}>
                     <Statistic
-                      title="Connected Board Types"
-                      value={"2/27"}
+                      title="Connected / Supported Types"
+                      value={"2"}
+                      suffix={"/27"}
                       prefix={<ShrinkOutlined />}
                       valueStyle={{color: "grey"}}
                     />
+                    </Col>
+                    <Col span={12}>
                     <Statistic
-                      title="Average Queue Length"
-                      value={"~90 seconds"}
+                      title="Average Queue Time"
+                      value={dashboardState.data ? (dashboardState.data as Dashboard).averageQueueTime : ""}
                       prefix={<ClockCircleOutlined/>}
-                      valueStyle={{color: "warning"}}
+                      suffix={"seconds"}
                     />
                   </Col>
                 </Row>
