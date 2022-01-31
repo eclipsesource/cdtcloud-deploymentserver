@@ -45,10 +45,7 @@ export const RecentDeploymentItem = (props: Props) => {
     if (props.artifactUrl != null) {
       createDownloadUrl(props.artifactUrl)
         .then(setArtifactUrl)
-        .catch((e) => {
-          console.log(e)
-          setArtifactUnavailable(true)
-        })
+        .catch(() => setArtifactUnavailable(true))
       setFileName(props.artifactUrl.split('/').pop())
     } else {
       setArtifactUnavailable(true)
