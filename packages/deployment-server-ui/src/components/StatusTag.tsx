@@ -1,6 +1,6 @@
-import { DeployStatus, DeviceStatus } from "deployment-server";
-import { Tag } from "antd";
-import React from "react"
+import { DeployStatus, DeviceStatus } from 'deployment-server'
+import { Tag } from 'antd'
+import React from 'react'
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -9,10 +9,10 @@ import {
   ExclamationCircleOutlined,
   PlayCircleOutlined,
   SyncOutlined
-} from "@ant-design/icons"
-import classnames from "classnames"
+} from '@ant-design/icons'
+import classnames from 'classnames'
 
-import styles from "./StatusTag.module.scss"
+import styles from './StatusTag.module.scss'
 
 interface Props {
   status: DeployStatus | DeviceStatus,
@@ -49,7 +49,7 @@ export const StatusTag = (props: Props) => {
       icon: <DesktopOutlined/>
     }
   }
-  
+
   return (
     <Tag
       className={classnames(styles.label, styles[props.status.toLowerCase()])}
@@ -57,5 +57,5 @@ export const StatusTag = (props: Props) => {
     >
       {props.status}
     </Tag>
-  );
+  )
 }

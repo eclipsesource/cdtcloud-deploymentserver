@@ -1,11 +1,11 @@
-import { List } from "antd"
-import React from "react"
-import { TransitionGroup } from "react-transition-group"
-import "./RecentDeploymentList.css"
+import { List } from 'antd'
+import React from 'react'
+import { TransitionGroup } from 'react-transition-group'
+import './RecentDeploymentList.css'
 
-import { RecentDeployment } from "deployment-server"
-import defineFunctionalComponent from "../../util/defineFunctionalComponent"
-import { RecentDeploymentItem } from "./RecentDeploymentItem"
+import { RecentDeployment } from 'deployment-server'
+import defineFunctionalComponent from '../../util/defineFunctionalComponent'
+import { RecentDeploymentItem } from './RecentDeploymentItem'
 
 interface Props {
   data: RecentDeployment[] | undefined,
@@ -14,7 +14,7 @@ interface Props {
 
 export default defineFunctionalComponent(function RecentDeploymentList(props: Props) {
   return (
-    <List itemLayout="horizontal">
+    <List itemLayout={'horizontal'}>
       <TransitionGroup>
         {props.data != null ?
           props.data.map((item: RecentDeployment) => (
