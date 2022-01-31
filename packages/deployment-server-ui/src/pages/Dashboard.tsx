@@ -141,8 +141,8 @@ export default defineFunctionalComponent(function Dashboard() {
             </Col>
             <Col span={8}>
               <Card
-                title="Supported Board Types"
-                extra={<a href="/types">All Board Types</a>}
+                title="Supported Device Types"
+                extra={<a href="/types">All Device Types</a>}
                 style={{height: "100%"}}
               >
                 <h2>27</h2>
