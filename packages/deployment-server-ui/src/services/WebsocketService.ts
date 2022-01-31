@@ -20,6 +20,7 @@ export const useWebsocket = (route: string, condition: boolean = true) => {
   useEffect(() => {
     // Object to avoid clones of sockets
     let newSocket = { ws: null } as { ws: WebSocket | null }
+
     async function openSocket() {
       const ws = await createWebsocket(route)
       ws.onopen = () => setOpen(true)
@@ -31,6 +32,7 @@ export const useWebsocket = (route: string, condition: boolean = true) => {
       setSocket(ws)
       newSocket.ws = ws
     }
+
     if (condition) {
       openSocket()
     }

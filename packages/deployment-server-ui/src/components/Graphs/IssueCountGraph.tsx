@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import defineFunctionalComponent from '../../util/defineFunctionalComponent';
+import React, { useState, useEffect } from 'react'
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import defineFunctionalComponent from '../../util/defineFunctionalComponent'
 import { format } from 'date-fns'
 
 import styles from './Graph.module.scss'
@@ -37,21 +37,21 @@ export default defineFunctionalComponent(function IssueCountGraph(props: Props) 
     return (
       <div className={styles.chart}>
         <ResponsiveContainer>
-          <AreaChart data={graphData} >
+          <AreaChart data={graphData}>
             <CartesianGrid vertical={false} stroke="#aaaaaa77"/>
             <XAxis dataKey="date"/>
             <YAxis allowDecimals={false}/>
             <Tooltip formatter={(value: number[], name: string) => {
-              if (name === "Issues") {
+              if (name === 'Issues') {
                 return value[1] - value[0]
               }
               return value
             }}/>
-            <Area type={'monotone'} dataKey={'noIssue'} name={'Deployments'} fill={"#b7eb8f"} stroke={"#52c41a"}/>
-            <Area type={'monotone'} dataKey={'total'} name={'Issues'} fill={"#ffa39e"} stroke={"#cf1322"}/>
+            <Area type={'monotone'} dataKey={'noIssue'} name={'Deployments'} fill={'#b7eb8f'} stroke={'#52c41a'}/>
+            <Area type={'monotone'} dataKey={'total'} name={'Issues'} fill={'#ffa39e'} stroke={'#cf1322'}/>
           </AreaChart>
         </ResponsiveContainer>
       </div>
-    );
+    )
   }
-);
+)

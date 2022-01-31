@@ -1,11 +1,11 @@
-import { List } from "antd"
-import React from "react"
-import { TransitionGroup } from "react-transition-group"
-import "./RecentDeploymentList.css"
+import { List } from 'antd'
+import React from 'react'
+import { TransitionGroup } from 'react-transition-group'
+import './RecentDeploymentList.css'
 
-import { RecentDeployment } from "deployment-server"
-import defineFunctionalComponent from "../../util/defineFunctionalComponent"
-import { RecentDeploymentItem } from "./RecentDeploymentItem"
+import { RecentDeployment } from 'deployment-server'
+import defineFunctionalComponent from '../../util/defineFunctionalComponent'
+import { RecentDeploymentItem } from './RecentDeploymentItem'
 
 interface Props {
   data: RecentDeployment[] | undefined,

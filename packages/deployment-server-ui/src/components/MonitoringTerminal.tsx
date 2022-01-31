@@ -1,10 +1,10 @@
-import React, { CSSProperties, useEffect, useRef, useState } from "react"
+import React, { CSSProperties, useEffect, useRef, useState } from 'react'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
-import type { DeployStatus } from "deployment-server"
-import { useMonitor } from "../services/MonitoringService"
+import type { DeployStatus } from 'deployment-server'
+import { useMonitor } from '../services/MonitoringService'
 
-import "./xterm.css";
+import './xterm.css'
 
 interface Props {
   deploymentId: string,
@@ -28,11 +28,11 @@ const MonitoringTerminal = (props: Props) => {
       fontSize: 14,
       convertEol: true,
       disableStdin: true,
-      rendererType: "dom",
+      rendererType: 'dom',
       cursorBlink: false,
       theme: {
-        background: "black",
-        foreground: "white",
+        background: 'black',
+        foreground: 'white',
         cursor: undefined
       }
     }))
@@ -68,8 +68,8 @@ const MonitoringTerminal = (props: Props) => {
       subscribe((message) => {
         const data = typeof message.data === 'string' ? message.data.trim() : new Uint8Array(message.data)
 
-        if (data != null && data !== "" && data.length != 0) {
-          terminalRef.current?.writeln(data);
+        if (data != null && data !== '' && data.length != 0) {
+          terminalRef.current?.writeln(data)
         }
       })
     }

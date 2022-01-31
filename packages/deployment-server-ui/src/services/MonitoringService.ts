@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { DeployStatus } from "deployment-server/dist/src"
+import { DeployStatus } from 'deployment-server/dist/src'
 
 const createWebsocket = async (route: string): Promise<WebSocket> => {
   const url = `${window.location.protocol === 'https' ? 'wss' : 'ws'}://${window.location.host}${route}`
@@ -15,6 +15,7 @@ export const useMonitor = (deploymentId: string, deployStatus: keyof typeof Depl
   useEffect(() => {
     // Object to avoid clones of sockets
     let newSocket = { ws: null } as { ws: WebSocket | null }
+
     async function openSocket() {
       const ws = await createWebsocket(`/api/deployments/${deploymentId}/stream`)
       ws.onopen = () => setOpen(true)
@@ -27,7 +28,7 @@ export const useMonitor = (deploymentId: string, deployStatus: keyof typeof Depl
       newSocket.ws = ws
     }
 
-    if (deployStatus === "RUNNING" && condition) {
+    if (deployStatus === 'RUNNING' && condition) {
       openSocket()
     } else {
       socket?.close()

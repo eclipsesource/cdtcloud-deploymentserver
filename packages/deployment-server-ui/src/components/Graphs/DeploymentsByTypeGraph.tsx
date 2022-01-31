@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import defineFunctionalComponent from '../../util/defineFunctionalComponent';
+import React, { useState, useEffect } from 'react'
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import defineFunctionalComponent from '../../util/defineFunctionalComponent'
 import { format } from 'date-fns'
 
 import styles from './Graph.module.scss'
@@ -24,7 +24,7 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph(props: 
           return ([...acc,
             {
               date: dateFormatter(Date.parse(key)),
-              ...Object.entries(value).reduce((ent, [k, v]) => ({...ent, [k]: v}), [])
+              ...Object.entries(value).reduce((ent, [k, v]) => ({ ...ent, [k]: v }), [])
             }])
         }, [])
         setGraphData(convertedData)
@@ -44,11 +44,11 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph(props: 
               if (key == null || key === 'date') {
                 return
               }
-              return <Area type={"monotone"} dataKey={key} name={key}/>
+              return <Area type={'monotone'} dataKey={key} name={key}/>
             })}
           </AreaChart>
         </ResponsiveContainer>
       </div>
-    );
+    )
   }
-);
+)
