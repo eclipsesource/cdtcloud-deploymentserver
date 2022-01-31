@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/prefer-reduce-type-parameter */
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
-import { DeployStatus, DeviceStatus } from '@prisma/client'
+import client, { DeviceStatus as DeviceStatusType, DeployStatus as DeployStatusType } from '@prisma/client'
 import { Router } from 'express'
 import { Dashboard } from '.'
 import { validate } from '../util/validate'
+
+const { DeployStatus, DeviceStatus } = client
 
 export default function dashboardRoutes (router: Router): void {
   router.get(
@@ -11,6 +13,35 @@ export default function dashboardRoutes (router: Router): void {
     validate<Dashboard>({}),
     async (req, res, next) => {
       try {
+        const [{ mostUsedDeviceType }] = await req.db.$queryRaw`
+          SELECT
+            "DeviceType"."name" as "mostUsedDeviceType"
+          FROM
+            "DeployRequest"
+          LEFT JOIN "Device" ON "Device".id = "DeployRequest"."deviceId"
+          LEFT JOIN "DeviceType" ON "DeviceType".id = "Device"."deviceTypeId"
+          GROUP BY
+            "DeviceType"."name"
+          ORDER BY
+            COUNT("DeviceType"."name") DESC
+          LIMIT 1
+        ` as [{mostUsedDeviceType: string}]
+
+        const pendingDeploymentsCount = await req.db.deployRequest.count({
+          where: {
+            status: DeployStatus.PENDING
+          }
+        })
+        const targetDevicesCount = await req.db.device.count({
+          where: {
+            status: {
+              not: DeviceStatus.UNAVAILABLE
+            }
+          }
+        })
+
+        const averageQueueTime = Math.round(pendingDeploymentsCount * 30 / targetDevicesCount)
+
         const recentDeployments = await req.db.deployRequest.findMany({
           take: 5,
           include: {
@@ -49,12 +80,12 @@ export default function dashboardRoutes (router: Router): void {
         const deploymentOverview = await req.db.deployRequest.groupBy({
           by: ['status'],
           _count: true
-        }).then(x => x.reduce((acc, { status, _count }) => ({ ...acc, [status]: _count }), {} as Record<DeployStatus, number>))
+        }).then(x => x.reduce((acc, { status, _count }) => ({ ...acc, [status]: _count }), {} as Record<DeployStatusType, number>))
 
         const deviceOverview = await req.db.device.groupBy({
           by: ['status'],
           _count: true
-        }).then(x => x.reduce((acc, { status, _count }) => ({ ...acc, [status]: _count }), {} as Record<DeviceStatus, number>))
+        }).then(x => x.reduce((acc, { status, _count }) => ({ ...acc, [status]: _count }), {} as Record<DeviceStatusType, number>))
 
         return res.json({
           recentDeployments,
@@ -62,7 +93,9 @@ export default function dashboardRoutes (router: Router): void {
           deployRequestCount,
           deviceOverview,
           deviceCount,
-          deploymentsPerBucket
+          deploymentsPerBucket,
+          mostUsedDeviceType,
+          averageQueueTime
         })
       } catch (e) {
         next(e)

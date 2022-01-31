@@ -13,7 +13,16 @@ export default function deploymentRequestsRoutes (router: Router): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.get('/deployments', async (req, res, next) => {
     try {
-      const deploymentRequests = await req.db.deployRequest.findMany()
+      const deploymentRequests = await req.db.deployRequest.findMany({
+        include: {
+          device: {
+            include: {
+              type: true
+            }
+          }
+        }
+      }
+      )
       return res.json(deploymentRequests)
     } catch (e) {
       next(e)
@@ -24,7 +33,14 @@ export default function deploymentRequestsRoutes (router: Router): void {
     try {
       const deploymentRequest =
         await req.db.deployRequest.findUnique({
-          where: { id: req.params.id }
+          where: { id: req.params.id },
+          include: {
+            device: {
+              include: {
+                type: true
+              }
+            }
+          }
         })
 
       if (deploymentRequest == null) {
