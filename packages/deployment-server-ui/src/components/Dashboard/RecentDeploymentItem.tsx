@@ -77,7 +77,7 @@ export const RecentDeploymentItem = (props: Props) => {
             href={`/types/${props.device.deviceTypeId}`}
             icon={<FontAwesomeIcon icon={'microchip'} style={{marginRight: '0.5em'}}/>}
           >
-            View Device
+            View Board Type
           </Button>,
           <Tooltip title={artifactUnavailable ? "Artifact unavailable for download" : ""}>
             <Button
