@@ -13,7 +13,7 @@ export default function dashboardRoutes (router: Router): void {
     validate<Dashboard>({}),
     async (req, res, next) => {
       try {
-        const [{ mostUsedDeviceType }] = await req.db.$queryRaw`
+        const [{ mostUsedDeviceType } = { mostUsedDeviceType: 'Unknown' }] = await req.db.$queryRaw`
           SELECT
             "DeviceType"."name" as "mostUsedDeviceType"
           FROM
@@ -25,7 +25,7 @@ export default function dashboardRoutes (router: Router): void {
           ORDER BY
             COUNT("DeviceType"."name") DESC
           LIMIT 1
-        ` as [{mostUsedDeviceType: string}]
+        ` as [{mostUsedDeviceType: string} | undefined]
 
         const pendingDeploymentsCount = await req.db.deployRequest.count({
           where: {
