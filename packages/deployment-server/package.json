@@ -46,6 +46,7 @@
     "express-json-validator-middleware": "^2.2.1",
     "helmet": "^5.0.1",
     "multer": "^1.4.3",
+    "multer-cloud-storage": "^2.8.0",
     "pino-http": "^6.3.3",
     "statuses": "^2.0.1",
     "undici": "^4.10.1",
