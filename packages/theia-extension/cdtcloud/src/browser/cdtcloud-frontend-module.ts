@@ -12,6 +12,8 @@ import "../../src/browser/style/index.css";
 import {
   CompilationService,
   COMPILATION_PATH,
+  ConfigService,
+  CONFIG_PATH,
   DeviceTypeService,
   DEVICE_TYPES_PATH,
 } from "../common/protocol";
@@ -41,6 +43,13 @@ export default new ContainerModule((bind) => {
   .toDynamicValue((ctx) => {
     const connection = ctx.container.get(WebSocketConnectionProvider);
     return connection.createProxy<CompilationService>(COMPILATION_PATH);
+  })
+  .inSingletonScope();
+
+  bind(ConfigService)
+  .toDynamicValue((ctx) => {
+    const connection = ctx.container.get(WebSocketConnectionProvider);
+    return connection.createProxy<ConfigService>(CONFIG_PATH);
   })
   .inSingletonScope();
 
