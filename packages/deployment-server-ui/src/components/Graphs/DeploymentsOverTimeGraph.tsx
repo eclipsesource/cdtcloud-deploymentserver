@@ -34,8 +34,8 @@ export default defineFunctionalComponent(function DeploymentsOverTimeGraph(props
       <div className={styles.chart}>
         <ResponsiveContainer>
           <AreaChart data={graphData.slice(-props.chartTime)} margin={{ top: 10, right: 0, left: -30, bottom: 5 }}>
-            <CartesianGrid vertical={false} stroke="#aaaaaa77"/>
-            <XAxis dataKey="date"/>
+            <CartesianGrid vertical={false} stroke={'#aaaaaa77'}/>
+            <XAxis dataKey={'date'}/>
             <YAxis allowDecimals={false}/>
             <Tooltip formatter={(value: number) => [value, 'Deployments']}/>
             <Area type={'monotone'} dataKey={'deploys'} stroke={'#3930e5'} fill={'#3b9aec'}/>

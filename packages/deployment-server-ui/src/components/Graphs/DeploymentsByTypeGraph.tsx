@@ -35,8 +35,8 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph(props: 
       <div className={styles.chart}>
         <ResponsiveContainer>
           <AreaChart data={graphData}>
-            <CartesianGrid vertical={false} stroke="#aaaaaa77"/>
-            <XAxis dataKey="date"/>
+            <CartesianGrid vertical={false} stroke={'#aaaaaa77'}/>
+            <XAxis dataKey={'date'}/>
             <YAxis allowDecimals={false}/>
             <Tooltip/>
             {graphData.map((value, index) => {

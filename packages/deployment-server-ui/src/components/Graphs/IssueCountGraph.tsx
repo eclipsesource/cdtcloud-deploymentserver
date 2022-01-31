@@ -38,8 +38,8 @@ export default defineFunctionalComponent(function IssueCountGraph(props: Props) 
       <div className={styles.chart}>
         <ResponsiveContainer>
           <AreaChart data={graphData}>
-            <CartesianGrid vertical={false} stroke="#aaaaaa77"/>
-            <XAxis dataKey="date"/>
+            <CartesianGrid vertical={false} stroke={'#aaaaaa77'}/>
+            <XAxis dataKey={'date'}/>
             <YAxis allowDecimals={false}/>
             <Tooltip formatter={(value: number[], name: string) => {
               if (name === 'Issues') {

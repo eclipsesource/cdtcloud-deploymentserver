@@ -63,7 +63,7 @@ export const RecentDeploymentItem = (props: Props) => {
       <Item
         actions={[
           <Button
-            type="primary"
+            type={'primary'}
             icon={<FontAwesomeIcon icon={'terminal'} style={{ marginRight: '0.5em' }}/>}
             disabled={props.status !== 'RUNNING'}
             onClick={() => setMonitorOpen(true)}
@@ -71,7 +71,7 @@ export const RecentDeploymentItem = (props: Props) => {
             Monitor
           </Button>,
           <Button
-            type="primary"
+            type={'primary'}
             href={`/device/${props.device.id}`}
             icon={<FontAwesomeIcon icon={'microchip'} style={{ marginRight: '0.5em' }}/>}
           >
@@ -97,7 +97,7 @@ export const RecentDeploymentItem = (props: Props) => {
           className={styles.modal}
           width={'70%'}
           footer={
-            <Button key="close" type={'primary'} onClick={() => setMonitorOpen(false)}>
+            <Button key={'close'} type={'primary'} onClick={() => setMonitorOpen(false)}>
               Close
             </Button>
           }

@@ -14,7 +14,7 @@ interface Props {
 
 export default defineFunctionalComponent(function RecentDeploymentList(props: Props) {
   return (
-    <List itemLayout="horizontal">
+    <List itemLayout={'horizontal'}>
       <TransitionGroup>
         {props.data != null ?
           props.data.map((item: RecentDeployment) => (
