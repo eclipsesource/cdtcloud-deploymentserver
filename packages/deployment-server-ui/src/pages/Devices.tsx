@@ -18,6 +18,10 @@ export const DeviceStatus = {
   MONITORING: 'MONITORING'
 }
 
+const removeUnavailable = (devices: Device[]): Device[] => {
+  return devices.filter((device) => device.status !== DeviceStatus.UNAVAILABLE)
+}
+
 const formatDevices = async (devices: Device[]): Promise<DevicesItem[]> => {
   return await Promise.all(
     devices.map<Promise<DevicesItem>>(async (device) => {
@@ -122,7 +126,8 @@ export default defineFunctionalComponent(function Devices() {
     fetch("/api/devices")
       .then((res) => res.json())
       .then(async (res) => {
-        const devicesWithNames = await formatDevices(res)
+        const noUnavailable = removeUnavailable(res)
+        const devicesWithNames = await formatDevices(noUnavailable)
         setDevices(devicesWithNames)
         setLoading(false)
       });
