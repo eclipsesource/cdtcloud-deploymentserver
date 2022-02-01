@@ -1,11 +1,10 @@
 import { DeployRequest, Device, DeviceTypeResource } from "deployment-server";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import defineFunctionalComponent from "../util/defineFunctionalComponent";
-import { Card, Col, Divider, Row, Spin, Statistic } from "antd";
+import { Card, Col, Row, Spin, Statistic } from "antd";
 import { useInterval } from "react-use";
 import { useParams } from "react-router-dom";
 import { StatusTag } from "../components/StatusTag";
-import DeploymentsByTypeGraph from "../components/Graphs/DeploymentsByTypeGraph";
 import DeploymentsStatusGraph from "../components/Graphs/DeploymentsStatusGraph";
 import IssueCountGraph from "../components/Graphs/IssueCountGraph";
 import Meta from "antd/lib/card/Meta";
