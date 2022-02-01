@@ -132,13 +132,7 @@ export default defineFunctionalComponent(function Devices() {
       title: 'Total Deployments',
       dataIndex: 'deployCount',
       key: 'deploys',
-      filters: deviceTypes.map((deviceType: DeviceType) => {
-        return { text: deviceType.name, value: deviceType.id }
-      }),
-      filteredValue: filters.deviceTypeId || null,
-      onFilter: (value: string, record: Device) => {
-        return record.deviceTypeId === value
-      }
+      sorter: (x: DevicesItem, y: DevicesItem) => x.deployCount - y.deployCount,
     },
     {
       title: 'Status',
