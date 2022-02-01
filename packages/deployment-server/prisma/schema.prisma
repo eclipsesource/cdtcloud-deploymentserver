@@ -19,6 +19,8 @@ model DeviceType {
   id      String   @id @default(uuid()) @db.Uuid
   name    String
   fqbn    String   @unique
+  image   String   @default("")
+  store   String   @default("")
   devices Device[]
   issues  Issue[]
 }
