@@ -5,18 +5,15 @@ import type {
 } from "deployment-server";
 
 import { useState, useEffect } from "react";
-import { Card, List, Skeleton } from "antd";
+import { Card, List, Row, Col } from "antd";
 import { BookOutlined, ZoomInOutlined } from "@ant-design/icons";
-
 import { defineFunctionalComponent } from "../util/defineFunctionalComponent";
-import SkeletonButton from "antd/lib/skeleton/Button";
-
-import { Row, Col } from "antd";
 import { useInterval } from "react-use";
 import { Link, useParams } from "react-router-dom";
 import typesData from "../resources/typesDataReduced.json";
 
 const { Meta } = Card;
+
 
 export default defineFunctionalComponent(function Types() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -24,6 +21,7 @@ export default defineFunctionalComponent(function Types() {
   const [deviceType, setDeviceType] = useState<DeviceTypeResource>();
   const [deployments, setDeployments] = useState<DeployRequest[]>([]);
   const [refetchFlip, setRefetchFlip] = useState(false);
+  
 
   const { id } = useParams();
   function findDeviceById(id: string) {
@@ -66,7 +64,6 @@ export default defineFunctionalComponent(function Types() {
       loading
     ) {
       setLoading(false);
-      console.log(deviceType);
     }
   }, [devices, deviceType, deployments]);
 
@@ -75,18 +72,7 @@ export default defineFunctionalComponent(function Types() {
       const typesRes = await fetch(`/api/device-types/${id}`);
       const types = await typesRes.json();
       setDeviceType(types);
-
-      const deployRes = await fetch("/api/deployments");
-      const deploys = await deployRes.json();
-      setDeployments(
-        deploys.filter(
-          // @ts-ignore: Unreachable code error
-          (deployment) =>
-            deployment.deviceId === findDeviceById(deployment.deviceId)?.id
-        )
-      );
     };
-
     fetchAsync();
   }, [refetchFlip]);
 
@@ -95,7 +81,7 @@ export default defineFunctionalComponent(function Types() {
       <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="middle">
         <Col span={24}>
           <List
-            header={<h2>Supported Board Types</h2>}
+            header={<h2>Supported Device Types</h2>}
             style={{
               overflow: "scroll",
               overflowX: "hidden",
@@ -129,7 +115,7 @@ export default defineFunctionalComponent(function Types() {
                     <Meta
                       title={type.Name}
                       description={"FQBN:" + type.FQBN}
-                      style={{ padding: "24px px" }}
+                      style={{ padding: "24px" }}
                     />
                   </Card>
                 </List.Item>

@@ -58,7 +58,6 @@ export default defineFunctionalComponent(function TypeId() {
       loading
     ) {
       setLoading(false);
-      console.log(deviceType);
     }
   }, [devices, deviceType, deployments]);
 

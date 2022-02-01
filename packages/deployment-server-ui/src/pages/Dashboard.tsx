@@ -143,14 +143,14 @@ export default defineFunctionalComponent(function Dashboard() {
             </Col>
             <Col span={8}>
               <Card
-                title="Board Types"
-                extra={<a href="/types">All Board Types</a>}
+                title="Device Types"
+                extra={<a href="/types">All Device Types</a>}
                 style={{height: "100%"}}
               >
                <Row gutter={[{xs: 8, sm: 16, md: 24, lg: 32}, 20]}>
                   <Col span={24}>
                     <Statistic
-                    title="Most Used Board Type"
+                    title="Most Used Device Type"
                     value={dashboardState.data ? (dashboardState.data as Dashboard).mostUsedDeviceType : ""}
                     prefix={""}
                     valueStyle={{color: "black"}}
