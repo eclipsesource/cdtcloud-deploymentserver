@@ -31,3 +31,10 @@ export interface DeploymentError {
     message: string,
   }
 }
+
+export const ConfigService = Symbol("Config");
+export const CONFIG_PATH = "/services/config";
+export interface ConfigService {
+  getWebsocketHost(): Promise<string>;
+  getDeploymentServerHost(): Promise<string>;
+}

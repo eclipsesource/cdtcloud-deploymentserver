@@ -3,6 +3,7 @@ import { Card, Table, TablePaginationConfig } from 'antd'
 import { FilterValue } from 'antd/lib/table/interface'
 import React, { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { useInterval } from "react-use";
 import defineFunctionalComponent from '../util/defineFunctionalComponent'
 import { typeIdToName } from '../util/deviceMapping'
 import classnames from 'classnames'
@@ -45,6 +46,7 @@ export default defineFunctionalComponent(function Devices() {
   const [loading, setLoading] = useState<boolean>(true)
   const [showUnavailable, setShowUnavailable] = useState<boolean>(false)
   const [hover, setHover] = useState<boolean>(false)
+  const [refetchFlip, setRefetchFlip] = useState<boolean>(false)
 
   const [filters, setFilters] = useState<Record<string, FilterValue | null>>({
     status: [],
@@ -52,6 +54,10 @@ export default defineFunctionalComponent(function Devices() {
   })
 
   let [searchParams, setSearchParams] = useSearchParams()
+
+  useInterval(function () {
+    setRefetchFlip(!refetchFlip);
+  }, 1500);
 
   function handleChange(
     _pagination: TablePaginationConfig,
@@ -74,7 +80,7 @@ export default defineFunctionalComponent(function Devices() {
       const sortedTypes = types.sort((x: DeviceType, y: DeviceType) => x.name < y.name ? -1 : x.name > y.name ? 1 : 0)
       setDeviceTypes(sortedTypes)
     })
-  }, [])
+  }, [refetchFlip])
 
   useEffect(() => {
     const asyncFetch = async () => {
@@ -97,10 +103,9 @@ export default defineFunctionalComponent(function Devices() {
         setLoading(false)
       }
     }
-    if (loading) {
-      asyncFetch()
-    }
-  }, [devices])
+
+    asyncFetch()
+  }, [refetchFlip])
 
   const columns: any[] = [
     {
@@ -168,7 +173,7 @@ export default defineFunctionalComponent(function Devices() {
         const devicesWithNames = await formatDevices(showUnavailable ? res : removeUnavailable(res))
         setDevices(devicesWithNames)
       })
-  }, [showUnavailable])
+  }, [showUnavailable, refetchFlip])
 
   return (
     <main>

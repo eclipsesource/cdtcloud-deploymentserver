@@ -2,7 +2,7 @@ import { Connector, Device, DeviceType, PrismaClient } from '@prisma/client'
 import { randomUUID } from 'crypto'
 import { registerConnector } from '../../src/connectors/queue'
 
-const randomDeviceTypeData = (): {name: string, fqbn: string} => ({
+export const randomDeviceTypeData = (): {name: string, fqbn: string} => ({
   name: 'Test Device Type',
   fqbn: randomUUID()
 })
