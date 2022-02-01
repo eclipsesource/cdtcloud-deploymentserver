@@ -7,6 +7,7 @@ import defineFunctionalComponent from "../util/defineFunctionalComponent";
 import { typeIdToName } from "../util/deviceMapping"
 
 import { StatusTag } from "../components/StatusTag"
+import { useInterval } from "react-use";
 
 type DevicesItem = { deviceTypeName: string } & Device
 
@@ -36,6 +37,8 @@ export default defineFunctionalComponent(function Devices() {
   const [devices, setDevices] = useState<DevicesItem[]>(Array(15).fill({}));
   const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>(Array(15).fill({}));
   const [loading, setLoading] = useState<boolean>(true)
+  let [refetchFlip, setRefetchFlip] = useState(false);
+
 
   const [filters, setFilters] = useState<Record<string, FilterValue | null>>({
     status: [],
@@ -44,6 +47,10 @@ export default defineFunctionalComponent(function Devices() {
 
   let [searchParams, setSearchParams] = useSearchParams();
 
+  useInterval(function () {
+    setRefetchFlip(!refetchFlip);
+  }, 1500);
+  
   function handleChange(
     _pagination: TablePaginationConfig,
     filters: Record<string, FilterValue | null>
@@ -65,7 +72,7 @@ export default defineFunctionalComponent(function Devices() {
       const sortedTypes = types.sort((x: DeviceType, y: DeviceType) => x.name < y.name ? -1 : x.name > y.name ? 1 : 0)
       setDeviceTypes(sortedTypes);
     });
-  }, []);
+  }, [refetchFlip]);
 
   const columns: any[] = [
     {
