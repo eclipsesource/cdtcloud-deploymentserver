@@ -2,7 +2,7 @@ import { Device, DeviceType, DeployRequest } from 'deployment-server'
 import { Card, Table, TablePaginationConfig } from 'antd'
 import { FilterValue } from 'antd/lib/table/interface'
 import React, { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useInterval } from "react-use";
 import defineFunctionalComponent from '../util/defineFunctionalComponent'
 import { typeIdToName } from '../util/deviceMapping'
@@ -47,65 +47,10 @@ export default defineFunctionalComponent(function Devices() {
   const [showUnavailable, setShowUnavailable] = useState<boolean>(false)
   const [hover, setHover] = useState<boolean>(false)
   const [refetchFlip, setRefetchFlip] = useState<boolean>(false)
-
   const [filters, setFilters] = useState<Record<string, FilterValue | null>>({
     status: [],
     deviceTypeId: []
   })
-
-  let [searchParams, setSearchParams] = useSearchParams()
-
-  useInterval(function () {
-    setRefetchFlip(!refetchFlip);
-  }, 1500);
-
-  function handleChange(
-    _pagination: TablePaginationConfig,
-    filters: Record<string, FilterValue | null>
-  ) {
-    let params: Record<string, string | string[]> = {
-      status: [],
-      deviceTypeId: []
-    }
-    setFilters(filters)
-    for (const [key, value] of Object.entries(filters)) {
-      if (value != null) params[key] = value.map((val) => '' + val)
-    }
-    setSearchParams(params)
-  }
-
-  useEffect(() => {
-    fetch('/api/device-types').then(async (res) => {
-      const types = await res.json()
-      const sortedTypes = types.sort((x: DeviceType, y: DeviceType) => x.name < y.name ? -1 : x.name > y.name ? 1 : 0)
-      setDeviceTypes(sortedTypes)
-    })
-  }, [refetchFlip])
-
-  useEffect(() => {
-    const asyncFetch = async () => {
-      if (devices != null) {
-        const res = await fetch('/api/deployments')
-        const deploys = await res.json()
-        const amounts = devices.reduce<Record<string, number>>((acc, device) => {
-          return {
-            ...acc,
-            [device.id]: 0
-          }
-        }, {})
-        deploys.map((deploy: DeployRequest) => {
-          amounts[deploy.deviceId]++
-        })
-        const withAmount = devices.map((device) => {
-          return { ...device, deployCount: amounts[device.id] }
-        })
-        setDevices(withAmount)
-        setLoading(false)
-      }
-    }
-
-    asyncFetch()
-  }, [refetchFlip])
 
   const columns: any[] = [
     {
@@ -166,13 +111,57 @@ export default defineFunctionalComponent(function Devices() {
     }
   ]
 
+  useInterval(function () {
+    setRefetchFlip(!refetchFlip);
+  }, 1000);
+
+  function handleChange(
+    _pagination: TablePaginationConfig,
+    filters: Record<string, FilterValue | null>
+  ) {
+    let params: Record<string, string | string[]> = {
+      status: [],
+      deviceTypeId: []
+    }
+    setFilters(filters)
+    for (const [key, value] of Object.entries(filters)) {
+      if (value != null) params[key] = value.map((val) => '' + val)
+    }
+  }
+
   useEffect(() => {
-    fetch('/api/devices')
-      .then((res) => res.json())
-      .then(async (res) => {
-        const devicesWithNames = await formatDevices(showUnavailable ? res : removeUnavailable(res))
-        setDevices(devicesWithNames)
+    fetch('/api/device-types').then(async (res) => {
+      const types = await res.json()
+      const sortedTypes = types.sort((x: DeviceType, y: DeviceType) => x.name < y.name ? -1 : x.name > y.name ? 1 : 0)
+      setDeviceTypes(sortedTypes)
+    })
+  }, [refetchFlip])
+
+  useEffect(() => {
+    const asyncFetch = async () => {
+      const devRes = await fetch('/api/devices')
+      const devs = await devRes.json()
+      const devicesWithNames = await formatDevices(showUnavailable ? devs : removeUnavailable(devs))
+
+      const deployRes = await fetch('/api/deployments')
+      const deploys = await deployRes.json()
+      const amounts = devicesWithNames.reduce<Record<string, number>>((acc, device) => {
+        return {
+          ...acc,
+          [device.id]: 0
+        }
+      }, {})
+      deploys.map((deploy: DeployRequest) => {
+        amounts[deploy.deviceId]++
       })
+      const withAmount = devicesWithNames.map((device) => {
+        return { ...device, deployCount: amounts[device.id] }
+      })
+      setDevices(withAmount)
+      setLoading(false)
+    }
+
+    asyncFetch()
   }, [showUnavailable, refetchFlip])
 
   return (
