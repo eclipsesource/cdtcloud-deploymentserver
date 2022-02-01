@@ -9,6 +9,7 @@ import { ReactWidget } from "@theia/core/lib/browser/widgets/react-widget";
 import { MessageService } from "@theia/core";
 import {
   CompilationService,
+  ConfigService,
   Deployment,
   DeviceTypeService,
 } from "../common/protocol";
@@ -43,7 +44,9 @@ export class CdtcloudWidget extends ReactWidget {
     @inject(WorkspaceService)
     protected readonly workspaceService: WorkspaceService,
     @inject(DeploymentManager)
-    protected readonly deploymentManager: DeploymentManager
+    protected readonly deploymentManager: DeploymentManager,
+    @inject(ConfigService)
+    protected readonly configService: ConfigService
   ) {
     super();
   }
@@ -191,7 +194,9 @@ export class CdtcloudWidget extends ReactWidget {
   private startPollingDeployments(): void {
     this.interval = setInterval(async () => {
       try {
-        const request = await fetch("http://localhost:3001/api/deployments");
+        const request = await fetch(
+          `${await this.configService.getDeploymentServerHost()}/api/deployments`
+        );
 
         const deployments = (await request.json()) as Deployment[];
 

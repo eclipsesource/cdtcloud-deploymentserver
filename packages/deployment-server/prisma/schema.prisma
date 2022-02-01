@@ -11,12 +11,12 @@ datasource db {
 }
 
 model Connector {
-  id      String   @unique @default(uuid()) @db.Uuid
+  id      String   @id @default(uuid()) @db.Uuid
   devices Device[]
 }
 
 model DeviceType {
-  id      String   @unique @default(uuid()) @db.Uuid
+  id      String   @id @default(uuid()) @db.Uuid
   name    String
   fqbn    String   @unique
   devices Device[]
@@ -24,7 +24,7 @@ model DeviceType {
 }
 
 model Device {
-  id             String          @unique @default(uuid()) @db.Uuid
+  id             String          @id @default(uuid()) @db.Uuid
   status         DeviceStatus    @default(UNAVAILABLE)
   connector      Connector       @relation(fields: [connectorId], references: [id], onDelete: Cascade)
   type           DeviceType      @relation(fields: [deviceTypeId], references: [id], onDelete: Cascade)
@@ -42,7 +42,7 @@ enum DeviceStatus {
 }
 
 model DeployRequest {
-  id          String       @unique @default(uuid()) @db.Uuid
+  id          String       @id @default(uuid()) @db.Uuid
   device      Device       @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   status      DeployStatus @default(PENDING)
   createdAt   DateTime     @default(now())
@@ -60,8 +60,8 @@ enum DeployStatus {
 }
 
 model Issue {
-  id             String          @unique @default(uuid()) @db.Uuid
-  createdAt      DateTime        @default(now())
-  type           DeviceType      @relation(fields: [deviceTypeId], references: [id], onDelete: Cascade)
-  deviceTypeId   String          @db.Uuid
+  id           String     @id @default(uuid()) @db.Uuid
+  createdAt    DateTime   @default(now())
+  type         DeviceType @relation(fields: [deviceTypeId], references: [id], onDelete: Cascade)
+  deviceTypeId String     @db.Uuid
 }

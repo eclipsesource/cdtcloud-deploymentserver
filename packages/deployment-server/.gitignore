@@ -6,3 +6,4 @@ uploads/*
 !uploads/.keep
 !uploads/example/
 coverage
+.gcs_key.json
