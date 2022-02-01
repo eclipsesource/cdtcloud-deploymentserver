@@ -17,7 +17,7 @@ const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'MM-dd 
 const fillNill = (timeSlots: number) => {
   const initialData = []
   const now = Date.now()
-  for (let i = 0; i < timeSlots; i++) {
+  for (let i = timeSlots; i > 0; i--) {
     const hour = dateFormatter(now - i * 60 * 60 * 1000)
     initialData.push({hour, deploys: 0})
   }
