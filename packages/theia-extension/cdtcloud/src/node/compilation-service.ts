@@ -1,7 +1,8 @@
 import "reflect-metadata";
-import { injectable } from "inversify";
+import { injectable, inject } from "@theia/core/shared/inversify";
 import {
   CompilationService,
+  ConfigService,
   Deployment,
   DeploymentError,
 } from "../common/protocol";
@@ -19,6 +20,9 @@ const readdir = promisify(readdirCb);
 export class CompilationServiceImpl implements CompilationService {
   binaryFile: string;
   artifactUri: string;
+
+  @inject(ConfigService)
+  private readonly configService: ConfigService;
 
   async compile(
     fqbn: string,
@@ -80,7 +84,7 @@ export class CompilationServiceImpl implements CompilationService {
     const formHeaders = form.getHeaders();
 
     const uploadResponse = await got.post<{ artifactUri: string }>(
-      `http://localhost:3001/api/deployment-artifacts`,
+      `${await this.configService.getDeploymentServerHost()}/api/deployment-artifacts`,
       {
         headers: {
           ...formHeaders,
@@ -93,7 +97,7 @@ export class CompilationServiceImpl implements CompilationService {
     const artifactUri = uploadResponse.body.artifactUri;
 
     try {
-      const { body } = await got.post<Omit<Deployment, 'kind'>>(`http://localhost:3001/api/deployments`, {
+      const { body } = await got.post<Omit<Deployment, 'kind'>>(`${await this.configService.getDeploymentServerHost()}/api/deployments`, {
         headers: {
           "Content-Type": "application/json",
         },

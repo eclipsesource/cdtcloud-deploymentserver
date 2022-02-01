@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import defineFunctionalComponent from '../../util/defineFunctionalComponent';
+import React, { useState, useEffect } from 'react'
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import defineFunctionalComponent from '../../util/defineFunctionalComponent'
 import { format } from 'date-fns'
 
 import styles from './Graph.module.scss'
@@ -36,17 +36,19 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph(props: 
     return (
       <div className={styles.chart}>
         <ResponsiveContainer>
-          <AreaChart data={graphData} >
-            <CartesianGrid vertical={false} stroke="#aaaaaa77"/>
-            <XAxis dataKey="date"/>
+          <AreaChart data={graphData}>
+            <CartesianGrid vertical={false} stroke={'#aaaaaa77'}/>
+            <XAxis dataKey={'date'}/>
             <YAxis allowDecimals={false}/>
             <Tooltip/>
-            <Area type={'monotone'} dataKey={'SUCCESS'} name={'Successful'} stackId={1} fill={"#b7eb8f"} stroke={"#52c41a"}/>
-            <Area type={'monotone'} dataKey={'FAILED'} name={'Failed'} stackId={2} fill={"#ffa39e"} stroke={"#cf1322"}/>
-            <Area type={'monotone'} dataKey={'TERMINATED'} name={'Terminated'} stackId={2} fill={"#ffe58f"} stroke={"#faad14"}/>
+            <Area type={'monotone'} dataKey={'SUCCESS'} name={'Successful'} stackId={1} fill={'#b7eb8f'}
+                  stroke={'#52c41a'}/>
+            <Area type={'monotone'} dataKey={'FAILED'} name={'Failed'} stackId={2} fill={'#ffa39e'} stroke={'#cf1322'}/>
+            <Area type={'monotone'} dataKey={'TERMINATED'} name={'Terminated'} stackId={2} fill={'#ffe58f'}
+                  stroke={'#faad14'}/>
           </AreaChart>
         </ResponsiveContainer>
       </div>
-    );
+    )
   }
-);
+)

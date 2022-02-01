@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import {
   Cell,
   Pie,
   PieChart,
   ResponsiveContainer,
   Tooltip
-} from "recharts"
+} from 'recharts'
 
-import colors from "../../Colors.module.scss"
+import colors from '../../Colors.module.scss'
 
-type DataEntries = {status: string, value: number}[]
+type DataEntries = { status: string, value: number }[]
 
 interface Props {
   data: {
@@ -39,12 +39,12 @@ export const DeploymentStatusPie = (props: Props) => {
       <PieChart width={120} height={120}>
         <Pie
           data={graphData}
-          cx="50%"
-          cy="50%"
+          cx={'50%'}
+          cy={'50%'}
           outerRadius={80}
-          fill={"#000000"}
-          dataKey="value"
-          nameKey="status"
+          fill={'#000000'}
+          dataKey={'value'}
+          nameKey={'status'}
           label={((label) => `${(label.percent * 100).toFixed(0)}%`)}
         >
           {graphData.map((entry, index) => (
@@ -54,5 +54,5 @@ export const DeploymentStatusPie = (props: Props) => {
         <Tooltip/>
       </PieChart>
     </ResponsiveContainer>
-  );
+  )
 }
