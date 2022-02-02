@@ -38,10 +38,10 @@ export function CdtCloudSidebar() {
           <Link to={"/deployments"}>Deployments</Link>
         </Menu.Item>
         <Menu.Item key="/devices" icon={<DesktopOutlined />}>
-          <Link to={"/devices"}>Connected Boards</Link>
+          <Link to={"/devices"}>Connected Devices</Link>
         </Menu.Item>
         <Menu.Item key="/types" icon={<FileOutlined />}>
-          <Link to={"/types"}>Board Types</Link>
+          <Link to={"/types"}>Devices Types</Link>
         </Menu.Item>
       </Menu>
     </Sider>

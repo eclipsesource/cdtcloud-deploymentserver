@@ -42,7 +42,7 @@ export function createApp (db: PrismaClient): Application {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         'script-src': ["'self'", "'unsafe-inline'"],
-        'img-src': ["'self'", 'data:', 'storage.googleapis.com']
+        'img-src': ["'self'", 'data:', 'storage.googleapis.com', 'raw.githubusercontent.com']
       }
     }
   }))

@@ -7,6 +7,7 @@ import classnames from "classnames"
 import { Card, Divider, Row, Col, Statistic, Spin, Result } from "antd"
 import {
   CheckCircleOutlined,
+  ClockCircleOutlined,
   CloseCircleOutlined,
   ExclamationCircleOutlined,
   FieldTimeOutlined,
@@ -14,6 +15,7 @@ import {
   LockOutlined,
   PlayCircleOutlined,
   RocketOutlined,
+  ShrinkOutlined,
   SyncOutlined
 } from "@ant-design/icons"
 import { useAppSelector } from "../app/hooks"
@@ -73,7 +75,7 @@ export default defineFunctionalComponent(function Dashboard() {
                   <Col span={8}>
                     <Statistic
                       title="Running Deploys"
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).deployRequestCount : 0}
+                      value={dashboardState.data ? (dashboardState.data as Dashboard).deploymentOverview.RUNNING : 0}
                       prefix={<PlayCircleOutlined/>}
                       valueStyle={{color: "grey"}}
                     />
@@ -118,7 +120,7 @@ export default defineFunctionalComponent(function Dashboard() {
                     <Statistic
                       title="Deploying Devices"
                       value={dashboardState.data ? (dashboardState.data as Dashboard).deviceOverview.DEPLOYING : 0}
-                      prefix={<SyncOutlined spin/>}
+                      prefix={<SyncOutlined/>}
                       valueStyle={{color: "blue"}}
                     />
                   </Col>
@@ -141,17 +143,42 @@ export default defineFunctionalComponent(function Dashboard() {
             </Col>
             <Col span={8}>
               <Card
-                title="Supported Board Types"
-                extra={<a href="/types">All Board Types</a>}
+                title="Device Types"
+                extra={<a href="/types">All Device Types</a>}
                 style={{height: "100%"}}
               >
-                <h2>27</h2>
+               <Row gutter={[{xs: 8, sm: 16, md: 24, lg: 32}, 20]}>
+                  <Col span={24}>
+                    <Statistic
+                    title="Most Used Device Type"
+                    value={dashboardState.data ? (dashboardState.data as Dashboard).mostUsedDeviceType : ""}
+                    valueStyle={{color: "black"}}
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <Statistic
+                      title="Connected / Supported Types"
+                      value={"2"}
+                      suffix={"/19"}
+                      prefix={<ShrinkOutlined />}
+                      valueStyle={{color: "grey"}}
+                    />
+                    </Col>
+                    <Col span={12}>
+                    <Statistic
+                      title="Average Queue Time"
+                      value={dashboardState.data ? (dashboardState.data as Dashboard).averageQueueTime : ""}
+                      prefix={<ClockCircleOutlined/>}
+                      suffix={"seconds"}
+                    />
+                  </Col>
+                </Row>
               </Card>
             </Col>
           </Row>
           <Divider/>
           <Row gutter={[{xs: 8, sm: 16, md: 24, lg: 32}, 20]} align="stretch">
-            <Col span={12}>
+            <Col span={11}>
               <Card
                 title="Deployments"
                 extra={
@@ -164,6 +191,7 @@ export default defineFunctionalComponent(function Dashboard() {
                     </div>
                   </div>
                 }
+                style={{height: "100%", overflow: "auto"}}
               >
                 <DeploymentsOverTimeGraph
                   data={dashboardState.data ? (dashboardState.data as Dashboard).deploymentsPerBucket : undefined}
@@ -171,11 +199,11 @@ export default defineFunctionalComponent(function Dashboard() {
                 />
               </Card>
             </Col>
-            <Col span={12}>
+            <Col span={13}>
               <Card
                 title="Recent Deployments "
                 extra={<a href="/deployments">All Deployments</a>}
-                style={{height: "100%"}}
+                style={{maxHeight: "480px", overflow: "auto"}}
               >
                 <RecentDeploymentList
                   data={dashboardState.data ? (dashboardState.data as Dashboard).recentDeployments : undefined}
