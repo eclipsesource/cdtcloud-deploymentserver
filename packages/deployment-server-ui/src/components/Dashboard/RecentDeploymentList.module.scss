@@ -1,0 +1,28 @@
+.deployment-enter {
+  opacity: 0;
+  max-height: 0;
+}
+
+.deployment-enter-active {
+  opacity: 1;
+  max-height: 100px;
+  transition: all 750ms ease-in-out;
+}
+
+.deployment-exit {
+  max-height: 100px;
+  opacity: 1;
+}
+
+.deployment-exit-active {
+  opacity: 0;
+  max-height: 0;
+  transition: all 750ms ease-in-out;
+}
+
+.nodata {
+  height: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
