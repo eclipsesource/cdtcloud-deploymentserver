@@ -8,21 +8,49 @@ import multer from 'multer'
 import { extname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { CreateArtifactResponseBody } from '.'
+import { env } from 'node:process'
+import { storageEngine as GoogleCloudStorage } from 'multer-cloud-storage'
 
 const destination = join(fileURLToPath(import.meta.url), '../../../uploads')
 const TWENTY_FIVE_MEGABYTES = 26_214_400
+
+const filename: Parameters<typeof multer['diskStorage']>[0]['filename'] = (_req, file, cb) => {
+  cb(null, randomUUID() + extname(file.originalname))
+}
+
+const storage = env.GOOGLE_CLOUD_PROJECT != null
+  ? GoogleCloudStorage({
+    projectId: env.GOOGLE_CLOUD_PROJECT,
+    keyFilename: '.gcs_key.json',
+    filename,
+    bucket: env.GOOGLE_CLOUD_BUCKET,
+    uniformBucketLevelAccess: true,
+    acl: 'publicRead'
+  })
+  : multer.diskStorage({
+    destination,
+    filename
+  })
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace Multer {
+      interface File {
+        // GCS link
+        linkUrl?: string
+      }
+    }
+  }
+}
 
 export default function deploymentArtifactsRoutes (router: Router): void {
   const upload = multer({
     limits: {
       fileSize: TWENTY_FIVE_MEGABYTES
     },
-    storage: multer.diskStorage({
-      destination,
-      filename: (_req, file, cb) => {
-        cb(null, randomUUID() + extname(file.originalname))
-      }
-    })
+    storage
   })
 
   router.post(
@@ -42,7 +70,7 @@ export default function deploymentArtifactsRoutes (router: Router): void {
 
         const { protocol, originalUrl: url } = req
 
-        const artifactUri = `${protocol}://${host}${url}/${req.file.filename}`
+        const artifactUri = req.file.linkUrl ?? `${protocol}://${host}${url}/${req.file.filename}`
         return res.json({ artifactUri })
       } catch (e) {
         next(e)

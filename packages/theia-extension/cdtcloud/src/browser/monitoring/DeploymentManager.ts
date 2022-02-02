@@ -1,7 +1,7 @@
 import { MessageService } from "@theia/core";
 import { inject, injectable } from "@theia/core/shared/inversify";
 import { OutputChannel, OutputChannelManager, OutputChannelSeverity } from "@theia/output/lib/browser/output-channel";
-import { Deployment } from "../../common/protocol";
+import { ConfigService, Deployment } from "../../common/protocol";
 
 @injectable()
 export class DeploymentManager {
@@ -12,7 +12,10 @@ export class DeploymentManager {
     protected readonly outputChannelManager: OutputChannelManager,
 
     @inject(MessageService)
-    protected readonly messageService: MessageService
+    protected readonly messageService: MessageService,
+
+    @inject(ConfigService)
+    protected readonly configService: ConfigService,
 
   ) {
     this.messageService.info('DeploymentManager initialized');
@@ -25,8 +28,8 @@ export class DeploymentManager {
 
   }
 
-  private registerWebSocket(deploymentId: string, channel: OutputChannel) {
-    const socket = new WebSocket(`ws://localhost:3001/api/deployments/${deploymentId}/stream`);
+  private async registerWebSocket(deploymentId: string, channel: OutputChannel) {
+    const socket = new WebSocket(`${await this.configService.getWebsocketHost()}/api/deployments/${deploymentId}/stream`);
 
     socket.onopen = () => {
       channel.show({preserveFocus: true});

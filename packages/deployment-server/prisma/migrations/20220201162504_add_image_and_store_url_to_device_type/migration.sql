@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "DeviceType" ADD COLUMN     "image" TEXT NOT NULL DEFAULT E'',
+ADD COLUMN     "store" TEXT NOT NULL DEFAULT E'';

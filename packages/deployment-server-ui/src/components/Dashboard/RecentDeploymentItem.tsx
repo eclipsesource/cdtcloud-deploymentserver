@@ -71,11 +71,11 @@ export const RecentDeploymentItem = (props: Props) => {
             Monitor
           </Button>,
           <Button
-            type={'primary'}
-            href={`/device/${props.device.id}`}
-            icon={<FontAwesomeIcon icon={'microchip'} style={{ marginRight: '0.5em' }}/>}
+            type="primary"
+            href={`/types/${props.device.deviceTypeId}`}
+            icon={<FontAwesomeIcon icon={'microchip'} style={{marginRight: '0.5em'}}/>}
           >
-            View Device
+            Inspect Device
           </Button>,
           <Tooltip title={artifactUnavailable ? 'Artifact unavailable for download' : ''}>
             <Button

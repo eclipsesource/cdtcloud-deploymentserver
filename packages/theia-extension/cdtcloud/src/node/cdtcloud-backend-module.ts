@@ -5,8 +5,11 @@ import {
   DEVICE_TYPES_PATH,
   CompilationService,
   COMPILATION_PATH,
+  ConfigService,
+  CONFIG_PATH,
 } from "../common/protocol";
 import { CompilationServiceImpl } from "./compilation-service";
+import { ConfigServiceImpl } from "./config-service";
 import { DeviceTypeServiceImpl } from "./device-types-service";
 
 export default new ContainerModule((bind) => {
@@ -26,6 +29,16 @@ export default new ContainerModule((bind) => {
       (ctx) =>
         new JsonRpcConnectionHandler(COMPILATION_PATH, () => {
           return ctx.container.get<CompilationService>(CompilationService);
+        })
+    )
+    .inSingletonScope();
+
+  bind(ConfigService).to(ConfigServiceImpl).inSingletonScope();
+  bind(ConnectionHandler)
+    .toDynamicValue(
+      (ctx) =>
+        new JsonRpcConnectionHandler(CONFIG_PATH, () => {
+          return ctx.container.get<ConfigService>(ConfigService);
         })
     )
     .inSingletonScope();

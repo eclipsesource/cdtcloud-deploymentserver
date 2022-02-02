@@ -1,0 +1,52 @@
+@import '../Colors.module.scss';
+
+.chart {
+  width: 100%;
+  height: 350px;
+}
+
+.topline {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  .dchooser {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+
+    .dunavailable {
+      border-radius: 5px;
+      padding: 2px 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: $graph-button-background;
+      margin-right: 3px;
+    }
+
+    .dunavailable:hover {
+      background: #ffa39e;
+    }
+
+    .dunavailable.selected {
+      background: #ff4d4f;
+    }
+  }
+}
+
+.dcheckicon {
+  margin-right: 0.2em;
+  transition: in 0.3s ease;
+  color: transparent;
+  border: solid 0.1em black;
+  padding: 0.05em 0.05em 0.05em;
+
+  &.hovering {
+    color: rgba(0, 0, 0, 0.5);
+  }
+
+  &.selected {
+    color: #000000;
+  }
+}
