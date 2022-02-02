@@ -1,10 +1,11 @@
 import * as React from "react";
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import Select from "react-select";
 
 interface Option {
   label: string;
   value: string;
+  status: string;
 }
 
 export const TypeSelect: FunctionComponent<{
@@ -12,12 +13,59 @@ export const TypeSelect: FunctionComponent<{
   deployOnBoard: Function;
 }> = ({ options, deployOnBoard }) => {
   let [board, setBoard] = useState<Option>({
-    label: "No board Selected",
+    label: "No Board Selected",
     value: "",
+    status: "",
   });
 
+  useEffect(() => {
+    const updatedSelectionFromOptions = options.find(
+      (option) => option.value === board.value
+    );
+    if (updatedSelectionFromOptions != null)
+      setBoard(updatedSelectionFromOptions);
+  }, [options]);
+
+  const dot = (color = "transparent") => ({
+    alignItems: "center",
+    display: "flex",
+
+    ":before": {
+      backgroundColor: color,
+      borderRadius: 10,
+      content: '" "',
+      display: "block",
+      marginRight: 8,
+      height: 10,
+      width: 10,
+    },
+  });
+
+  function getColor(status: string) {
+    switch (status) {
+      case "QUEUEABLE":
+        return "#faad14";
+      case "AVAILABLE":
+        return "#52c41a";
+      case "BUSY":
+      case "UNAVAILABLE":
+        return "#cf1322";
+    }
+  }
+
+  function getStyle(status: string) {
+    return {
+      display: "flex",
+      width: "10px",
+      height: "10px",
+      backgroundColor: getColor(status),
+      borderRadius: "50%",
+      justifyContent: "center",
+      alignItems: "center",
+    };
+  }
   return (
-    <div style={{ padding: "5px" }}>
+    <div>
       <Select
         value={board}
         options={options}
@@ -41,15 +89,17 @@ export const TypeSelect: FunctionComponent<{
               state.isFocused || state.isSelected
                 ? "var(--theia-menu-selectionForeground)"
                 : base.color,
+            ...dot(getColor(state.data.status)),
           }),
-          singleValue: (base) => ({
+          singleValue: (base, { data }) => ({
             ...base,
             color: "var(--theia-menu-foreground)",
+            ...dot(getColor(data.status)),
           }),
         }}
         onChange={(e: Option) => {
           if (!e) return;
-          const newBoard = { label: e.label, value: e.value };
+          const newBoard = { label: e.label, value: e.value, status: e.status };
           setBoard(newBoard);
         }}
       />
@@ -66,6 +116,29 @@ export const TypeSelect: FunctionComponent<{
       >
         Deploy on Board
       </button>
+
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <div style={getStyle("AVAILABLE")}></div>
+            </td>
+            <td>Board is available</td>
+          </tr>
+          <tr>
+            <td>
+              <div style={getStyle("QUEUEABLE")}></div>
+            </td>
+            <td>Board is queueable</td>
+          </tr>
+          <tr>
+            <td>
+              <div style={getStyle("UNAVAILABLE")}></div>
+            </td>
+            <td>Board is unavailable</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 };

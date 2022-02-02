@@ -5,11 +5,11 @@ import {
   postConstruct,
   inject,
 } from "@theia/core/shared/inversify";
-import { AlertMessage } from "@theia/core/lib/browser/widgets/alert-message";
 import { ReactWidget } from "@theia/core/lib/browser/widgets/react-widget";
 import { MessageService } from "@theia/core";
 import {
   CompilationService,
+  ConfigService,
   Deployment,
   DeviceTypeService,
 } from "../common/protocol";
@@ -20,9 +20,9 @@ import { DeploymentManager } from "./monitoring/DeploymentManager";
 
 @injectable()
 export class CdtcloudWidget extends ReactWidget {
-  deviceList: any[] = [];
+  deviceTypeList: any[] = [];
   options: any[] = [];
-  selected: { label: string; value: string };
+  selected: { label: string; value: string; status: string };
   static readonly ID = "cdtcloud:widget";
   static readonly LABEL = "Cdtcloud Widget";
 
@@ -44,7 +44,9 @@ export class CdtcloudWidget extends ReactWidget {
     @inject(WorkspaceService)
     protected readonly workspaceService: WorkspaceService,
     @inject(DeploymentManager)
-    protected readonly deploymentManager: DeploymentManager
+    protected readonly deploymentManager: DeploymentManager,
+    @inject(ConfigService)
+    protected readonly configService: ConfigService
   ) {
     super();
   }
@@ -62,63 +64,98 @@ export class CdtcloudWidget extends ReactWidget {
   }
 
   render() {
-    const header = `This widget enables you to deploy your code on a remote (Arduino-)board.`;
+    function getColor(status: string) {
+      switch (status) {
+        case "PENDING":
+          return { color: "#ffffff", background: "#808080", border: "#707070" };
+        case "RUNNING":
+          return { color: "#1890ff", background: "#e6f7ff", border: "#91d5ff" };
+        case "TERMINATED":
+          return { color: "#faad14", background: "#fffbe6", border: "#ffe58f" };
+        case "SUCCESS":
+          return { color: "#52c41a", background: "#f6ffed", border: "#b7eb8f" };
+        case "FAILED":
+          return { color: "#cf1322", background: "#fff1f0", border: "#ffa39e" };
+        default:
+          return { color: "#ffffff", background: "#ffffff", border: "#ffffff" };
+      }
+    }
 
     return (
       <>
         <div id="widget-container">
-          <AlertMessage type="INFO" header={header} />
-
           <h2> Select a Board to deploy your code on from this list</h2>
           <TypeSelect
             options={this.options}
             deployOnBoard={this.deployOnBoard.bind(this)}
           />
-        </div>
 
-        <div id="past-deployments">
-          <h2> Past Deployments</h2>
-          <table>
-            <thead>
-              <tr key="head">
-                <th>ID</th>
-                <th>Status</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Artifact URL</th>
-                <th>Device ID</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.deployments.map((deployment) => {
-                return (
-                  <tr key={deployment.id}>
-                    <td>{deployment.id}</td>
-                    <td>{deployment.status}</td>
-                    <td>{deployment.createdAt}</td>
-                    <td>{deployment.updatedAt}</td>
-                    <td>{deployment.artifactUrl}</td>
-                    <td>{deployment.deviceId}</td>
+          <div id="deployments">
+            <h2>Recent Deployments</h2>
+            {this.deployments.length > 0 ? (
+              <table>
+                <thead>
+                  <tr key="head">
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {this.deployments.map((deployment) => {
+                    return (
+                      <tr key={deployment.id}>
+                        <td>
+                          <div
+                            style={{
+                              display: "flex",
+                              width: "95%",
+                              height: "100%",
+                              color: getColor(deployment.status).color,
+                              backgroundColor: getColor(deployment.status)
+                                .background,
+                              borderRadius: "5px",
+                              border: `2px solid ${
+                                getColor(deployment.status).border
+                              }`,
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            {deployment.status}
+                          </div>
+                        </td>
+                        <td>{deployment.createdAt}</td>
+                        <td>{deployment.updatedAt}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <p>No deployments have been sent so far.</p>
+            )}
+          </div>
         </div>
       </>
     );
   }
 
-  protected handleChange(option: { label: string; value: string }): void {
+  protected handleChange(option: {
+    label: string;
+    value: string;
+    status: string;
+  }): void {
     this.selected = option;
   }
 
   protected async getDeviceList(): Promise<void> {
     try {
-      this.deviceList = await this.deviceTypeService.getDeviceList();
-      this.options = this.deviceList.map(({ id, name }) => ({
+      this.deviceTypeList = await this.deviceTypeService.getDeviceList();
+      this.options = this.deviceTypeList.map(({ id, name, status }) => ({
         label: name,
         value: id,
+        status: status,
       }));
       this.update();
     } catch (err) {
@@ -127,7 +164,7 @@ export class CdtcloudWidget extends ReactWidget {
   }
 
   protected async deployOnBoard(board: any): Promise<void> {
-    const selectedBoard = this.deviceList.find((obj) => {
+    const selectedBoard = this.deviceTypeList.find((obj) => {
       return obj.id === board.value;
     });
     const sketchUri = this.workspaceService.workspace?.resource;
@@ -157,7 +194,9 @@ export class CdtcloudWidget extends ReactWidget {
   private startPollingDeployments(): void {
     this.interval = setInterval(async () => {
       try {
-        const request = await fetch("http://localhost:3001/api/deployments");
+        const request = await fetch(
+          `${await this.configService.getDeploymentServerHost()}/api/deployments`
+        );
 
         const deployments = (await request.json()) as Deployment[];
 
@@ -169,7 +208,7 @@ export class CdtcloudWidget extends ReactWidget {
       } catch (err) {
         console.log(err);
       }
-    }, 5000) as unknown as number;
+    }, 1500) as unknown as number;
   }
 
   dispose(): void {

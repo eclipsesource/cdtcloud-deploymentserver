@@ -1,0 +1,35 @@
+$success-color: #52c41a;
+$success-background: #f6ffed;
+$success-border: #b7eb8f;
+
+$terminated-color: #faad14;
+$terminated-background: #fffbe6;
+$terminated-border: #ffe58f;
+
+$failed-color: #cf1322;
+$failed-background: #fff1f0;
+$failed-border: #ffa39e;
+
+$running-color: #1890ff;
+$running-background: #e6f7ff;
+$running-border: #91d5ff;
+
+$pending-color: #ffffff;
+$pending-background: #808080;
+$pending-border: #707070;
+
+$info-color: #40A9FFFF;
+
+$graph-button-background: #aaaaaa33;
+$graph-button-background-hover: #aaaaaa44;
+$graph-button-background-selected: #aaaaaa55;
+
+:export {
+  success: $success-color;
+  terminated: $terminated-color;
+  failed: $failed-color;
+  pending: $pending-background;
+  running: $running-color;
+
+  info: $info-color;
+}

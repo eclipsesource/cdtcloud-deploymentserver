@@ -1,5 +1,5 @@
 import type { Server, Socket } from 'node:net'
-import { DeployRequest } from '@prisma/client'
+import type { DeployRequest } from '@prisma/client'
 import { WebSocketServer } from 'ws'
 import logger from '../util/logger'
 

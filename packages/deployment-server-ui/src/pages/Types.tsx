@@ -1,86 +1,72 @@
-import type { DeviceTypeWithCount } from "deployment-server";
-
+import type { DeviceType } from "deployment-server";
 import { useState, useEffect } from "react";
-import { Card, Divider, List, Skeleton } from "antd";
-import { FilterOutlined, InfoOutlined } from "@ant-design/icons";
-
+import { Card, List, Row, Col } from "antd";
+import { BookOutlined, ZoomInOutlined } from "@ant-design/icons";
 import { defineFunctionalComponent } from "../util/defineFunctionalComponent";
-import SkeletonButton from "antd/lib/skeleton/Button";
+import { Link } from "react-router-dom";
 
 const { Meta } = Card;
 
-const isType = (
-  type: DeviceTypeWithCount | {}
-): type is DeviceTypeWithCount => {
-  return typeof type === "object" && "id" in type;
-};
-
 export default defineFunctionalComponent(function Types() {
-  const [types, setTypes] = useState<DeviceTypeWithCount[] | {}[]>(
-    Array(15).fill({})
-  );
+  const [deviceType, setDeviceType] = useState<DeviceType[]>();
 
   useEffect(() => {
-    fetch("/api/device-types")
-      .then((res) => res.json())
-      .then(setTypes);
+    const fetchAsync = async () => {
+      const typesRes = await fetch(`/api/device-types/`);
+      const types = await typesRes.json();
+      setDeviceType(types);
+    };
+    fetchAsync();
   }, []);
 
   return (
     <>
-      <h2>Types</h2>
-      <Divider />
-      <List
-        style={{
-          overflow: "scroll",
-          overflowX: "hidden",
-          padding: "24px",
-          maxHeight: "calc(100% - 60px)",
-        }}
-        grid={{ gutter: 16 }}
-        dataSource={types}
-        renderItem={(type, index) => {
-          if (isType(type)) {
-            return (
-              <List.Item key={type.id}>
-                <Card
-                  hoverable
-                  cover={
-                    <img
-                      alt={`${type.name} example image`}
-                      height={220}
-                      src="https://picsum.photos/300/220"
+      <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align="middle">
+        <Col span={24}>
+          <List
+            header={<h2>Supported Device Types</h2>}
+            style={{
+              overflow: "scroll",
+              overflowX: "hidden",
+              padding: "24px",
+              maxHeight: "750px",
+            }}
+            grid={{ gutter: 32 }}
+            dataSource={deviceType}
+            renderItem={(deviceData, index) => {
+              return (
+                <List.Item key={index}>
+                  <Card
+                    hoverable
+                    style={{ width: 220 }}
+                    cover={
+                      <img
+                        alt={`${deviceData.name}`}
+                        height={"100px"}
+                        src={deviceData.image}
+                      />
+                    }
+                    actions={[
+                      <Link to={"/types/" + deviceData.id}>
+                        <ZoomInOutlined /> Inspect
+                      </Link>,
+                      <a href={deviceData.store} target="_blank">
+                        <BookOutlined /> Docs
+                      </a>,
+                    ]}
+                  >
+                    <Meta
+                      title={deviceData.name}
+                      description={"FQBN:" + deviceData.fqbn}
+                      style={{ padding: "24px" }}
                     />
-                  }
-                  actions={[<FilterOutlined />, <InfoOutlined />]}
-                >
-                  <Meta
-                    title={type.name}
-                    description={type.fqbn}
-                    style={{ padding: "24px 0px" }}
-                  />
-                </Card>
-              </List.Item>
-            );
-          } else {
-            return (
-              <List.Item key={`placeholder-${index}`}>
-                <Card
-                  hoverable
-                  cover={
-                    <Skeleton.Image
-                      style={{ width: "300px", height: "220px" }}
-                    />
-                  }
-                  actions={[<SkeletonButton />, <SkeletonButton />]}
-                >
-                  <Skeleton loading={true} paragraph={{ rows: 1 }}></Skeleton>
-                </Card>
-              </List.Item>
-            );
-          }
-        }}
-      />
+                  </Card>
+                </List.Item>
+              );
+            }}
+          />
+        </Col>
+      </Row>
     </>
   );
 });

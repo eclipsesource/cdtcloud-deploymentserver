@@ -3,14 +3,19 @@ import prisma, { DeployRequest, Device, PrismaClient } from '@prisma/client'
 import type { Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import tap from 'tap'
-import { getLeastLoadedDevice } from '../src/devices/service'
+import { DeviceTypeWithCount } from '../src'
+import { determineStatus, withCount } from '../src/device-types/service'
+import { getLeastLoadedDevice, MAX_QUEUE_SIZE } from '../src/devices/service'
 import { closeServer, createServer } from '../src/server'
 import {
   createConnector,
   createDevice,
-  createDeviceType
+  createDeviceType,
+  randomDeviceTypeData
 } from './util/factory'
+import { WebSocket } from 'ws'
 import { fetch } from './util/fetch'
+import { registerConnector } from '../src/connectors/queue'
 
 const { before, teardown, test } = tap
 const { DeviceStatus, DeployStatus } = prisma
@@ -110,7 +115,7 @@ test('Are deleted when the device type is deleted', async (t) => {
   t.notOk(device)
 })
 
-test('Can be removed', async (t) => {
+test('Can be removed (deleting associated deployments)', async (t) => {
   const device = await createDevice(db)
 
   const response = await fetch(`${baseUrl}/devices/${device.id}`, {
@@ -119,6 +124,138 @@ test('Can be removed', async (t) => {
 
   t.ok(response.ok, 'Response is not ok')
   t.match(await response.json(), device)
+})
+
+test('Can be deprovisioned (keeping deployment information)', async (t) => {
+  const device = await createDevice(db, {
+    connector: {
+      create: {}
+    },
+    type: {
+      create: { ...randomDeviceTypeData() }
+    },
+    status: DeviceStatus.AVAILABLE
+  })
+
+  registerConnector({ id: device.connectorId })
+
+  const deployment = await fetch(`${baseUrl}/deployments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      deviceTypeId: device.deviceTypeId,
+      artifactUri: 'https://example.com/artifact.zip'
+    })
+  })
+
+  t.ok(deployment.ok)
+
+  const deploymentBody = (await deployment.json()) as DeployRequest
+
+  t.test('Deployment stream opens and closes', (sub) => {
+    sub.plan(2)
+    const deploymentStream = new WebSocket(`ws://${address.address}:${address.port}/api/deployments/${deploymentBody.id}/stream`)
+
+    deploymentStream.onopen = () => {
+      sub.ok(true, 'Websocket is open')
+    }
+
+    deploymentStream.onclose = () => {
+      sub.ok(true, 'Websocket is closed')
+    }
+  })
+
+  const response = await fetch(`${baseUrl}/devices/${device.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      status: DeviceStatus.UNAVAILABLE
+    })
+  })
+
+  t.ok(response.ok)
+  t.match(await response.json(), {
+    ...device,
+    status: DeviceStatus.UNAVAILABLE
+  })
+
+  const deploymentResponseAfterDeviceCloses = await fetch(`${baseUrl}/deployments/${deploymentBody.id}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(async (r) => await r.json()) as DeployRequest
+
+  t.match(deploymentResponseAfterDeviceCloses, {
+    ...deployment,
+    status: DeployStatus.TERMINATED
+  })
+})
+
+test('Deprovisioning does not affect completed deploys', async (t) => {
+  const device = await createDevice(db, {
+    connector: {
+      create: {}
+    },
+    type: {
+      create: { ...randomDeviceTypeData() }
+    },
+    status: DeviceStatus.AVAILABLE
+  })
+
+  registerConnector({ id: device.connectorId })
+
+  const deployment = await fetch(`${baseUrl}/deployments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      deviceTypeId: device.deviceTypeId,
+      artifactUri: 'https://example.com/artifact.zip'
+    })
+  })
+
+  t.ok(deployment.ok, 'Response is ok')
+
+  const deploymentBody = (await deployment.json()) as DeployRequest
+
+  await fetch(`${baseUrl}/deployments/${deploymentBody.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      status: DeployStatus.SUCCESS
+    })
+  })
+
+  const response = await fetch(`${baseUrl}/devices/${device.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      status: DeviceStatus.UNAVAILABLE
+    })
+  })
+
+  t.ok(response.ok)
+  t.match(await response.json(), {
+    ...device,
+    status: DeviceStatus.UNAVAILABLE
+  })
+
+  const deploymentResponseAfterDeviceCloses = await fetch(`${baseUrl}/deployments/${deploymentBody.id}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(async (r) => await r.json()) as DeployRequest
+
+  t.match(deploymentResponseAfterDeviceCloses, deployment)
 })
 
 test('Removes related deployments', async (t) => {
@@ -290,7 +427,108 @@ test('Selects the device with the least amount of (relevant) deployments', async
   }
   await Promise.all(reqs)
 
-  const selectedDevice = await getLeastLoadedDevice(type.id)
+  const [selectedDevice, queueLength] = await getLeastLoadedDevice(type.id)
 
   t.match(selectedDevice, match)
+  t.equal(queueLength, 0)
+})
+
+test('determineStatus', async (t) => {
+  t.plan(4)
+
+  const type = await createDeviceType(db)
+
+  const getType = async (id: string): Promise<DeviceTypeWithCount> => {
+    const t = await db.deviceType.findUnique({
+      where: {
+        id
+      },
+      include: {
+        _count: {
+          select: {
+            devices: true
+
+          }
+        }
+      }
+
+    })
+
+    return withCount(t ?? type)
+  }
+
+  t.test('Returns UNAVAILABLE if no devices are associated', async (t) => {
+    const status = await determineStatus(await getType(type.id))
+
+    t.match(status, { status: 'UNAVAILABLE' })
+  })
+
+  t.test('Returns AVAILABLE if there is an availabe device to run deployments', async (t) => {
+    const device = await createDevice(db, {
+      connector: { create: {} },
+      type: { connect: { id: type.id } },
+      status: DeviceStatus.AVAILABLE
+    })
+    const status = await determineStatus(await getType(type.id))
+
+    t.match(status, { status: 'AVAILABLE' })
+
+    await db.device.delete({ where: { id: device.id } })
+  })
+
+  t.test('Returns QUEUEABLE if no devices are available but the queue is not full', async (t) => {
+    const device = await createDevice(db, {
+      connector: { create: {} },
+      type: { connect: { id: type.id } },
+      status: DeviceStatus.RUNNING
+    })
+
+    for (let i = 0; i < MAX_QUEUE_SIZE - 1; i++) {
+      await db.deployRequest.create({
+        data: {
+          artifactUrl: 'https://example.com/artifact.zip',
+          device: {
+            connect: {
+              id: device.id
+            }
+          },
+          status: DeployStatus.PENDING
+        }
+      })
+    }
+
+    const status = await determineStatus(await getType(type.id))
+
+    t.match(status, { status: 'QUEUEABLE', queueLength: MAX_QUEUE_SIZE - 1 })
+
+    await db.device.delete({ where: { id: device.id } })
+  })
+
+  t.test('Returns busy if the queue is full', async (t) => {
+    const device = await createDevice(db, {
+      connector: { create: {} },
+      type: { connect: { id: type.id } },
+      status: DeviceStatus.RUNNING
+    })
+
+    for (let i = 0; i < MAX_QUEUE_SIZE; i++) {
+      await db.deployRequest.create({
+        data: {
+          artifactUrl: 'https://example.com/artifact.zip',
+          device: {
+            connect: {
+              id: device.id
+            }
+          },
+          status: DeployStatus.PENDING
+        }
+      })
+    }
+
+    const status = await determineStatus(await getType(type.id))
+
+    t.match(status, { status: 'BUSY' })
+
+    await db.device.delete({ where: { id: device.id } })
+  })
 })

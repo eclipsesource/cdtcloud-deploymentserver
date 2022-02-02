@@ -7,8 +7,9 @@ import { IdParams, idParams } from '../util/idParams'
 import { validate } from '../util/validate'
 import { broadcastDeviceChange } from '../dashboard/service'
 import logger from '../util/logger'
+import { closeDeploymentStream } from '../deployments/service'
 
-const { DeviceStatus } = prisma
+const { DeviceStatus, DeployStatus } = prisma
 
 export default function deviceRoutes (router: Router): void {
   router.get('/devices', validate<Device[]>({}), async (req, res, next) => {
@@ -90,7 +91,51 @@ export default function deviceRoutes (router: Router): void {
     }),
     async (req, res, next) => {
       try {
-        const device = await req.db.device.update({
+        let device = await req.db.device.findUnique({
+          where: { id: req.params.id }
+        })
+
+        if (device == null) return res.sendStatus(404)
+
+        if (req.body.status === DeviceStatus.UNAVAILABLE) {
+          // Teardown all deployments and update their status before updating the device
+          // Then, we can broadcast the change to the notification channel
+          try {
+            const deployments = await req.db.deployRequest.findMany({
+              where: {
+                deviceId: req.params.id,
+                status: {
+                  in: [
+                    DeployStatus.PENDING,
+                    DeployStatus.RUNNING
+                  ]
+                }
+              }
+            })
+
+            // Close all deployment streams
+            await Promise.all(deployments.map(closeDeploymentStream))
+
+            await req.db.deployRequest.updateMany({
+              where: {
+                device: { id: req.params.id },
+                status: {
+                  in: [
+                    DeployStatus.PENDING,
+                    DeployStatus.RUNNING
+                  ]
+                }
+              },
+              data: { status: DeployStatus.TERMINATED }
+            })
+
+            await broadcastDeviceChange(device, 'remove')
+          } catch (e) {
+            logger.error(e)
+          }
+        }
+
+        device = await req.db.device.update({
           where: { id: req.params.id },
           data: req.body
         })
