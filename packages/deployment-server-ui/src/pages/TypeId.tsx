@@ -7,14 +7,15 @@ import { useParams } from "react-router-dom";
 import { StatusTag } from "../components/StatusTag";
 import DeploymentsStatusGraph from "../components/Graphs/DeploymentsStatusGraph";
 import IssueCountGraph from "../components/Graphs/IssueCountGraph";
-import Meta from "antd/lib/card/Meta";
+
+const { Meta } = Card;
 
 export default defineFunctionalComponent(function TypeId() {
   const [loading, setLoading] = useState<boolean>(true);
   const [devices, setDevices] = useState<Device[]>([]);
   const [deviceType, setDeviceType] = useState<DeviceTypeResource>();
   const [deployments, setDeployments] = useState<DeployRequest[]>([]);
-  const [refetchFlip, setRefetchFlip] = useState(false);
+  const [refetchFlip, setRefetchFlip] = useState<boolean>(false);
 
   const { id } = useParams();
   function findDeviceById(id: string) {
@@ -39,8 +40,7 @@ export default defineFunctionalComponent(function TypeId() {
       const deploys = await deployRes.json();
       setDeployments(
         deploys.filter(
-          // @ts-ignore: Unreachable code error
-          (deployment) =>
+          (deployment: DeployRequest) =>
             deployment.deviceId === findDeviceById(deployment.deviceId)?.id
         )
       );
@@ -70,8 +70,7 @@ export default defineFunctionalComponent(function TypeId() {
       const deploys = await deployRes.json();
       setDeployments(
         deploys.filter(
-          // @ts-ignore: Unreachable code error
-          (deployment) =>
+          (deployment: DeployRequest) =>
             deployment.deviceId === findDeviceById(deployment.deviceId)?.id
         )
       );
@@ -89,7 +88,7 @@ export default defineFunctionalComponent(function TypeId() {
       <div key={deployment.id}>
         <Row gutter={[0, 16]}>
         <Card
-          bordered={true}
+          bordered
           style={{ width: 260 }}
           cover={<StatusTag status={deployment.status} addIcon />}
         >
@@ -107,7 +106,7 @@ export default defineFunctionalComponent(function TypeId() {
     .map((deployment: DeployRequest) => (
       <div key={deployment.id}>
        <Card
-          bordered={true}
+          bordered
           style={{ width: 260 }}
           cover={<StatusTag status={deployment.status} addIcon />}
         >
@@ -126,7 +125,7 @@ export default defineFunctionalComponent(function TypeId() {
     .map((deployment: DeployRequest) => (
       <div key={deployment.id}>
         <Card
-          bordered={true}
+          bordered
           style={{ width: 260 }}
           cover={<StatusTag status={deployment.status} addIcon />}
         >
@@ -152,7 +151,6 @@ export default defineFunctionalComponent(function TypeId() {
                     <Statistic
                       title="Number of devices"
                       value={deviceType ? deviceType.numberOfDevices : "0"}
-                      prefix={""}
                       valueStyle={{ color: "black" }}
                     />
                   </Col>
@@ -160,7 +158,6 @@ export default defineFunctionalComponent(function TypeId() {
                     <Statistic
                       title="Current Queue Length"
                       value={deviceType ? deviceType.queueLength : "0"}
-                      prefix={""}
                       valueStyle={{ color: "black" }}
                     />
                   </Col>
@@ -170,7 +167,6 @@ export default defineFunctionalComponent(function TypeId() {
                     <Statistic
                       title="FQBN"
                       value={deviceType ? deviceType.fqbn : "0"}
-                      prefix={""}
                       valueStyle={{ color: "black" }}
                     />
                   </Col>
@@ -180,7 +176,6 @@ export default defineFunctionalComponent(function TypeId() {
                     <Statistic
                       title="Status"
                       value={deviceType ? deviceType.status : ""}
-                      prefix={""}
                       valueStyle={{ color: "black" }}
                     />
                   </Col>
@@ -188,7 +183,6 @@ export default defineFunctionalComponent(function TypeId() {
                     <Statistic
                       title="Device Type ID"
                       value={deviceType ? deviceType.id : "0"}
-                      prefix={""}
                       valueStyle={{ color: "black" }}
                     />
                   </Col>

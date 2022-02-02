@@ -152,7 +152,6 @@ export default defineFunctionalComponent(function Dashboard() {
                     <Statistic
                     title="Most Used Device Type"
                     value={dashboardState.data ? (dashboardState.data as Dashboard).mostUsedDeviceType : ""}
-                    prefix={""}
                     valueStyle={{color: "black"}}
                     />
                   </Col>
@@ -160,7 +159,7 @@ export default defineFunctionalComponent(function Dashboard() {
                     <Statistic
                       title="Connected / Supported Types"
                       value={"2"}
-                      suffix={"/27"}
+                      suffix={"/19"}
                       prefix={<ShrinkOutlined />}
                       valueStyle={{color: "grey"}}
                     />

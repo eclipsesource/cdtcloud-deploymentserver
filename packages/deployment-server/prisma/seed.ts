@@ -3,7 +3,7 @@ import prismaClient from '@prisma/client'
 const { PrismaClient } = prismaClient
 const prisma = new PrismaClient()
 
-const boardsWithSVGs = [
+const deviceTypes = [
   { name: 'Arduino BT', fqbn: 'arduino:avr:bt', image: 'https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_bt07_breadboard.svg', store: 'https://docs.arduino.cc/retired/boards/arduino-BT#summary' },
   { name: 'Arduino Esplora', fqbn: 'arduino:avr:esplora', image: 'https://raw.githubusercontent.com/fritzing/fritzing-parts/main/svg/core/breadboard/Arduino_Esplora_breadboard.svg', store: 'https://www.arduino.cc/en/Main.ArduinoBoardEsplora' },
   { name: 'Arduino Ethernet', fqbn: 'arduino:avr:ethernet', image: 'https://raw.githubusercontent.com/fritzing/fritzing-parts/develop/svg/core/breadboard/Arduino-Ethernet-v11_breadboard.svg', store: 'https://docs.arduino.cc/retired/boards/arduino-ethernet-rev3-without-poe' },
@@ -28,7 +28,7 @@ const boardsWithSVGs = [
 
 try {
   await prisma.$connect()
-  await prisma.deviceType.createMany({ data: boardsWithSVGs })
+  await prisma.deviceType.createMany({ data: deviceTypes })
 } finally {
   await prisma.$disconnect()
 }
