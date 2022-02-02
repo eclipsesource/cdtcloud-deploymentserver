@@ -123,19 +123,19 @@ export const TypeSelect: FunctionComponent<{
             <td>
               <div style={getStyle("AVAILABLE")}></div>
             </td>
-            <td>Board is available</td>
+            <td>Device is available</td>
           </tr>
           <tr>
             <td>
               <div style={getStyle("QUEUEABLE")}></div>
             </td>
-            <td>Board is queueable</td>
+            <td>Device is queueable</td>
           </tr>
           <tr>
             <td>
               <div style={getStyle("UNAVAILABLE")}></div>
             </td>
-            <td>Board is unavailable</td>
+            <td>Device is unavailable</td>
           </tr>
         </tbody>
       </table>

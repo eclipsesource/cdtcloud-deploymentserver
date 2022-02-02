@@ -84,7 +84,7 @@ export class CdtcloudWidget extends ReactWidget {
     return (
       <>
         <div id="widget-container">
-          <h2> Select a Board to deploy your code on from this list</h2>
+          <h2> Select a device to deploy your code on from this list</h2>
           <TypeSelect
             options={this.options}
             deployOnBoard={this.deployOnBoard.bind(this)}
