@@ -189,8 +189,15 @@ export default defineFunctionalComponent(function Devices() {
           </div>
         }
       >
-        <Table dataSource={devices} rowKey={'id'} columns={columns} onChange={handleChange} loading={loading}
-               tableLayout={'fixed'}/>
+        <Table
+          dataSource={devices}
+          rowKey={'id'}
+          columns={columns}
+          onChange={handleChange}
+          loading={loading}
+          tableLayout={'fixed'}
+
+        />
       </Card>
     </main>
   )
