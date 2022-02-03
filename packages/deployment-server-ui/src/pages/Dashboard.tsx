@@ -42,11 +42,11 @@ export default defineFunctionalComponent(function Dashboard() {
       const devices = await respDevices.json() as Device[]
 
       const uniqueTypes = devices.reduce<string[]>((acc, value) => {
-        const exists = acc.filter(t => t === value.id)
+        const exists = acc.filter(t => t === value.deviceTypeId)
         if (exists.length > 0 || value.status === DeviceStatus.UNAVAILABLE) {
           return acc
         }
-        return [...acc, value.id]
+        return [...acc, value.deviceTypeId]
       }, [])
 
       setConnectedTypes(uniqueTypes)
