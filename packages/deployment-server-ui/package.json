@@ -27,7 +27,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",
-    "@prisma/client": "^3.8.1",
+    "@prisma/client": "^3.9.1",
     "@reduxjs/toolkit": "^1.7.1",
     "ansi-colors": "^4.1.1",
     "antd": "^4.18.2",

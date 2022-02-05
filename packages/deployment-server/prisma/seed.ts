@@ -28,6 +28,7 @@ const deviceTypes = [
 
 try {
   await prisma.$connect()
+  await prisma.deviceType.deleteMany()
   await prisma.deviceType.createMany({ data: deviceTypes })
 } finally {
   await prisma.$disconnect()
