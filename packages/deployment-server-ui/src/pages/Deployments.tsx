@@ -15,7 +15,7 @@ export default defineFunctionalComponent(function Deployments() {
     <main style={{maxHeight:"85vh", overflowY: 'scroll'}}>
       <Row>
         <Col span={24}>
-          <Card title={'Delpoyments'} style={{overflow: 'auto' }}>
+          <Card title={'Deployments'} style={{overflow: 'auto' }}>
             {dashboardState.loading && !dashboardState.error ? (
               <div className={styles.loadouter}>
                 <Spin tip={'Loading...'}/>
