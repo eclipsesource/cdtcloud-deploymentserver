@@ -48,6 +48,7 @@ export const CdtCloudMain: FunctionComponent<{}> = ({ children }) => {
               padding: 24,
               margin: 0,
               minHeight: 280,
+              maxHeight: "95vh"
             }}
           >
             {children}
