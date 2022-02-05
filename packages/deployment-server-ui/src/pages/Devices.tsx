@@ -47,6 +47,7 @@ export default defineFunctionalComponent(function Devices() {
   const [showUnavailable, setShowUnavailable] = useState<boolean>(false)
   const [hover, setHover] = useState<boolean>(false)
   const [refetchFlip, setRefetchFlip] = useState<boolean>(false)
+  const [filtersOpen, setFiltersOpen] = useState<boolean>(false)
   const [filters, setFilters] = useState<Record<string, FilterValue | null>>({
     status: [],
     deviceTypeId: []
@@ -76,7 +77,8 @@ export default defineFunctionalComponent(function Devices() {
       filteredValue: filters.deviceTypeId || null,
       onFilter: (value: string, record: Device) => {
         return record.deviceTypeId === value
-      }
+      },
+      onFilterDropdownVisibleChange: (visible: boolean) => setFiltersOpen(visible)
     },
     {
       title: 'Total Deployments',
@@ -107,12 +109,15 @@ export default defineFunctionalComponent(function Devices() {
       filteredValue: filters.status || null,
       onFilter: (value: string, record: Device) => {
         return record.status === value
-      }
+      },
+      onFilterDropdownVisibleChange: (visible: boolean) => setFiltersOpen(visible)
     }
   ]
 
   useInterval(function () {
-    setRefetchFlip(!refetchFlip);
+    if (!filtersOpen) { // Hackfix for fetch bugging filters
+      setRefetchFlip(!refetchFlip)
+    }
   }, 1000);
 
   function handleChange(
@@ -196,7 +201,6 @@ export default defineFunctionalComponent(function Devices() {
           onChange={handleChange}
           loading={loading}
           tableLayout={'fixed'}
-
         />
       </Card>
     </main>
