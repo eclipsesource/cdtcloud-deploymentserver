@@ -42,8 +42,8 @@ export default defineFunctionalComponent(function Types () {
 
   return (
     <>
-      <Row align='middle'>
-        <Col flex='auto' />
+      <Row align='middle' style={{paddingBottom: '10px'}}>
+        <Col flex='auto'><h2>Supported Device Types</h2></Col>
         <Col>
           <Search
             placeholder='Search'
@@ -54,7 +54,6 @@ export default defineFunctionalComponent(function Types () {
       <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align='middle'>
         <Col span={24}>
           <List
-            header={<h2>Supported Device Types</h2>}
             style={{
               overflow: 'scroll',
               overflowX: 'hidden',
