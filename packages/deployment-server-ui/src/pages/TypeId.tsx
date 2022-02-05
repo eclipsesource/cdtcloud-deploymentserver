@@ -48,7 +48,7 @@ export default defineFunctionalComponent(function TypeId() {
     }
 
     fetchAsync()
-  }, [])
+  }, [refetchFlip])
 
   useEffect(() => {
     if (
