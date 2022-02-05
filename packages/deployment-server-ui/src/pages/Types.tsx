@@ -24,9 +24,11 @@ export default defineFunctionalComponent(function Types () {
     fetchAsync().catch(console.error)
   }, [])
 
-  const searchByName = (value: string): void => {
-    setSearch(value)
+  useEffect(() => {
+    searchByName(search)
+  }, [deviceTypes, search])
 
+  const searchByName = (value: string): void => {
     if (value === '' || value == null) {
       setVisibleDeviceTypes(deviceTypes)
       return
@@ -45,7 +47,7 @@ export default defineFunctionalComponent(function Types () {
         <Col>
           <Search
             placeholder='Search'
-            onSearch={(term) => searchByName(term)}
+            onSearch={(term) => setSearch(term)}
           />
         </Col>
       </Row>
