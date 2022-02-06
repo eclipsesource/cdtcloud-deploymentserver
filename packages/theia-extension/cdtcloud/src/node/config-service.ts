@@ -4,7 +4,7 @@ import {env} from 'process';
 
 @injectable()
 export class ConfigServiceImpl implements ConfigService {
-  #host = env.DEPLOYMENT_SERVER_HOST ?? "cdtcloud-374rhitm6q-ey.a.run.app"
+  #host = env.DEPLOYMENT_SERVER_HOST ?? "localhost:3001"
   #secure = env.DEPLOYMENT_SERVER_SECURE === 'true'
 
 

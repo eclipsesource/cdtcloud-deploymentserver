@@ -12,10 +12,10 @@ export default defineFunctionalComponent(function Deployments() {
   const dashboardState = useAppSelector((state) => state.dashboard)
 
   return (
-    <main style={{ height: '100%' }}>
+    <main style={{maxHeight:"85vh", overflowY: 'scroll'}}>
       <Row>
         <Col span={24}>
-          <Card title={'Deployments'} style={{ height: 480, overflow: 'auto' }}>
+          <Card title={'Deployments'} style={{overflow: 'auto' }}>
             {dashboardState.loading && !dashboardState.error ? (
               <div className={styles.loadouter}>
                 <Spin tip={'Loading...'}/>
@@ -41,8 +41,8 @@ export default defineFunctionalComponent(function Deployments() {
       </Row>
       <Divider/>
       <Row>
-        <Col span={24}>
-          <Card title={'Deployments over time'}>
+        <Col span={24} style={{minWidth: "0", overflow: 'auto'}}>
+          <Card title="Deployment Graph">
             <DeploymentsOverTimeGraph
               data={dashboardState.data ? (dashboardState.data as Dashboard).deploymentsPerBucket : undefined}
               chartTime={24}
