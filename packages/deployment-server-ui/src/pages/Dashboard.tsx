@@ -149,7 +149,7 @@ export default defineFunctionalComponent(function Dashboard() {
                   <Col span={12}>
                     <Statistic
                       title={'Running Devices'}
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).deviceOverview.RUNNING : 0}
+                      value={dashboardState.data ? ((dashboardState.data as Dashboard).deviceOverview.MONITORING + (dashboardState.data as Dashboard).deviceOverview.RUNNING) : 0}
                       prefix={<PlayCircleOutlined/>}
                       valueStyle={{ color: colors.running }}
                     />
