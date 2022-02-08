@@ -158,7 +158,7 @@ export default defineFunctionalComponent(function TypeId() {
                   <Col span={12}>
                     <Statistic
                       title={'Current Queue Length'}
-                      value={deviceType ? deviceType.queueLength : '0'}
+                      value={deviceType ? deviceType.queueLength : '-'}
                       valueStyle={{ color: 'black' }}
                     />
                   </Col>
