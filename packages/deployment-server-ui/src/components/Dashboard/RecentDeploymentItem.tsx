@@ -1,5 +1,4 @@
 import { Button, Col, List, Modal, Row, Tooltip, Typography } from 'antd'
-import { CSSTransition } from 'react-transition-group'
 import { DeployStatus, DeviceType, Device } from 'deployment-server'
 import React, { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -15,14 +14,14 @@ const { Item } = List
 const { Meta } = Item
 
 interface Props {
-  id: string,
-  status: DeployStatus,
+  id: string
+  status: DeployStatus
   device: Device & {
     type: DeviceType
-  },
-  artifactUrl: string | null,
-  details?: boolean,
-  created?: Date,
+  }
+  artifactUrl: string | null
+  details?: boolean
+  created?: Date
   updated?: Date
 }
 
@@ -59,102 +58,98 @@ export const RecentDeploymentItem = (props: Props) => {
   }, [])
 
   return (
-    <CSSTransition key={props.id} timeout={750} classNames={'deployment'}>
-      <Item
-        actions={[
-          <Button
-            type={'primary'}
-            icon={<FontAwesomeIcon icon={'terminal'} style={{ marginRight: '0.5em' }}/>}
-            disabled={props.status !== 'RUNNING'}
-            onClick={() => setMonitorOpen(true)}
-          >
-            Monitor
-          </Button>,
-          <Button
-            type="primary"
-            href={`/types/${props.device.deviceTypeId}`}
-            icon={<FontAwesomeIcon icon={'microchip'} style={{marginRight: '0.5em'}}/>}
-          >
-            Inspect Device
-          </Button>,
-          <Tooltip title={artifactUnavailable ? 'Artifact unavailable for download' : ''}>
-            <Button
-              type={'primary'}
-              disabled={artifactUnavailable}
-              icon={<FontAwesomeIcon icon={'download'} style={{ marginRight: '0.5em' }}/>}
-              href={artifactUrl}
-              download={fileName}
-            >
-              Artifact
-            </Button>
-          </Tooltip>
-        ]}
-      >
-        <Modal
-          title={`${props.device.type.name} Monitor`}
-          centered
-          visible={monitorOpen}
-          className={styles.modal}
-          width={'70%'}
-          footer={
-            <Button key={'close'} type={'primary'} onClick={() => setMonitorOpen(false)}>
-              Close
-            </Button>
-          }
-          onCancel={() => setMonitorOpen(false)}
+    <Item
+      actions={[
+        <Button
+          type='primary'
+          icon={<FontAwesomeIcon icon='terminal' style={{ marginRight: '0.5em' }} />}
+          disabled={props.status !== 'RUNNING'}
+          onClick={() => setMonitorOpen(true)}
         >
-          <MonitoringTerminal deploymentId={props.id} deployStatus={props.status} deviceName={props.device.type.name}/>
-        </Modal>
-        <Meta
-          style={{ flex: 'auto' }}
-          avatar={
-            <StatusTag status={props.status} addIcon/>
+          Monitor
+        </Button>,
+        <Button
+          type='primary'
+          href={`/types/${props.device.deviceTypeId}`}
+          icon={<FontAwesomeIcon icon='microchip' style={{ marginRight: '0.5em' }} />}
+        >
+          Inspect Device
+        </Button>,
+        <Tooltip title={artifactUnavailable ? 'Artifact unavailable for download' : ''}>
+          <Button
+            type='primary'
+            disabled={artifactUnavailable}
+            icon={<FontAwesomeIcon icon='download' style={{ marginRight: '0.5em' }} />}
+            href={artifactUrl}
+            download={fileName}
+          >
+            Artifact
+          </Button>
+        </Tooltip>
+      ]}
+    >
+      <Modal
+        title={`${props.device.type.name} Monitor`}
+        centered
+        visible={monitorOpen}
+        className={styles.modal}
+        width='70%'
+        footer={
+          <Button key='close' type='primary' onClick={() => setMonitorOpen(false)}>
+            Close
+          </Button>
           }
-          title={
-            <>
-              <Link to={`/device/${props.device.id}`}>
-                {props.device.type.name}
-              </Link>
-              <Tooltip title={`Device: ${props.device.id}`}>
-                <FontAwesomeIcon
-                  icon={'info-circle'}
-                  color={colors.info}
-                  style={{ marginLeft: '0.5em' }}
-                />
-              </Tooltip>
-            </>
+        onCancel={() => setMonitorOpen(false)}
+      >
+        <MonitoringTerminal deploymentId={props.id} deployStatus={props.status} deviceName={props.device.type.name} />
+      </Modal>
+      <Meta
+        style={{ flex: 'auto' }}
+        avatar={
+          <StatusTag status={props.status} addIcon />
           }
-          description={
-            showId ?
-              <Typography.Text style={{ color: 'rgba(0, 0, 0, 0.3)' }}>
+        title={
+          <>
+            <Link to={`/device/${props.device.id}`}>
+              {props.device.type.name}
+            </Link>
+            <Tooltip title={`Device: ${props.device.id}`}>
+              <FontAwesomeIcon
+                icon='info-circle'
+                color={colors.info}
+                style={{ marginLeft: '0.5em' }}
+              />
+            </Tooltip>
+          </>
+          }
+        description={
+            showId
+              ? <Typography.Text style={{ color: 'rgba(0, 0, 0, 0.3)' }}>
                 {props.id}
-              </Typography.Text>
-              :
-              <Typography.Link onClick={() => setShowId(true)}>
+                </Typography.Text>
+              : <Typography.Link onClick={() => setShowId(true)}>
                 Show Deployment Id
               </Typography.Link>
           }
-        />
-        {props.details && props.created && props.updated ?
-          <Row style={{ textAlign: 'center', justifyContent: 'center', flex: 'auto' }}>
-            <Col span={8}>
-              <div>
-                Created
-                <br/>
-                {dateFormatter(Date.parse(props.created.toString()))}
-              </div>
-            </Col>
-            <Col span={8}>
-              <div>
-                Last Update
-                <br/>
-                {dateFormatter(Date.parse(props.updated.toString()))}
-              </div>
-            </Col>
+      />
+      {props.details && (props.created != null) && (props.updated != null)
+        ? <Row style={{ textAlign: 'center', justifyContent: 'center', flex: 'auto' }}>
+          <Col span={8}>
+            <div>
+              Created
+              <br />
+              {dateFormatter(Date.parse(props.created.toString()))}
+            </div>
+          </Col>
+          <Col span={8}>
+            <div>
+              Last Update
+              <br />
+              {dateFormatter(Date.parse(props.updated.toString()))}
+            </div>
+          </Col>
           </Row>
-          :
-          undefined
-        }
-      </Item>
-    </CSSTransition>)
+        : undefined}
+    </Item>
+  )
 }
