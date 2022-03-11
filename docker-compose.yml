@@ -1,10 +1,24 @@
-version: "3"
-volumes:
-  postgresdb:
-  devcon:
+version: "3.9"
+
+# extension field: https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields
+x-networks: &networks
+  networks:
+    - cdtcloud-network
+
+x-cache-from: &cache-from
+  cache_from:
+    - cdtcloud/cdtcloud-arduino-cli:${DOCKER_IMAGE_TAG:-main}
+    - cdtcloud/cdtcloud-device-connector:${DOCKER_IMAGE_TAG:-main}
+    - cdtcloud/cdtcloud-deployment-server:${DOCKER_IMAGE_TAG:-main}
+    - cdtcloud/cdtcloud-theia:${DOCKER_IMAGE_TAG:-main}
+    - cdtcloud/cdtcloud-dev-server:${DOCKER_IMAGE_TAG:-main}
 
 services:
   db:
+    <<: *networks
+    profiles:
+      - deployment
+      - dev
     image: postgres:14-alpine
     environment:
       POSTGRES_USER: postgres
@@ -16,41 +30,105 @@ services:
       - postgresdb:/var/lib/postgresql/data
     restart: always
 
-
-  pgadmin:
-    image: dpage/pgadmin4
-    ports:
-      - 3002:80
-    environment:
-      PGADMIN_DEFAULT_EMAIL: tum@seba.lab
-      PGADMIN_DEFAULT_PASSWORD: tum
-
-
-  arduino:
-    image: solarbotics/arduino-cli-arduino-avr:1.8.4-0.20.0-node16.13
-    command: >
-      bash -c "arduino-cli config init --overwrite &&
-               arduino-cli config add board_manager.additional_urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json &&
-               arduino-cli core update-index &&
-               arduino-cli core install arduino:sam@1.6.12 &&
-               arduino-cli core install STMicroelectronics:stm32 &&
-               arduino-cli daemon --port 50051 --daemonize --verbose"
-    network_mode: host
-    privileged: true
-    volumes:
-      - devcon:/usr/src/app/artifacts
-    restart: always
-
-  devcon:
+  arduino-cli:
+    <<: *networks
     profiles:
-      - "production"
+      - connector
+      - theia
+      - dev
+    image: cdtcloud/cdtcloud-arduino-cli:${DOCKER_IMAGE_TAG:-main}
     build:
       context: .
-      dockerfile: Dockerfile.devcon
+      dockerfile: Dockerfile
+      target: arduino-cli
+      <<: *cache-from
+    privileged: true
+    ports:
+      - "50051:50051"
+    volumes:
+      - devcon:/usr/src/app/artifacts
+      - theia:/usr/src/app/deploy
+    restart: always
+
+  device-connector:
+    <<: *networks
+    profiles:
+      - connector
+      - dev
+    image: cdtcloud/cdtcloud-device-connector:${DOCKER_IMAGE_TAG:-main}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: device-connector
+      <<: *cache-from
+    depends_on:
+      - arduino-cli
     env_file:
       - .docker/device-connector/env
-    network_mode: host
     privileged: true
     volumes:
       - devcon:/usr/src/app/artifacts
     restart: always
+
+  deployment-server:
+    <<: *networks
+    profiles:
+      - deployment
+      - dev
+    image: cdtcloud/cdtcloud-deployment-server:${DOCKER_IMAGE_TAG:-main}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: deployment-server
+      <<: *cache-from
+    depends_on:
+      - db
+    env_file:
+      - .docker/deployment-server/env
+    ports:
+      - "3001:3001"
+    volumes:
+      - deploy:/usr/src/app/deploy
+    restart: always
+
+  theia:
+    <<: *networks
+    profiles:
+      - theia
+      - dev
+    image: cdtcloud/cdtcloud-theia:${DOCKER_IMAGE_TAG:-main}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: cdtcloud-theia
+      <<: *cache-from
+    depends_on:
+      - arduino-cli
+    ports:
+      - "3000:3000"
+    volumes:
+      - theia:/usr/src/app/theia
+    restart: always
+
+  dev-server:
+    profiles:
+      - dev
+    image: cdtcloud/cdtcloud-dev-server:${DOCKER_IMAGE_TAG:-main}
+    build:
+      context: .
+      <<: *cache-from
+    depends_on:
+      - db
+      - arduino-cli
+      - deployment-server
+      - device-connector
+      - theia
+
+volumes:
+  postgresdb:
+  devcon:
+  deploy:
+  theia:
+
+networks:
+  cdtcloud-network:

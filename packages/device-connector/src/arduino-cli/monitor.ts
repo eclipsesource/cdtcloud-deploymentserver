@@ -1,15 +1,13 @@
 import * as protoLoader from '@grpc/proto-loader'
 import * as grpc from '@grpc/grpc-js'
-import { ProtoGrpcType as ArduinoProtoGrpcType } from 'arduino-cli_proto_ts/common/monitor'
 import { logger } from '../util/logger'
-import { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
-import { StreamingOpenRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/monitor/v1/StreamingOpenRequest'
-import {
-  _cc_arduino_cli_monitor_v1_MonitorConfig_TargetType as MonitorTargetType,
-  MonitorConfig
-} from 'arduino-cli_proto_ts/common/cc/arduino/cli/monitor/v1/MonitorConfig'
-import { StreamingOpenResponse__Output as StreamingOpenResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/monitor/v1/StreamingOpenResponse'
 import { promisify } from 'util'
+
+import type { ProtoGrpcType as ArduinoProtoGrpcType } from 'arduino-cli_proto_ts/common/monitor'
+import type { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduino/cli/commands/v1/Port'
+import type { StreamingOpenRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/monitor/v1/StreamingOpenRequest'
+import type { MonitorConfig } from 'arduino-cli_proto_ts/common/cc/arduino/cli/monitor/v1/MonitorConfig'
+import type { StreamingOpenResponse__Output as StreamingOpenResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/monitor/v1/StreamingOpenResponse'
 
 // Create proto loader for grpc connection
 const loadedProto = protoLoader.loadSync('../grpc/proto/cc/arduino/cli/monitor/v1/monitor.proto', {
@@ -36,7 +34,7 @@ export const monitor = async (port: Port): Promise<grpc.ClientDuplexStream<Strea
   }
 
   // Initiate variables for monitor request
-  const monitorConfig: MonitorConfig = { target: port.address, type: MonitorTargetType.TARGET_TYPE_SERIAL }
+  const monitorConfig: MonitorConfig = { target: port.address, type: 0 }
   const monitorRequest: StreamingOpenRequest = { config: monitorConfig }
 
   // Open stream
