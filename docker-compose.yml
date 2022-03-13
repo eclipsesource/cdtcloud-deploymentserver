@@ -13,6 +13,10 @@ x-cache-from: &cache-from
     - cdtcloud/cdtcloud-theia:${DOCKER_IMAGE_TAG:-main}
     - cdtcloud/cdtcloud-dev-server:${DOCKER_IMAGE_TAG:-main}
 
+x-shared-conf: &shared-conf
+  <<: *networks
+  working_dir: /cdtcloud
+
 services:
   db:
     <<: *networks
@@ -31,10 +35,8 @@ services:
     restart: always
 
   arduino-cli:
-    <<: *networks
     profiles:
       - connector
-      - theia
       - dev
     image: cdtcloud/cdtcloud-arduino-cli:${DOCKER_IMAGE_TAG:-main}
     build:
@@ -47,11 +49,11 @@ services:
       - "50051:50051"
     volumes:
       - devcon:/usr/src/app/artifacts
-      - theia:/usr/src/app/deploy
+    networks:
+      - cli-network
     restart: always
 
   device-connector:
-    <<: *networks
     profiles:
       - connector
       - dev
@@ -82,13 +84,17 @@ services:
       target: deployment-server
       <<: *cache-from
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .docker/deployment-server/env
     ports:
       - "3001:3001"
     volumes:
       - deploy:/usr/src/app/deploy
+    networks:
+      - cli-network
+      - cdtcloud-network
     restart: always
 
   theia:
@@ -96,14 +102,14 @@ services:
     profiles:
       - theia
       - dev
+    env_file:
+      - .docker/theia/env
     image: cdtcloud/cdtcloud-theia:${DOCKER_IMAGE_TAG:-main}
     build:
       context: .
       dockerfile: Dockerfile
       target: cdtcloud-theia
       <<: *cache-from
-    depends_on:
-      - arduino-cli
     ports:
       - "3000:3000"
     volumes:
@@ -132,3 +138,4 @@ volumes:
 
 networks:
   cdtcloud-network:
+  cli-network:

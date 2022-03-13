@@ -9,18 +9,18 @@ ARG ARDUINO_VERSION
 LABEL version=$ARDUINO_VERSION
 WORKDIR /usr/src/cli
 
-RUN apk add --update --no-cache curl libc6-compat
+RUN apk add --update --no-cache curl libc6-compat gcompat
 RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/usr/bin sh -s $ARDUINO_VERSION
 
 RUN arduino-cli config init
 RUN arduino-cli config add board_manager.additional_urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
-RUN arduino-cli core update-index
+RUN arduino-cli update
 RUN arduino-cli core install arduino:avr
 RUN arduino-cli core install arduino:sam
 RUN arduino-cli core install STMicroelectronics:stm32
 
 EXPOSE 50051
-CMD ["arduino-cli", "daemon", "--port", "50051", "--daemonize", "--verbose"]
+CMD ["arduino-cli", "daemon", "--ip", "0.0.0.0", "--port", "50051", "--daemonize", "--verbose", "--no-color"]
 
 FROM node:lts-alpine as fe-builder
 WORKDIR /usr/src/app
@@ -101,19 +101,28 @@ RUN addgroup theia && \
   adduser -G theia -s /bin/sh -D theia;
 RUN chmod g+rw /home && \
   mkdir -p /home/project && \
-  #mkdir -p /home/cli && \
+  mkdir -p /home/cli && \
   chown -R theia:theia /home/theia && \
-  #chown -R theia:theia /home/cli && \
+  chown -R theia:theia /home/cli && \
   chown -R theia:theia /home/project;
-RUN apk add --update --no-cache git openssh bash libsecret lsblk
+RUN apk add --update --no-cache git openssh bash libsecret lsblk libc6-compat gcompat
+
 ENV HOME /home/theia
 WORKDIR /home/theia
 COPY --from=cdtcloud-widget --chown=theia:theia /home/theia /home/theia
 COPY --from=cdtcloud-widget --chown=theia:theia /home/theia/packages/theia-extension/cdtcloud/plugins /home/theia/plugins
-#COPY --from=1 --chown=theia:theia /usr/src/arduino /usr/local/bin
+COPY --from=arduino-cli /usr/bin/arduino-cli /usr/bin/arduino-cli
+COPY --from=arduino-cli --chown=theia:theia /root/.arduino15 /home/theia/.arduino15
+
 EXPOSE 3000
-ENV SHELL=/bin/bash \
+ENV SHELL=/bin/sh \
   THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugins
 ENV USE_LOCAL_GIT true
+
+RUN arduino-cli --config-file /home/theia/.arduino15/arduino-cli.yaml config set directories.data /home/theia/.arduino15
+RUN arduino-cli --config-file /home/theia/.arduino15/arduino-cli.yaml config set directories.downloads /home/theia/.arduino15/staging
+RUN arduino-cli --config-file /home/theia/.arduino15/arduino-cli.yaml config set directories.user /home/cli/Arduino
+
 USER theia
+RUN (while true; do arduino-cli daemon --ip 127.0.0.1 --port 50051 --daemonize --no-color; done) &
 ENTRYPOINT [ "node", "/home/theia/packages/theia-extension/browser-app/src-gen/backend/main.js", "/home/project", "--hostname=0.0.0.0"]
