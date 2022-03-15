@@ -6,13 +6,17 @@
   "author": "EclipseSource",
   "license": "EPL-2.0",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "nodemon -x node --loader esbuild-node-loader --no-warnings -r dotenv/config src/index.ts dotenv_config_path=.env.dev",
     "start": "node --loader esbuild-node-loader --no-warnings -r dotenv/config src/index.ts",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "tap",
     "test:dev": "tap -w",
-    "typecheck": "tsc -noEmit"
+    "typecheck": "tsc -noEmit",
+    "prepare": "yarn tsc"
   },
   "tap": {
     "node-arg": [
