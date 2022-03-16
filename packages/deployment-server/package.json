@@ -1,16 +1,21 @@
 {
   "name": "deployment-server",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Deployment-Server for the cdtcloud-deploymentserver service",
+  "homepage": "https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/deployment-server",
   "main": "src/index.ts",
   "repository": "git@github.com:EclipseSource/cdtcloud-deploymentserver.git",
   "license": "EPL-2.0",
+  "bugs": {
+    "url": "https://github.com/EclipseSource/cdtcloud-deploymentserver/issues"
+  },
   "type": "module",
   "files": [
     "dist"
   ],
   "scripts": {
     "nts": "node --loader esbuild-node-loader",
-    "dev": "nodemon -x node --loader esbuild-node-loader  -r dotenv/config src/index.ts",
+    "dev": "nodemon -x node --loader esbuild-node-loader -r dotenv/config src/index.ts",
     "start": "yarn nts src/index.ts",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "c8 tap",

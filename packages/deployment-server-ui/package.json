@@ -1,15 +1,12 @@
 {
   "name": "deployment-server-ui",
-  "version": "0.0.0",
-  "description": "> TODO: description",
-  "homepage": "https://github.com/EclipseSource/cdtcloud-deploymentserver#readme",
+  "version": "1.0.0",
+  "description": "AdminUI for the cdtcloud-deploymentserver service",
+  "homepage": "https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/deployment-server-ui",
+  "repository": "git@github.com:EclipseSource/cdtcloud-deploymentserver.git",
   "license": "EPL-2.0",
   "main": "src/index.ts",
   "private": true,
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/EclipseSource/cdtcloud-deploymentserver.git"
-  },
   "bugs": {
     "url": "https://github.com/EclipseSource/cdtcloud-deploymentserver/issues"
   },
