@@ -39,6 +39,7 @@
     "build": "tsc",
     "watch": "tsc -w",
     "dev": "tsc -w --preserveWatchOutput",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "typecheck": "tsc -noEmit"
   },
   "theiaExtensions": [
