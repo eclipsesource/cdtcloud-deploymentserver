@@ -1,6 +1,7 @@
 import * as protoLoader from '@grpc/proto-loader'
 import * as grpc from '@grpc/grpc-js'
 import { logger } from '../util/logger'
+import { env } from 'node:process'
 import { promisify } from 'util'
 
 import type { ProtoGrpcType as ArduinoProtoGrpcType } from 'arduino-cli_proto_ts/common/monitor'
@@ -8,6 +9,9 @@ import type { Port__Output as Port } from 'arduino-cli_proto_ts/common/cc/arduin
 import type { StreamingOpenRequest } from 'arduino-cli_proto_ts/common/cc/arduino/cli/monitor/v1/StreamingOpenRequest'
 import type { MonitorConfig } from 'arduino-cli_proto_ts/common/cc/arduino/cli/monitor/v1/MonitorConfig'
 import type { StreamingOpenResponse__Output as StreamingOpenResponse } from 'arduino-cli_proto_ts/common/cc/arduino/cli/monitor/v1/StreamingOpenResponse'
+
+const cliIp = env.ARDUINO_CLI_IP ?? '127.0.0.1'
+const cliPort = env.ARDUINO_CLI_PORT ?? 50051
 
 // Create proto loader for grpc connection
 const loadedProto = protoLoader.loadSync('../grpc/proto/cc/arduino/cli/monitor/v1/monitor.proto', {
@@ -26,7 +30,7 @@ export const monitor = async (port: Port): Promise<grpc.ClientDuplexStream<Strea
   deadline.setSeconds(deadline.getSeconds() + 5)
 
   // Connect grpc and wait for ready
-  const arduinoMonitorClient = new arduinoGrpcObject.cc.arduino.cli.monitor.v1.MonitorService('127.0.0.1:50051', grpc.credentials.createInsecure())
+  const arduinoMonitorClient = new arduinoGrpcObject.cc.arduino.cli.monitor.v1.MonitorService(`${cliIp}:${cliPort}`, grpc.credentials.createInsecure())
   try {
     await promisify(arduinoMonitorClient.waitForReady.bind(arduinoMonitorClient))(deadline)
   } catch (e) {
