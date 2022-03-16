@@ -28,6 +28,7 @@
     "rebuild:browser": "yarn theia rebuild:browser",
     "rebuild:electron": "yarn theia rebuild:electron",
     "dev": "concurrently \"lerna run --parallel dev\" \"yarn start:browser\" \"yarn --cwd packages/deployment-server tsc -w --preserveWatchOutput\"",
+    "start:demo": "NODE_ENV=demo concurrently --restart-after 1 --restart-tries -1 -n deployment-server,deployment-ui,device-connector,theia \"yarn start:deployment\" \"yarn --cwd=packages/deployment-server-ui preview\" \"yarn start:connector\" \"yarn start:browser\"",
     "start:deployment": "NODE_ENV=production yarn --cwd=packages/deployment-server start",
     "start:connector": "yarn --cwd=packages/device-connector start",
     "start:browser": "yarn rebuild:browser && yarn --cwd=packages/theia-extension/browser-app start",
