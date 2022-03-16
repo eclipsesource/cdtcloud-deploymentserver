@@ -96,12 +96,12 @@ export default function dashboardRoutes (router: Router): void {
         const deploymentOverview = await req.db.deployRequest.groupBy({
           by: ['status'],
           _count: true
-        }).then(x => x.reduce<Record<DeployStatusType, number>>((acc, { status, _count }) => ({ ...acc, [status]: _count }), {}))
+        }).then(x => x.reduce((acc, { status, _count }) => ({ ...acc, [status]: _count }), {} as Record<DeployStatusType, number>))
 
         const deviceOverview = await req.db.device.groupBy({
           by: ['status'],
           _count: true
-        }).then(x => x.reduce<Record<DeviceStatusType, number>>((acc, { status, _count }) => ({ ...acc, [status]: _count }), {}))
+        }).then(x => x.reduce((acc, { status, _count }) => ({ ...acc, [status]: _count }), {} as Record<DeviceStatusType, number>))
 
         return res.json({
           recentDeployments,
