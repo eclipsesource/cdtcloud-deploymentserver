@@ -1,3 +1,18 @@
+/********************************************************************************
+    Copyright (c) 2022 EclipseSource and others.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0 which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the Eclipse
+    Public License v. 2.0 are satisfied: GNU General Public License, version 2
+    with the GNU Classpath Exception which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+********************************************************************************/
 import { DeployStatus, DeviceStatus } from 'deployment-server'
 import { Tag } from 'antd'
 import React from 'react'
@@ -15,10 +30,11 @@ import classnames from 'classnames'
 import styles from './StatusTag.module.scss'
 
 interface Props {
-  status: DeployStatus | DeviceStatus,
+  status: DeployStatus | DeviceStatus
   addIcon?: boolean
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const StatusTag = (props: Props) => {
   const formatStatus: Record<DeployStatus | DeviceStatus, { icon: JSX.Element }> = {
     SUCCESS: {
@@ -53,7 +69,7 @@ export const StatusTag = (props: Props) => {
   return (
     <Tag
       className={classnames(styles.label, styles[props.status.toLowerCase()])}
-      icon={props.addIcon ? formatStatus[props.status].icon : undefined}
+      icon={(props.addIcon ?? false) ? formatStatus[props.status].icon : undefined}
     >
       {props.status}
     </Tag>

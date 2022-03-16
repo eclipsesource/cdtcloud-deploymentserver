@@ -1,3 +1,18 @@
+/********************************************************************************
+    Copyright (c) 2022 EclipseSource and others.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0 which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the Eclipse
+    Public License v. 2.0 are satisfied: GNU General Public License, version 2
+    with the GNU Classpath Exception which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+********************************************************************************/
 import { useEffect, useState } from 'react'
 import { DeployStatus } from 'deployment-server/dist/src'
 
@@ -6,17 +21,20 @@ const createWebsocket = async (route: string): Promise<WebSocket> => {
   return new WebSocket(url)
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const useMonitor = (deploymentId: string, deployStatus: keyof typeof DeployStatus, condition: boolean = true) => {
   const [socket, setSocket] = useState<WebSocket>()
   const [open, setOpen] = useState<boolean>(false)
-  const [subs, setSubs] = useState<((message: MessageEvent) => void)[]>([])
+  const [subs, setSubs] = useState<Array<((message: MessageEvent) => void)>>([])
   const [reconAttempts, setReconAttempts] = useState<number>(0)
 
   useEffect(() => {
     // Object to avoid clones of sockets
-    let newSocket = { ws: null } as { ws: WebSocket | null }
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const newSocket = { ws: null } as { ws: WebSocket | null }
 
-    async function openSocket() {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    async function openSocket () {
       const ws = await createWebsocket(`/api/deployments/${deploymentId}/stream`)
       ws.onopen = () => setOpen(true)
       ws.onclose = () => {
@@ -29,20 +47,20 @@ export const useMonitor = (deploymentId: string, deployStatus: keyof typeof Depl
     }
 
     if (deployStatus === 'RUNNING' && condition) {
-      openSocket()
+      void openSocket()
     } else {
       socket?.close()
     }
 
     return () => {
-      if (newSocket.ws) {
+      if (newSocket.ws != null) {
         newSocket.ws.close()
       }
     }
   }, [reconAttempts, deployStatus, deploymentId, condition])
 
   useEffect(() => {
-    if (socket) {
+    if (socket != null) {
       socket.onmessage = (message) => {
         subs.forEach((eventFun: (resp: MessageEvent) => void) => eventFun(message))
       }
@@ -64,4 +82,5 @@ export const useMonitor = (deploymentId: string, deployStatus: keyof typeof Depl
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type useMonitor = typeof useMonitor

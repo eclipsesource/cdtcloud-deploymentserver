@@ -14,6 +14,7 @@
     SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
 ********************************************************************************/
 
+/* eslint-disable @typescript-eslint/prefer-reduce-type-parameter */
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 import client, { DeviceStatus as DeviceStatusType, DeployStatus as DeployStatusType } from '@prisma/client'
 import { Router } from 'express'

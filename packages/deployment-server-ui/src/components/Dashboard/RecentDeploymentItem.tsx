@@ -1,3 +1,18 @@
+/********************************************************************************
+    Copyright (c) 2022 EclipseSource and others.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0 which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the Eclipse
+    Public License v. 2.0 are satisfied: GNU General Public License, version 2
+    with the GNU Classpath Exception which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+********************************************************************************/
 import { Button, Col, List, Modal, Row, Tooltip, Typography } from 'antd'
 import { CSSTransition } from 'react-transition-group'
 import { DeployStatus, DeviceType, Device } from 'deployment-server'
@@ -15,25 +30,28 @@ const { Item } = List
 const { Meta } = Item
 
 interface Props {
-  id: string,
-  status: DeployStatus,
+  id: string
+  status: DeployStatus
   device: Device & {
     type: DeviceType
-  },
-  artifactUrl: string | null,
-  details?: boolean,
-  created?: Date,
+  }
+  artifactUrl: string | null
+  details?: boolean
+  created?: Date
   updated?: Date
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const createDownloadUrl = async (url: string) => {
   const response = await fetch(url, { method: 'GET' })
   const content = await response.blob()
   return URL.createObjectURL(new Blob([content]))
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'LLL-dd - hh:mm:ss')
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const RecentDeploymentItem = (props: Props) => {
   const [showId, setShowId] = useState<boolean>(false)
   const [artifactUrl, setArtifactUrl] = useState<string>()
@@ -73,7 +91,7 @@ export const RecentDeploymentItem = (props: Props) => {
           <Button
             type="primary"
             href={`/types/${props.device.deviceTypeId}`}
-            icon={<FontAwesomeIcon icon={'microchip'} style={{marginRight: '0.5em'}}/>}
+            icon={<FontAwesomeIcon icon={'microchip'} style={{ marginRight: '0.5em' }}/>}
           >
             Inspect Device
           </Button>,
@@ -125,18 +143,17 @@ export const RecentDeploymentItem = (props: Props) => {
             </>
           }
           description={
-            showId ?
-              <Typography.Text style={{ color: 'rgba(0, 0, 0, 0.3)' }}>
+            showId
+              ? <Typography.Text style={{ color: 'rgba(0, 0, 0, 0.3)' }}>
                 {props.id}
               </Typography.Text>
-              :
-              <Typography.Link onClick={() => setShowId(true)}>
+              : <Typography.Link onClick={() => setShowId(true)}>
                 Show Deployment Id
               </Typography.Link>
           }
         />
-        {props.details && props.created && props.updated ?
-          <Row style={{ textAlign: 'center', justifyContent: 'center', flex: 'auto' }}>
+        {(props.details ?? false) && (props.created != null) && (props.updated != null)
+          ? <Row style={{ textAlign: 'center', justifyContent: 'center', flex: 'auto' }}>
             <Col span={8}>
               <div>
                 Created
@@ -152,8 +169,7 @@ export const RecentDeploymentItem = (props: Props) => {
               </div>
             </Col>
           </Row>
-          :
-          undefined
+          : undefined
         }
       </Item>
     </CSSTransition>)
