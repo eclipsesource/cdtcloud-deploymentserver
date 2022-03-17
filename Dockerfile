@@ -116,7 +116,7 @@ COPY packages/deployment-server/tsconfig.json /cdtcloud/deployment-server/
 
 COPY --chown=$DOCKER_USER:$DOCKER_USER packages/deployment-server/src /cdtcloud/deployment-server/src
 COPY --chown=$DOCKER_USER:$DOCKER_USER packages/deployment-server/prisma /cdtcloud/deployment-server/prisma
-COPY --chown=$DOCKER_USER:$DOCKER_USER --from=build /cdtcloud/build/packages/deployment-server-ui/dist /cdtcloud/public
+COPY --chown=$DOCKER_USER:$DOCKER_USER --from=build /cdtcloud/build/packages/deployment-server-ui/dist /cdtcloud/deployment-server/public
 
 WORKDIR /cdtcloud/deployment-server
 
@@ -148,30 +148,6 @@ WORKDIR /cdtcloud/device-connector
 RUN yarn install --frozen-lockfile --production=true --ignore-scripts --cache-folder /tmp/.ycache; rm -rf /tmp/.ycache
 
 CMD ["dumb-init", "node", "--loader", "esbuild-node-loader", "src/index.ts"]
-
-FROM node:$NODE_VERSION_THEIA as theia-base
-ARG USER_ID
-ARG GROUP_ID
-ARG DOCKER_USER
-
-ENV DOCKER=1
-
-RUN apt-get update && apt-get install -y dumb-init jq build-essential make pkg-config gcc g++ python3 libx11-dev libxkbfile-dev libsecret-1-dev
-#gyp
-RUN addgroup --gid $GROUP_ID $DOCKER_USER && \
-    adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID $DOCKER_USER && \
-    passwd -d $DOCKER_USER
-
-# Create necessary directories
-RUN mkdir -p /cdtcloud/theia
-
-# Correct permissions for non-root operations
-RUN chown -R $DOCKER_USER:$DOCKER_USER /cdtcloud/theia
-RUN chown -R $DOCKER_USER:$DOCKER_USER /home/$DOCKER_USER
-
-USER $DOCKER_USER
-
-WORKDIR /cdtcloud/theia
 
 FROM base as cdtcloud-widget
 ARG DOCKER_USER

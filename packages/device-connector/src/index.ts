@@ -9,7 +9,7 @@ try {
     const waitForPort = (await import('wait-on')).default
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    await waitForPort({ resources: [`http://${env.DEPLOY_IP!}:${env.DEPLOY_PORT!}`] })
+    await waitForPort({ resources: [`http${env.DEPLOY_SECURE === 'true' ? 's' : ''}://${env.DEPLOY_IP!}:${env.DEPLOY_PORT!}`] })
   }
 
   const connector: DeviceConnector = await createConnector()
