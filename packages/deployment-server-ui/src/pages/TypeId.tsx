@@ -1,3 +1,19 @@
+/********************************************************************************
+    Copyright (c) 2022 EclipseSource and others.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0 which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the Eclipse
+    Public License v. 2.0 are satisfied: GNU General Public License, version 2
+    with the GNU Classpath Exception which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+********************************************************************************/
+
 import { DeployRequest, Device, DeviceTypeResource } from 'deployment-server'
 import { useEffect, useState } from 'react'
 import defineFunctionalComponent from '../util/defineFunctionalComponent'
@@ -11,7 +27,7 @@ import { DeviceStatus } from './Devices'
 
 const { Meta } = Card
 
-export default defineFunctionalComponent(function TypeId() {
+export default defineFunctionalComponent(function TypeId () {
   const [loading, setLoading] = useState<boolean>(true)
   const [devices, setDevices] = useState<Device[]>([])
   const [deviceType, setDeviceType] = useState<DeviceTypeResource>()
@@ -21,7 +37,7 @@ export default defineFunctionalComponent(function TypeId() {
 
   const { id } = useParams()
 
-  function findDeviceById(id: string) {
+  function findDeviceById (id: string) {
     return devices.find((device) => id === device.id)
   }
 
@@ -35,7 +51,7 @@ export default defineFunctionalComponent(function TypeId() {
       const types = await typesRes.json()
       setDeviceType(types)
 
-      const devRes = await fetch(`/api/devices`)
+      const devRes = await fetch('/api/devices')
       const devs = await devRes.json()
       setDevices(devs.filter((dev: Device) => dev.deviceTypeId === id))
 
@@ -137,14 +153,16 @@ export default defineFunctionalComponent(function TypeId() {
 
   return (
     <main>
-      {loading ? (
+      {loading
+        ? (
         <Spin tip={'Loading...'}/>
-      ) : (
+          )
+        : (
         <div>
           <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 16 }, 20]} align={'middle'}>
             <Col span={9}>
               <Card
-                title={deviceType ? deviceType.name : ''}
+                title={(deviceType != null) ? deviceType.name : ''}
                 style={{ height: '400px', overflow: 'auto' }}
               >
                 <Row>
@@ -158,7 +176,7 @@ export default defineFunctionalComponent(function TypeId() {
                   <Col span={12}>
                     <Statistic
                       title={'Current Queue Length'}
-                      value={deviceType ? deviceType.queueLength : '-'}
+                      value={(deviceType != null) ? deviceType.queueLength : '-'}
                       valueStyle={{ color: 'black' }}
                     />
                   </Col>
@@ -167,7 +185,7 @@ export default defineFunctionalComponent(function TypeId() {
                   <Col span={24}>
                     <Statistic
                       title={'FQBN'}
-                      value={deviceType ? deviceType.fqbn : '0'}
+                      value={(deviceType != null) ? deviceType.fqbn : '0'}
                       valueStyle={{ color: 'black' }}
                     />
                   </Col>
@@ -176,14 +194,14 @@ export default defineFunctionalComponent(function TypeId() {
                   <Col span={12}>
                     <Statistic
                       title={'Status'}
-                      value={deviceType ? deviceType.status : ''}
+                      value={(deviceType != null) ? deviceType.status : ''}
                       valueStyle={{ color: 'black' }}
                     />
                   </Col>
                   <Col span={12}>
                     <Statistic
                       title={'Device Type ID'}
-                      value={deviceType ? deviceType.id : '0'}
+                      value={(deviceType != null) ? deviceType.id : '0'}
                       valueStyle={{ color: 'black' }}
                     />
                   </Col>
@@ -228,7 +246,7 @@ export default defineFunctionalComponent(function TypeId() {
             </Col>
           </Row>
         </div>
-      )}
+          )}
     </main>
   )
 })
