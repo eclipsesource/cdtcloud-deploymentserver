@@ -1,6 +1,4 @@
 ARG NODE_VERSION=17
-ARG NODE_VERSION_THEIA=12.20.1
-ARG ALPINE_VERSION_THEIA=3.12
 ARG ARDUINO_VERSION=0.20.0
 ARG USER_ID=2000
 ARG GROUP_ID=2000
@@ -177,6 +175,8 @@ WORKDIR /cdtcloud/theia
 
 FROM base as cdtcloud-widget
 ARG DOCKER_USER
+# electron libs:
+# libx11-xcb-dev libxcb-dri3-dev libxcomposite-dev libxcursor-dev libxdamage-dev libxi-dev libxtst-dev libnss3-dev libatk1.0-dev libatk-bridge2.0-dev libgtk-3-dev libxss-dev libasound-dev
 
 COPY --chown=$DOCKER_USER:$DOCKER_USER yarn.lock /cdtcloud/theia/
 COPY --chown=$DOCKER_USER:$DOCKER_USER package.json /cdtcloud/theia/
@@ -185,12 +185,10 @@ COPY --chown=$DOCKER_USER:$DOCKER_USER packages/theia-extension/cdtcloud /cdtclo
 COPY --chown=$DOCKER_USER:$DOCKER_USER packages/grpc /cdtcloud/theia/packages/grpc
 COPY --chown=$DOCKER_USER:$DOCKER_USER packages/theia-extension/browser-app /cdtcloud/theia/packages/theia-extension/browser-app
 
-RUN echo $PWD
 WORKDIR /cdtcloud/theia
-RUN echo $PWD
 
 RUN yarn install --purge-lockfile
-RUN NODE_OPTIONS="--max_old_space_size=4096" yarn build:theia
+RUN NODE_OPTIONS="--max_old_space_size=4096" yarn build:browser
 RUN yarn --cwd=packages/theia-extension/cdtcloud theia download:plugins
 RUN yarn --production=true
 RUN yarn autoclean --init
@@ -219,49 +217,6 @@ WORKDIR /cdtcloud/theia
 
 EXPOSE 3000
 ENTRYPOINT ["node", "packages/theia-extension/browser-app/src-gen/backend/main.js", "/home/project", "--hostname=0.0.0.0"]
-
-#FROM base as demo-base
-#ARG DOCKER_USER
-#ARG NODE_VERSION_THEIA
-#ARG YARN_VERSION_THEIA=1.22.5
-#
-#RUN mkdir -p node-theia
-#RUN chown -R $DOCKER_USER:$DOCKER_USER node-theia
-#
-## Install node for theia
-#RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
-#  && case "${dpkgArch##*-}" in \
-#    amd64) ARCH='x64';; \
-#    ppc64el) ARCH='ppc64le';; \
-#    s390x) ARCH='s390x';; \
-#    arm64) ARCH='arm64';; \
-#    armhf) ARCH='armv7l';; \
-#    i386) ARCH='x86';; \
-#    *) echo "unsupported architecture"; exit 1 ;; \
-#  esac \
-#  # gpg keys listed at https://github.com/nodejs/node#release-keys
-#  && set -ex \
-#  && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION_THEIA/node-v$NODE_VERSION-linux-$ARCH.tar.xz" \
-#  && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION_THEIA/SHASUMS256.txt.asc" \
-#  && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
-#  && grep " node-v$NODE_VERSION_THEIA-linux-$ARCH.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
-#  && tar -xJf "node-v$NODE_VERSION_THEIA-linux-$ARCH.tar.xz" -C /cdtcloud/node-theia --strip-components=1 --no-same-owner \
-#  && rm "node-v$NODE_VERSION_THEIA-linux-$ARCH.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
-#  && ln -s /cdtcloud/node-theia/bin/node /usr/local/bin/node-v$NODE_VERSION_THEIA \
-#  # smoke tests
-#  && node-v$NODE_VERSION_THEIA --version
-#
-## Install yarn for theia
-#RUN set -ex \
-#  && curl -fsSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION_THEIA/yarn-v$YARN_VERSION_THEIA.tar.gz" \
-#  && curl -fsSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION_THEIA/yarn-v$YARN_VERSION_THEIA.tar.gz.asc" \
-#  && gpg --batch --verify yarn-v$YARN_VERSION_THEIA.tar.gz.asc yarn-v$YARN_VERSION_THEIA.tar.gz \
-#  && tar -xzf yarn-v$YARN_VERSION_THEIA.tar.gz -C /opt/ \
-#  && ln -s /opt/yarn-v$YARN_VERSION_THEIA/bin/yarn /usr/local/bin/yarn-v$YARN_VERSION_THEIA \
-#  && ln -s /opt/yarn-v$YARN_VERSION_THEIA/bin/yarnpkg /usr/local/bin/yarnpkg-v$YARN_VERSION_THEIA \
-#  && rm yarn-v$YARN_VERSION_THEIA.tar.gz.asc yarn-v$YARN_VERSION_THEIA.tar.gz \
-#  # smoke test
-#  && yarn-$YARN_VERSION_THEIA --version
 
 FROM base as demo
 ARG DOCKER_USER

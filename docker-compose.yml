@@ -35,72 +35,69 @@ services:
     restart: unless-stopped
 
   arduino-cli:
-    <<: *networks
+    <<: *shared-conf
     profiles:
       - connector
     image: cdtcloud/cdtcloud-arduino-cli:${DOCKER_IMAGE_TAG:-main}
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.test
       target: arduino-cli
       <<: *cache-from
-    privileged: true
     ports:
       - "50051:50051"
     volumes:
       - connector:/cdtcloud/device-connector/artifacts:ro
-      #- cdtcloud:/cdtcloud/device-connector/artifacts:ro
+    privileged: true
     restart: unless-stopped
 
   device-connector:
-    <<: *networks
+    <<: *shared-conf
     profiles:
       - connector
     image: cdtcloud/cdtcloud-device-connector:${DOCKER_IMAGE_TAG:-main}
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: device-connector
-      <<: *cache-from
     env_file:
       - .docker/device-connector/env
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+      target: device-connector
+      <<: *cache-from
     volumes:
       - connector:/cdtcloud/device-connector
       - connector:/cdtcloud/grpc
-      #- cdtcloud:/cdtcloud/device-connector
     restart: unless-stopped
 
   deployment-server:
-    <<: *networks
+    <<: *shared-conf
     profiles:
       - deployment
     image: cdtcloud/cdtcloud-deployment-server:${DOCKER_IMAGE_TAG:-main}
+    env_file:
+      - .docker/deployment-server/env
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.test
       target: deployment-server
       <<: *cache-from
     depends_on:
       - db
-    env_file:
-      - .docker/deployment-server/env
     ports:
       - "3001:3001"
     volumes:
       - deployment:/cdtcloud/deployment-server
-      #- cdtcloud:/cdtcloud/deployment-server
     restart: unless-stopped
 
   theia:
-    <<: *networks
+    <<: *shared-conf
     profiles:
       - theia
+    image: cdtcloud/cdtcloud-theia:${DOCKER_IMAGE_TAG:-main}
     env_file:
       - .docker/theia/env
-    image: cdtcloud/cdtcloud-theia:${DOCKER_IMAGE_TAG:-main}
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.test
       target: cdtcloud-theia
       <<: *cache-from
     ports:
@@ -108,41 +105,34 @@ services:
     volumes:
       - theia:/cdtcloud/theia
       - theia:/cdtcloud/project
-    working_dir: /cdtcloud/theia
     restart: unless-stopped
 
   demo:
-    <<: *networks
+    <<: *shared-conf
     profiles:
       - demo
     image: cdtcloud/cdtcloud-demo:${DOCKER_IMAGE_TAG:-main}
+    environment:
+      NODE_ENV: "demo"
+      DATABASE_URL: "postgresql://postgres:dev@db:5432/deploymentdb?schema=public"
     build:
       context: .
       dockerfile: Dockerfile
       target: demo
       <<: *cache-from
-    environment:
-      NODE_ENV: "demo"
-      DATABASE_URL: "postgresql://postgres:dev@db:5432/deploymentdb?schema=public"
     ports:
       - "3000:3000"
       - "3001:3001"
     privileged: true
-    #working_dir: /cdtcloud
     depends_on:
       - db
-#    volumes:
-#      - cdtcloud:/cdtcloud
-#      - deployment:/cdtcloud/deployment-server
-#      - deployment:/cdtcloud/public
-#      - connector:/cdtcloud/device-connector
-#      - connector:/cdtcloud/grpc
-#      - theia:/cdtcloud/theia
-#      - theia:/cdtcloud/project
-#     volumes-from:
-#      - deployment-server
-#      - device-connector
-#      - theia
+    volumes:
+      - deployment:/deployment-server
+      - deployment:/public
+      - connector:/device-connector
+      - connector:/grpc
+      - theia:/theia
+      - theia:/project
     restart: on-failure
 
 volumes:
