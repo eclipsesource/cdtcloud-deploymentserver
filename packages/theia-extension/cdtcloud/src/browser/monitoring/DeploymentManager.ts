@@ -51,7 +51,7 @@ export class DeploymentManager {
 
     socket.onmessage = (event) => {
       const data = event.data.toString().trim()
-      if (data != '') {
+      if (data !== '') {
         channel.appendLine(data)
       }
     }

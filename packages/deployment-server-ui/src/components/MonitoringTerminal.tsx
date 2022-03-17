@@ -84,7 +84,7 @@ const MonitoringTerminal = (props: Props) => {
       subscribe((message) => {
         const data = typeof message.data === 'string' ? message.data.trim() : new Uint8Array(message.data)
 
-        if (data != null && data !== '' && data.length != 0) {
+        if (data != null && data !== '' && data.length !== 0) {
           if (data === 'Deployment SUCCESS') {
             terminalRef.current?.write(data)
           } else {
