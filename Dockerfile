@@ -1,5 +1,5 @@
 ARG NODE_VERSION=17
-ARG ARDUINO_VERSION=0.20.0
+ARG ARDUINO_VERSION=0.21.1
 ARG USER_ID=2000
 ARG GROUP_ID=2000
 ARG DOCKER_USER=cdtcloud
@@ -86,7 +86,7 @@ RUN arduino-cli core install arduino:sam
 RUN arduino-cli core install STMicroelectronics:stm32
 
 EXPOSE 50051
-CMD ["arduino-cli", "daemon", "--port", "50051", "--daemonize", "--verbose", "--no-color"]
+CMD ["arduino-cli", "daemon", "--ip", "0.0.0.0", "--port", "50051", "--daemonize", "--verbose", "--no-color"]
 
 FROM base as build
 ARG DOCKER_USER
@@ -149,7 +149,7 @@ RUN yarn install --frozen-lockfile --production=true --ignore-scripts --cache-fo
 
 CMD ["dumb-init", "node", "--loader", "esbuild-node-loader", "src/index.ts"]
 
-FROM base as cdtcloud-widget
+FROM base as theia-build
 ARG DOCKER_USER
 # electron libs:
 # libx11-xcb-dev libxcb-dri3-dev libxcomposite-dev libxcursor-dev libxdamage-dev libxi-dev libxtst-dev libnss3-dev libatk1.0-dev libatk-bridge2.0-dev libgtk-3-dev libxss-dev libasound-dev
@@ -177,13 +177,15 @@ RUN yarn cache clean
 FROM base as cdtcloud-theia
 ARG DOCKER_USER
 
+LABEL description="CdtCloud theia image"
+
 ENV HOME /home/$DOCKER_USER
 ENV SHELL=/bin/bash
 ENV THEIA_DEFAULT_PLUGINS=local-dir:/cdtcloud/theia/plugins
 ENV USE_LOCAL_GIT true
 
-COPY --from=cdtcloud-widget --chown=$DOCKER_USER:$DOCKER_USER /cdtcloud/theia /cdtcloud/theia
-COPY --from=cdtcloud-widget --chown=$DOCKER_USER:$DOCKER_USER /cdtcloud/theia/packages/theia-extension/cdtcloud/plugins /cdtcloud/theia/plugins
+COPY --from=theia-build --chown=$DOCKER_USER:$DOCKER_USER /cdtcloud/theia /cdtcloud/theia
+COPY --from=theia-build --chown=$DOCKER_USER:$DOCKER_USER /cdtcloud/theia/packages/theia-extension/cdtcloud/plugins /cdtcloud/theia/plugins
 COPY --from=arduino-cli /usr/local/bin/arduino-cli /usr/local/bin/arduino-cli
 COPY --from=arduino-cli --chown=$DOCKER_USER:$DOCKER_USER /home/$DOCKER_USER/.arduino15 /home/$DOCKER_USER/.arduino15
 

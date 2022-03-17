@@ -40,7 +40,7 @@ services:
     image: cdtcloud/cdtcloud-arduino-cli:${DOCKER_IMAGE_TAG:-main}
     build:
       context: .
-      dockerfile: Dockerfile.test
+      dockerfile: Dockerfile
       target: arduino-cli
       <<: *cache-from
     ports:
@@ -64,7 +64,6 @@ services:
       <<: *cache-from
     volumes:
       - connector:/cdtcloud/device-connector
-      - connector:/cdtcloud/grpc
     restart: unless-stopped
 
   deployment-server:
@@ -129,14 +128,12 @@ services:
       - deployment:/deployment-server
       - deployment:/public
       - connector:/device-connector
-      - connector:/grpc
       - theia:/theia
       - theia:/project
     restart: on-failure
 
 volumes:
   postgresdb:
-  cdtcloud:
   connector:
   deployment:
   theia:
