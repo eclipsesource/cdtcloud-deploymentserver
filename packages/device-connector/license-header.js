@@ -13,19 +13,3 @@
 
     SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
 ********************************************************************************/
-
-export const DeviceStatus = {
-  UNAVAILABLE: 'UNAVAILABLE',
-  AVAILABLE: 'AVAILABLE',
-  DEPLOYING: 'DEPLOYING',
-  RUNNING: 'RUNNING',
-  MONITORING: 'MONITORING'
-} as const
-
-export const DeployStatus = {
-  PENDING: 'PENDING',
-  RUNNING: 'RUNNING',
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-  TERMINATED: 'TERMINATED'
-} as const
