@@ -21,7 +21,8 @@
     "test": "c8 tap",
     "test:dev": "tap -w",
     "typecheck": "tsc -noEmit",
-    "prepare": "yarn prisma generate && yarn tsc"
+    "prepare": "yarn prisma generate && yarn tsc",
+    "update:db": "yarn run prisma migrate deploy && yarn run prisma db seed"
   },
   "tap": {
     "node-arg": [
