@@ -13,7 +13,6 @@ module.exports = {
   ],
   rules: {
     'license-header/header': ['error', 'license-header.js'],
-    'license-header/header': ['error', 'license-header.js'],
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-redeclare': 'off',
     '@typescript-eslint/no-floating-promises': 'off',
