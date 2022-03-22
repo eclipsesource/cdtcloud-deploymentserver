@@ -1,9 +1,25 @@
+/********************************************************************************
+    Copyright (c) 2022 EclipseSource and others.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0 which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the Eclipse
+    Public License v. 2.0 are satisfied: GNU General Public License, version 2
+    with the GNU Classpath Exception which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+********************************************************************************/
+
 import { Device, DeviceType, DeployRequest } from 'deployment-server'
 import { Card, Table, TablePaginationConfig } from 'antd'
 import { FilterValue } from 'antd/lib/table/interface'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useInterval } from "react-use";
+import { useInterval } from 'react-use'
 import defineFunctionalComponent from '../util/defineFunctionalComponent'
 import { typeIdToName } from '../util/deviceMapping'
 import classnames from 'classnames'
@@ -40,7 +56,7 @@ const formatDevices = async (devices: Device[]): Promise<DevicesItem[]> => {
   )
 }
 
-export default defineFunctionalComponent(function Devices() {
+export default defineFunctionalComponent(function Devices () {
   const [devices, setDevices] = useState<DevicesItem[]>()
   const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>(Array(15).fill({}))
   const [loading, setLoading] = useState<boolean>(true)
@@ -74,7 +90,7 @@ export default defineFunctionalComponent(function Devices() {
       filters: deviceTypes.map((deviceType: DeviceType) => {
         return { text: deviceType.name, value: deviceType.id }
       }),
-      filteredValue: filters.deviceTypeId || null,
+      filteredValue: (filters.deviceTypeId != null) || null,
       onFilter: (value: string, record: Device) => {
         return record.deviceTypeId === value
       },
@@ -84,7 +100,7 @@ export default defineFunctionalComponent(function Devices() {
       title: 'Total Deployments',
       dataIndex: 'deployCount',
       key: 'deploys',
-      sorter: (x: DevicesItem, y: DevicesItem) => x.deployCount - y.deployCount,
+      sorter: (x: DevicesItem, y: DevicesItem) => x.deployCount - y.deployCount
     },
     {
       title: 'Status',
@@ -98,15 +114,15 @@ export default defineFunctionalComponent(function Devices() {
           typeof DeviceStatus[keyof typeof DeviceStatus]
         ]>
       ).reduce<Array<{
-        text: keyof typeof DeviceStatus;
-        value: typeof DeviceStatus[keyof typeof DeviceStatus];
+        text: keyof typeof DeviceStatus
+        value: typeof DeviceStatus[keyof typeof DeviceStatus]
       }>>((acc, [key, value]) => {
         if (key === DeviceStatus.UNAVAILABLE && !showUnavailable) {
           return acc
         }
         return [...acc, { text: key, value: value }]
       }, []),
-      filteredValue: filters.status || null,
+      filteredValue: (filters.status != null) || null,
       onFilter: (value: string, record: Device) => {
         return record.status === value
       },
@@ -118,13 +134,13 @@ export default defineFunctionalComponent(function Devices() {
     if (!filtersOpen) { // Hackfix for fetch bugging filters
       setRefetchFlip(!refetchFlip)
     }
-  }, 1000);
+  }, 1000)
 
-  function handleChange(
+  function handleChange (
     _pagination: TablePaginationConfig,
     filters: Record<string, FilterValue | null>
   ) {
-    let params: Record<string, string | string[]> = {
+    const params: Record<string, string | string[]> = {
       status: [],
       deviceTypeId: []
     }

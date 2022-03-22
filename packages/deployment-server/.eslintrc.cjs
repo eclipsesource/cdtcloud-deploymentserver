@@ -7,5 +7,11 @@ module.exports = {
   parserOptions: {
     tsconfigRootDir: __dirname,
     project: 'tsconfig.json'
+  },
+  plugins: [
+    'license-header'
+  ],
+  rules: {
+    'license-header/header': ['error', 'license-header.js']
   }
 }

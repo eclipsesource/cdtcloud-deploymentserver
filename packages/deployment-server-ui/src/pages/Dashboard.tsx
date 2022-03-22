@@ -1,3 +1,19 @@
+/********************************************************************************
+    Copyright (c) 2022 EclipseSource and others.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0 which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the Eclipse
+    Public License v. 2.0 are satisfied: GNU General Public License, version 2
+    with the GNU Classpath Exception which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+********************************************************************************/
+
 import RecentDeploymentList from '../components/Dashboard/RecentDeploymentList'
 import DeploymentsOverTimeGraph from '../components/Graphs/DeploymentsOverTimeGraph'
 import defineFunctionalComponent from '../util/defineFunctionalComponent'
@@ -25,7 +41,7 @@ import styles from './Dashboard.module.scss'
 import deployGraphStyles from '../components/Graphs/Graph.module.scss'
 import colors from '../Colors.module.scss'
 
-export default defineFunctionalComponent(function Dashboard() {
+export default defineFunctionalComponent(function Dashboard () {
   const dashboardState = useAppSelector((state) => state.dashboard)
   const [chartTime, setChartTime] = useState<number>(24)
   const [connectedTypes, setConnectedTypes] = useState<string[]>([])
@@ -57,21 +73,19 @@ export default defineFunctionalComponent(function Dashboard() {
   }, [dashboardState])
 
   return (
-    dashboardState.loading && !dashboardState.error && loading ?
-      <main className={styles.main}>
+    dashboardState.loading && !dashboardState.error && loading
+      ? <main className={styles.main}>
         <Spin tip={'Loading...'}/>
       </main>
-      :
-      dashboardState.error ?
-        <main>
+      : dashboardState.error
+        ? <main>
           <Result
             status={'error'}
             title={'Fetch Failed'}
             subTitle={'Please refresh the page or try again later.'}
           />
         </main>
-        :
-        <main>
+        : <main>
           <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 32 }, 20]} align={'stretch'}>
             <Col span={8}>
               <Card
