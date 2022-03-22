@@ -12,10 +12,10 @@ function install_deps() {
             case $DISTRO in
                 "neon" | "ubuntu" | "Ubuntu" | "debian" | "Debian")
                     sudo apt-get update
-                    sudo apt-get -y install build-essential curl git
+                    sudo apt-get -y install build-essential curl git g++ gcc make python2.7 pkg-config libx11-dev libxkbfile-dev libsecret-1-dev
                     curl -sL https://deb.nodesource.com/setup_17.x | sudo bash -
                     sudo apt -y install nodejs
-                    npm install -g yarn
+                    sudo npm install -g yarn
                     yarn
                 ;;
                 *)
