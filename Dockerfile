@@ -99,8 +99,6 @@ WORKDIR /cdtcloud/build
 
 RUN yarn install --ignore-scripts
 RUN yarn --cwd=packages/deployment-server-ui run vite build
-RUN yarn --cwd=packages/deployment-server run prisma migrate deploy
-RUN yarn --cwd=packages/deployment-server run prisma db seed
 
 FROM base as deployment-server
 ARG DOCKER_USER
@@ -217,8 +215,6 @@ COPY --from=device-connector --chown=$DOCKER_USER:$DOCKER_USER /cdtcloud/device-
 COPY --from=device-connector --chown=$DOCKER_USER:$DOCKER_USER /cdtcloud/grpc/ /cdtcloud/grpc/
 COPY --from=cdtcloud-theia --chown=$DOCKER_USER:$DOCKER_USER /cdtcloud/theia/ /cdtcloud/theia/
 
-RUN yarn --cwd=deployment-server run prisma migrate deploy
-RUN yarn --cwd=deployment-server run prisma db seed
 RUN sudo yarn global add concurrently --prefix /usr/local
 
 EXPOSE 3000

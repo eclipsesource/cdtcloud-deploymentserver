@@ -1,17 +1,9 @@
-version: "3.9"
+version: "3.7"
 
 # extension field: https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields
 x-networks: &networks
   networks:
     - cdtcloud-network
-
-x-cache-from: &cache-from
-  cache_from:
-    - cdtcloud/cdtcloud-arduino-cli:${DOCKER_IMAGE_TAG:-main}
-    - cdtcloud/cdtcloud-device-connector:${DOCKER_IMAGE_TAG:-main}
-    - cdtcloud/cdtcloud-deployment-server:${DOCKER_IMAGE_TAG:-main}
-    - cdtcloud/cdtcloud-theia:${DOCKER_IMAGE_TAG:-main}
-    - cdtcloud/cdtcloud-demo:${DOCKER_IMAGE_TAG:-main}
 
 x-shared-conf: &shared-conf
   <<: *networks
@@ -19,9 +11,6 @@ x-shared-conf: &shared-conf
 services:
   db:
     <<: *networks
-    profiles:
-      - deployment
-      - demo
     image: postgres:14-alpine
     environment:
       POSTGRES_USER: postgres
@@ -35,14 +24,11 @@ services:
 
   arduino-cli:
     <<: *shared-conf
-    profiles:
-      - connector
     image: cdtcloud/cdtcloud-arduino-cli:${DOCKER_IMAGE_TAG:-main}
     build:
       context: .
       dockerfile: Dockerfile
       target: arduino-cli
-      <<: *cache-from
     ports:
       - "50051:50051"
     volumes:
@@ -52,8 +38,6 @@ services:
 
   device-connector:
     <<: *shared-conf
-    profiles:
-      - connector
     image: cdtcloud/cdtcloud-device-connector:${DOCKER_IMAGE_TAG:-main}
     env_file:
       - .docker/device-connector/env
@@ -61,23 +45,23 @@ services:
       context: .
       dockerfile: Dockerfile.test
       target: device-connector
-      <<: *cache-from
     volumes:
       - connector:/cdtcloud/device-connector
     restart: unless-stopped
 
   deployment-server:
     <<: *shared-conf
-    profiles:
-      - deployment
     image: cdtcloud/cdtcloud-deployment-server:${DOCKER_IMAGE_TAG:-main}
-    env_file:
-      - .docker/deployment-server/env
+    environment:
+      NODE_ENV: "development"
+      DATABASE_URL: "postgresql://postgres:dev@db:5432/deploymentdb?schema=public"
+      HOSTNAME: "0.0.0.0"
     build:
       context: .
       dockerfile: Dockerfile.test
       target: deployment-server
-      <<: *cache-from
+    links:
+      - db
     depends_on:
       - db
     ports:
@@ -88,8 +72,6 @@ services:
 
   theia:
     <<: *shared-conf
-    profiles:
-      - theia
     image: cdtcloud/cdtcloud-theia:${DOCKER_IMAGE_TAG:-main}
     env_file:
       - .docker/theia/env
@@ -97,7 +79,6 @@ services:
       context: .
       dockerfile: Dockerfile.test
       target: cdtcloud-theia
-      <<: *cache-from
     ports:
       - "3000:3000"
     volumes:
@@ -107,8 +88,6 @@ services:
 
   demo:
     <<: *shared-conf
-    profiles:
-      - demo
     image: cdtcloud/cdtcloud-demo:${DOCKER_IMAGE_TAG:-main}
     environment:
       NODE_ENV: "demo"
@@ -117,7 +96,6 @@ services:
       context: .
       dockerfile: Dockerfile
       target: demo
-      <<: *cache-from
     ports:
       - "3000:3000"
       - "3001:3001"
