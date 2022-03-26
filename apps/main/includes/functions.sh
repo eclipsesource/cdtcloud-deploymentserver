@@ -16,6 +16,13 @@ function install_deps() {
                     curl -sL https://deb.nodesource.com/setup_17.x | sudo bash -
                     sudo apt -y install nodejs
                     sudo npm install -g yarn
+                    curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sudo sh
+                    arduino-cli config init || true
+                    arduino-cli config add board_manager.additional_urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
+                    arduino-cli update
+                    arduino-cli core install arduino:avr
+                    arduino-cli core install arduino:sam
+                    arduino-cli core install STMicroelectronics:stm32
                     yarn
                 ;;
                 *)
@@ -25,7 +32,13 @@ function install_deps() {
         ;;
         msys*)
           @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
-          choco install -y --skip-checksums git git.install nodejs yarn
+          choco install -y --skip-checksums git git.install nodejs yarn arduino-cli
+          arduino-cli config init || true
+          arduino-cli config add board_manager.additional_urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
+          arduino-cli update
+          arduino-cli core install arduino:avr
+          arduino-cli core install arduino:sam
+          arduino-cli core install STMicroelectronics:stm32
           yarn
         ;;
         *) echo "This platform is not supported"
