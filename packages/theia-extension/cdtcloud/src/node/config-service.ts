@@ -28,7 +28,7 @@ export class ConfigServiceImpl implements ConfigService {
     return `${this.#secure ? 'wss' : 'ws'}://${this.#host}:${this.#port}`
   }
 
-  async getDeploymentServerHost(): Promise<string> {
+  async getDeploymentServerHost (): Promise<string> {
     return `${this.#secure ? 'https' : 'http'}://${this.#host}:${this.#port}`
   }
 }
