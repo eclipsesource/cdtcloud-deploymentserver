@@ -26,6 +26,7 @@
     "@theia/workspace": "^1.21.0",
     "@types/form-data": "^2.5.0",
     "axios": "^0.24.0",
+    "eslint-plugin-license-header": "^0.4.0",
     "got": "^11.0.0",
     "react-select": "^5.2.1",
     "react-use": "^17.3.2"
@@ -46,6 +47,7 @@
     "build": "tsc",
     "watch": "tsc -w",
     "dev": "tsc -w --preserveWatchOutput",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "typecheck": "tsc -noEmit"
   },
   "theiaExtensions": [

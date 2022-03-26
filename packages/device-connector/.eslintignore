@@ -1,2 +1,4 @@
 dist
 tests
+test
+error-cause.d.ts
