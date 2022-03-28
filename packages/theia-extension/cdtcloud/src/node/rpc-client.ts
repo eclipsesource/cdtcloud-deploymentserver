@@ -51,7 +51,7 @@ export class RPCClient {
 
     return await new Promise((resolve, reject) => {
       const proto = grpc.loadPackageDefinition(packageDefinition) as unknown as ProtoGrpcType
-      if (!proto) {
+      if (proto === undefined) {
         return reject(new Error('Proto load failed'))
       }
 
@@ -124,10 +124,10 @@ export class RPCClient {
 
       const response = this.client.Compile(compileRequest)
       response.on('data', (data: CompileResponse) => {
-        if (data.err_stream && data.err_stream.length > 0) {
+        if (data.err_stream !== undefined && data.err_stream.length > 0) {
           return reject(new Error(data.err_stream.toString()))
         }
-        if (!data.out_stream && !data.build_path) {
+        if (data.out_stream === undefined && data.build_path === undefined) {
           return reject(new Error('No build path found'))
         }
         this.buildPath = data.build_path

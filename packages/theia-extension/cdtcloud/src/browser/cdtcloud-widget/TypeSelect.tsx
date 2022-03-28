@@ -14,9 +14,8 @@
     SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
 ********************************************************************************/
 
-import * as React from 'react'
-import { FunctionComponent, useEffect, useState } from 'react'
-import Select from 'react-select'
+import React, { CSSProperties, FunctionComponent, useEffect, useState } from 'react'
+import Select, { CSSObjectWithLabel } from 'react-select'
 
 interface Option {
   label: string
@@ -41,7 +40,7 @@ export const TypeSelect: FunctionComponent<{
     if (updatedSelectionFromOptions != null) { setBoard(updatedSelectionFromOptions) }
   }, [options])
 
-  const dot = (color = 'transparent') => ({
+  const dot = (color = 'transparent'): CSSObjectWithLabel => ({
     alignItems: 'center',
     display: 'flex',
 
@@ -56,7 +55,7 @@ export const TypeSelect: FunctionComponent<{
     }
   })
 
-  function getColor (status: string) {
+  function getColor (status: string): string {
     switch (status) {
       case 'QUEUEABLE':
         return '#faad14'
@@ -65,10 +64,12 @@ export const TypeSelect: FunctionComponent<{
       case 'BUSY':
       case 'UNAVAILABLE':
         return '#cf1322'
+      default:
+        return 'transparent'
     }
   }
 
-  function getStyle (status: string) {
+  function getStyle (status: string): CSSProperties {
     return {
       display: 'flex',
       width: '10px',
@@ -113,7 +114,7 @@ export const TypeSelect: FunctionComponent<{
           })
         }}
         onChange={(e: Option) => {
-          if (!e) return
+          if (e === undefined) return
           const newBoard = { label: e.label, value: e.value, status: e.status }
           setBoard(newBoard)
         }}
