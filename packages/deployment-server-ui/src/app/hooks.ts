@@ -14,10 +14,9 @@
     SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
 ********************************************************************************/
 
-import { AnyAction } from '@reduxjs/toolkit'
 import { Dispatch } from 'react'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from './store'
 
-export const useAppDispatch = (): Dispatch<AnyAction> => useDispatch<AppDispatch>()
+export const useAppDispatch = (): any => useDispatch<AppDispatch>()
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector

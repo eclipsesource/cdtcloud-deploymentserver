@@ -18,7 +18,7 @@ import { Layout } from 'antd'
 import { CdtCloudHeader } from './CdtCloudHeader'
 import { CdtCloudSidebar } from './CdtCloudSidebar'
 import type { FunctionComponent } from 'react'
-import { useWebsocket } from '../services/WebsocketService'
+import { useWebsocketFunction } from '../services/WebsocketService'
 import React, { useEffect, useState } from 'react'
 import { connectorEvent, deviceEvent } from './Notification'
 import { fetchDashboardAsync } from '../reducers/DashboardReducer'
@@ -32,7 +32,7 @@ const { Content } = Layout
 export const CdtCloudMain: FunctionComponent<{}> = ({ children }) => {
   const [refreshFlip, setRefreshFlip] = useState<boolean>(false)
   const [ready, setReady] = useState<boolean>(false)
-  const { open, subscribe, subs } = useWebsocket('/api/dashboard/notifications', ready)
+  const { open, subscribe, subs } = useWebsocketFunction('/api/dashboard/notifications', ready)
   const dispatch = useAppDispatch()
 
   useEffect(() => {
