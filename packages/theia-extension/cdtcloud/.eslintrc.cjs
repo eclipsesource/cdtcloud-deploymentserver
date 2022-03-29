@@ -13,6 +13,5 @@ module.exports = {
   ],
   rules: {
     'license-header/header': ['error', 'license-header.js'],
-    '@typescript-eslint/no-misused-promises': 'off',
   }
 }

@@ -214,21 +214,15 @@ export class CdtcloudWidget extends ReactWidget {
   }
 
   private startPollingDeployments (): void {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.interval = setInterval(async () => {
-      try {
-        const request = await fetch(
-          `${await this.configService.getDeploymentServerHost()}/api/deployments`
-        )
-
-        const deployments = (await request.json()) as Deployment[]
-
-        this.deployments = deployments.filter((deployment) => this.deploymentIds.includes(deployment.id)
-        )
-
-        await this.getDeviceList()
-      } catch (err) {
-        console.log(err)
-      }
+      const request = await fetch(
+        `${await this.configService.getDeploymentServerHost()}/api/deployments`
+      )
+      const deployments = (await request.json()) as Deployment[]
+      this.deployments = deployments.filter((deployment) => this.deploymentIds.includes(deployment.id)
+      )
+      await this.getDeviceList()
     }, 1500) as unknown as number
   }
 
