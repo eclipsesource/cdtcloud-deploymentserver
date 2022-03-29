@@ -16,7 +16,7 @@ function install_deps() {
                     curl -sL https://deb.nodesource.com/setup_17.x | sudo bash -
                     sudo apt -y install nodejs
                     sudo npm install -g yarn
-                    curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sudo sh
+                    curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sudo BINDIR=/usr/local/bin sh
                     arduino-cli config init || true
                     arduino-cli config add board_manager.additional_urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
                     arduino-cli update
