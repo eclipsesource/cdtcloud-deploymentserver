@@ -124,7 +124,7 @@ RUN yarn install --frozen-lockfile --production=true --ignore-scripts --cache-fo
 RUN yarn run prisma generate
 
 EXPOSE 3001
-CMD ["dumb-init", "node", "--loader", "esbuild-node-loader", "src/index.ts"]
+CMD ["/bin/bash", "-c", "yarn update:db && dumb-init node --loader esbuild-node-loader src/index.ts"]
 
 FROM base as device-connector
 ARG DOCKER_USER
