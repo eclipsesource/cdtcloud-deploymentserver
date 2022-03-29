@@ -43,7 +43,7 @@ services:
       - .docker/device-connector/env
     build:
       context: .
-      dockerfile: Dockerfile.test
+      dockerfile: Dockerfile
       target: device-connector
     volumes:
       - connector:/cdtcloud/device-connector
@@ -58,7 +58,7 @@ services:
       HOSTNAME: "0.0.0.0"
     build:
       context: .
-      dockerfile: Dockerfile.test
+      dockerfile: Dockerfile
       target: deployment-server
     links:
       - db
@@ -77,7 +77,7 @@ services:
       - .docker/theia/env
     build:
       context: .
-      dockerfile: Dockerfile.test
+      dockerfile: Dockerfile
       target: cdtcloud-theia
     ports:
       - "3000:3000"
