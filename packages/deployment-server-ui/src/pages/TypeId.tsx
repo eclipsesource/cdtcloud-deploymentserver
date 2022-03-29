@@ -37,7 +37,7 @@ export default defineFunctionalComponent(function TypeId () {
 
   const { id } = useParams()
 
-  function findDeviceById (id: string) {
+  function findDeviceById (id: string): Device | undefined {
     return devices.find((device) => id === device.id)
   }
 
@@ -46,7 +46,7 @@ export default defineFunctionalComponent(function TypeId () {
   }, 1000)
 
   useEffect(() => {
-    const fetchAsync = async () => {
+    const fetchAsync = async (): Promise<void> => {
       const typesRes = await fetch(`/api/device-types/${id}`)
       const types = await typesRes.json()
       setDeviceType(types)
@@ -78,7 +78,7 @@ export default defineFunctionalComponent(function TypeId () {
   }, [devices, deviceType, deployments])
 
   useEffect(() => {
-    const fetchAsync = async () => {
+    const fetchAsync = async (): Promise<void> => {
       const typesRes = await fetch(`/api/device-types/${id}`)
       const types = await typesRes.json()
       setDeviceType(types)

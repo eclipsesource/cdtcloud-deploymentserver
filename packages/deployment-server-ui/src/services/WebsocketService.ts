@@ -26,7 +26,14 @@ const createWebsocket = async (route: string): Promise<WebSocket> => {
   return new WebSocket(url)
 }
 
-export const useWebsocket = (route: string, condition: boolean = true) => {
+export const useWebsocket = (route: string, condition: boolean = true): {
+  open: boolean;
+  subs: Array<((message: ServerMessage) => void)>;
+  attempts: number;
+  send: Function | undefined;
+  subscribe: (eventFun: (resp: ServerMessage) => void) => () => void;
+  close: Function | undefined;
+} => {
   const [socket, setSocket] = useState<WebSocket>()
   const [open, setOpen] = useState<boolean>(false)
   const [subs, setSubs] = useState<Array<((message: ServerMessage) => void)>>([])
@@ -36,7 +43,7 @@ export const useWebsocket = (route: string, condition: boolean = true) => {
     // Object to avoid clones of sockets
     const newSocket = { ws: null } as { ws: WebSocket | null }
 
-    async function openSocket () {
+    async function openSocket (): Promise<void> {
       const ws = await createWebsocket(route)
       ws.onopen = () => setOpen(true)
       ws.onclose = () => {

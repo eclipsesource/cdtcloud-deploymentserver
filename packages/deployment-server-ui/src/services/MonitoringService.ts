@@ -22,7 +22,14 @@ const createWebsocket = async (route: string): Promise<WebSocket> => {
   return new WebSocket(url)
 }
 
-export const useMonitor = (deploymentId: string, deployStatus: keyof typeof DeployStatus, condition: boolean = true) => {
+export const useMonitor = (deploymentId: string, deployStatus: keyof typeof DeployStatus, condition: boolean = true): {
+  open: boolean;
+  subs: Array<((message: MessageEvent<any>) => void)>;
+  attempts: number;
+  send: Function | undefined;
+  subscribe: (eventFun: (resp: MessageEvent<any>) => void) => () => void;
+  close: Function | undefined;
+} => {
   const [socket, setSocket] = useState<WebSocket>()
   const [open, setOpen] = useState<boolean>(false)
   const [subs, setSubs] = useState<Array<((message: MessageEvent) => void)>>([])
@@ -32,7 +39,7 @@ export const useMonitor = (deploymentId: string, deployStatus: keyof typeof Depl
     // Object to avoid clones of sockets
     const newSocket = { ws: null } as { ws: WebSocket | null }
 
-    async function openSocket () {
+    async function openSocket (): Promise<void> {
       const ws = await createWebsocket(`/api/deployments/${deploymentId}/stream`)
       ws.onopen = () => setOpen(true)
       ws.onclose = () => {

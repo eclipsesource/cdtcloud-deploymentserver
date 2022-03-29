@@ -49,7 +49,7 @@ export default defineFunctionalComponent(function Dashboard () {
   const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    const fetchAsync = async () => {
+    const fetchAsync = async (): Promise<void> => {
       const respTypes = await fetch('/api/device-types')
       const types = await respTypes.json() as DeviceTypeResource[]
       setSupportedTypes(types)

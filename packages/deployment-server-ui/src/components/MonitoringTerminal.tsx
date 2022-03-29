@@ -14,7 +14,7 @@
     SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
 ********************************************************************************/
 
-import React, { CSSProperties, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, ReactElement, useEffect, useRef, useState } from 'react'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import type { DeployStatus } from 'deployment-server'
@@ -30,7 +30,7 @@ interface Props {
   className?: string
 }
 
-const MonitoringTerminal = (props: Props) => {
+const MonitoringTerminal = (props: Props): ReactElement => {
   const [created, setCreated] = useState<boolean>(false)
   const terminalDivRef = useRef<HTMLDivElement | null>(null)
   const terminalRef = useRef<Terminal>()

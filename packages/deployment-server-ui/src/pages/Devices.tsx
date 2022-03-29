@@ -139,7 +139,7 @@ export default defineFunctionalComponent(function Devices () {
   function handleChange (
     _pagination: TablePaginationConfig,
     filters: Record<string, FilterValue | null>
-  ) {
+  ): void {
     const params: Record<string, string | string[]> = {
       status: [],
       deviceTypeId: []
@@ -159,7 +159,7 @@ export default defineFunctionalComponent(function Devices () {
   }, [refetchFlip])
 
   useEffect(() => {
-    const asyncFetch = async () => {
+    const asyncFetch = async (): Promise<void> => {
       const devRes = await fetch('/api/devices')
       const devs = await devRes.json()
       const devicesWithNames = await formatDevices(showUnavailable ? devs : removeUnavailable(devs))
