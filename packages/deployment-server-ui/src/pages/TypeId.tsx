@@ -236,12 +236,12 @@ export default defineFunctionalComponent(function TypeId () {
           <Row gutter={[{ xs: 8, sm: 16, md: 24, lg: 16 }, 20]}>
             <Col span={12}>
               <Card title={'Deployments Status'}>
-                <DeploymentsStatusGraph data={deviceType!.history}/>
+                <DeploymentsStatusGraph data={ deviceType != null ? deviceType.history : { 'Unknown Device Type': { issueCount: -1, deploymentCount: { SUCCESS: -1, FAILED: -1, TERMINATED: -1 } } } }/>
               </Card>
             </Col>
             <Col span={12}>
               <Card title={'Issues Over Time'}>
-                <IssueCountGraph data={deviceType!.history}/>
+                <IssueCountGraph data={ deviceType != null ? deviceType.history : { 'Unknown Device Type': { issueCount: -1, deploymentCount: { SUCCESS: -1, FAILED: -1, TERMINATED: -1 } } } }/>
               </Card>
             </Col>
           </Row>

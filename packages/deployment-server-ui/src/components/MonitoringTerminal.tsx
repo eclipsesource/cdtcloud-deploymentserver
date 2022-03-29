@@ -60,7 +60,13 @@ const MonitoringTerminal = (props: Props): ReactElement => {
     })
 
     terminalRef.current.loadAddon(fitAddon)
-    terminalRef.current.open(terminalDivRef.current!)
+
+    if (terminalDivRef.current !== null) {
+      terminalRef.current.open(terminalDivRef.current)
+    } else {
+      throw Error('terminalDivRef.current is null')
+    }
+
     fitAddon.fit()
 
     setCreated(true)
