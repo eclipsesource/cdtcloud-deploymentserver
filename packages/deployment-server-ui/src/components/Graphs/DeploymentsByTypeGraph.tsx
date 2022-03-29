@@ -58,7 +58,7 @@ export default defineFunctionalComponent(function DeploymentsStatusGraph (props:
             {graphData.map((value, index) => {
               const key = Object.keys(value)[index]
               if (key == null || key === 'date') {
-                return
+                return <></>
               }
               return <Area type={'monotone'} dataKey={key} name={key}/>
             })}

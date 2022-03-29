@@ -146,6 +146,7 @@ export default defineFunctionalComponent(function Devices () {
     }
     setFilters(filters)
     for (const [key, value] of Object.entries(filters)) {
+      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
       if (value != null) params[key] = value.map((val) => '' + val)
     }
   }
@@ -173,7 +174,7 @@ export default defineFunctionalComponent(function Devices () {
         }
       }, {})
       deploys.map((deploy: DeployRequest) => {
-        amounts[deploy.deviceId]++
+        return amounts[deploy.deviceId]++
       })
       const withAmount = devicesWithNames.map((device) => {
         return { ...device, deployCount: amounts[device.id] }

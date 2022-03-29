@@ -13,9 +13,5 @@ module.exports = {
   ],
   rules: {
     'license-header/header': ['error', 'license-header.js'],
-    '@typescript-eslint/restrict-plus-operands': 'off',
-    'array-callback-return': 'off',
-    'no-useless-escape' : 'off'
-
   }
 }

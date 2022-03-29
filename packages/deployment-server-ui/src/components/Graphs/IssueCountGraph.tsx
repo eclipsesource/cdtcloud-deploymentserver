@@ -39,10 +39,10 @@ export default defineFunctionalComponent(function IssueCountGraph (props: Props)
     if (props.data != null) {
       const dataArray = Object.entries<DeployData>(props.data)
       const convertedData = dataArray.reduce<GraphEntry[]>((acc, [key, value]) => {
-        const noIssue = Object.values(value.deploymentCount).reduce((last, current) => last + current, 0)
+        const noIssue = Object.values(value.deploymentCount).reduce((last, current) => parseInt(last) + parseInt(current), 0)
         return ([...acc, ({
           date: dateFormatter(Date.parse(key)),
-          total: [noIssue, value.issueCount + noIssue],
+          total: [noIssue, value.issueCount + parseInt(noIssue)],
           noIssue
         })])
       }, [])

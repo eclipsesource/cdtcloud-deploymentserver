@@ -36,7 +36,7 @@ const MonitoringTerminal = (props: Props): ReactElement => {
   const terminalRef = useRef<Terminal>()
   const { open, subscribe } = useMonitorFunction(props.deploymentId, props.deployStatus)
   const fitAddon = new FitAddon()
-  const prefix = `\u001b[1;31mMonitor\u001b[1;33m\@\u001b[1;36m${props.deviceName}\u001b[1;33m\$\u001b[0m `
+  const prefix = `\u001b[1;31mMonitor\u001b[1;33m@\u001b[1;36m${props.deviceName}\u001b[1;33m$\u001b[0m `
 
   useEffect(() => {
     const term = (terminalRef.current = new Terminal({
