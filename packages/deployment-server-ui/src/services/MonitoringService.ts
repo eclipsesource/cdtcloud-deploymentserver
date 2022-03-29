@@ -22,7 +22,7 @@ const createWebsocket = async (route: string): Promise<WebSocket> => {
   return new WebSocket(url)
 }
 
-export const useMonitor = (deploymentId: string, deployStatus: keyof typeof DeployStatus, condition: boolean = true): {
+export const useMonitorFunction = (deploymentId: string, deployStatus: keyof typeof DeployStatus, condition: boolean = true): {
   open: boolean;
   subs: Array<((message: MessageEvent<any>) => void)>;
   attempts: number;
@@ -87,4 +87,4 @@ export const useMonitor = (deploymentId: string, deployStatus: keyof typeof Depl
   }
 }
 
-export type useMonitor = typeof useMonitor
+export type useMonitor = typeof useMonitorFunction
