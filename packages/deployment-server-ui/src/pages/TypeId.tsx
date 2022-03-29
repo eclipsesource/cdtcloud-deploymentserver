@@ -47,7 +47,7 @@ export default defineFunctionalComponent(function TypeId () {
 
   useEffect(() => {
     const fetchAsync = async (): Promise<void> => {
-      const typesRes = await fetch(`/api/device-types/${id}`)
+      const typesRes = await fetch(`/api/device-types/${id !== undefined ? id : ''}`)
       const types = await typesRes.json()
       setDeviceType(types)
 
@@ -79,7 +79,7 @@ export default defineFunctionalComponent(function TypeId () {
 
   useEffect(() => {
     const fetchAsync = async (): Promise<void> => {
-      const typesRes = await fetch(`/api/device-types/${id}`)
+      const typesRes = await fetch(`/api/device-types/${id !== undefined ? id : ''}`)
       const types = await typesRes.json()
       setDeviceType(types)
 
