@@ -29,7 +29,7 @@ export function CdtCloudSidebar (): ReactElement {
   const [current, setCurrent] = useState(location.pathname)
 
   useEffect(() => {
-    if (location) {
+    if (location !== null) {
       if (current !== location.pathname) {
         setCurrent(location.pathname)
       }

@@ -97,13 +97,13 @@ export default defineFunctionalComponent(function Dashboard () {
                   <Col span={8}>
                     <Statistic
                       title={'Total Deploys'}
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).deployRequestCount : 0}
+                      value={dashboardState.data !== null ? (dashboardState.data as Dashboard).deployRequestCount : 0}
                       prefix={<RocketOutlined/>}
                       valueStyle={{ color: 'black' }}
                     />
                     <Statistic
                       title={'Pending Deploys'}
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).deploymentOverview.PENDING : 0}
+                      value={dashboardState.data !== null ? (dashboardState.data as Dashboard).deploymentOverview.PENDING : 0}
                       prefix={<FieldTimeOutlined/>}
                       valueStyle={{ color: colors.pending }}
                     />
@@ -111,13 +111,13 @@ export default defineFunctionalComponent(function Dashboard () {
                   <Col span={8}>
                     <Statistic
                       title={'Running Deploys'}
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).deploymentOverview.RUNNING : 0}
+                      value={dashboardState.data !== null ? (dashboardState.data as Dashboard).deploymentOverview.RUNNING : 0}
                       prefix={<PlayCircleOutlined/>}
                       valueStyle={{ color: colors.running }}
                     />
                     <Statistic
                       title={'Success Deploys'}
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).deploymentOverview.SUCCESS : 0}
+                      value={dashboardState.data !== null ? (dashboardState.data as Dashboard).deploymentOverview.SUCCESS : 0}
                       prefix={<CheckCircleOutlined/>}
                       valueStyle={{ color: colors.success }}
                     />
@@ -125,13 +125,13 @@ export default defineFunctionalComponent(function Dashboard () {
                   <Col span={8}>
                     <Statistic
                       title={'Terminated Deploys'}
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).deploymentOverview.TERMINATED : 0}
+                      value={dashboardState.data !== null ? (dashboardState.data as Dashboard).deploymentOverview.TERMINATED : 0}
                       prefix={<ExclamationCircleOutlined/>}
                       valueStyle={{ color: colors.terminated }}
                     />
                     <Statistic
                       title={'Failed Deploys'}
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).deploymentOverview.FAILED : 0}
+                      value={dashboardState.data !== null ? (dashboardState.data as Dashboard).deploymentOverview.FAILED : 0}
                       prefix={<CloseCircleOutlined/>}
                       valueStyle={{ color: colors.failed }}
                     />
@@ -149,13 +149,13 @@ export default defineFunctionalComponent(function Dashboard () {
                   <Col span={12}>
                     <Statistic
                       title={'Available Devices'}
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).deviceOverview.AVAILABLE : 0}
+                      value={dashboardState.data !== null ? (dashboardState.data as Dashboard).deviceOverview.AVAILABLE : 0}
                       prefix={<HddOutlined/>}
                       valueStyle={{ color: colors.success }}
                     />
                     <Statistic
                       title={'Deploying Devices'}
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).deviceOverview.DEPLOYING : 0}
+                      value={dashboardState.data !== null ? (dashboardState.data as Dashboard).deviceOverview.DEPLOYING : 0}
                       prefix={<SyncOutlined/>}
                       valueStyle={{ color: colors.pending }}
                     />
@@ -163,13 +163,13 @@ export default defineFunctionalComponent(function Dashboard () {
                   <Col span={12}>
                     <Statistic
                       title={'Running Devices'}
-                      value={dashboardState.data ? ((dashboardState.data as Dashboard).deviceOverview.MONITORING + (dashboardState.data as Dashboard).deviceOverview.RUNNING) : 0}
+                      value={dashboardState.data !== null ? ((dashboardState.data as Dashboard).deviceOverview.MONITORING + (dashboardState.data as Dashboard).deviceOverview.RUNNING) : 0}
                       prefix={<PlayCircleOutlined/>}
                       valueStyle={{ color: colors.running }}
                     />
                     <Statistic
                       title={'Unavailable Devices'}
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).deviceOverview.UNAVAILABLE : 0}
+                      value={dashboardState.data !== null ? (dashboardState.data as Dashboard).deviceOverview.UNAVAILABLE : 0}
                       prefix={<LockOutlined/>}
                       valueStyle={{ color: colors.failed }}
                     />
@@ -187,7 +187,7 @@ export default defineFunctionalComponent(function Dashboard () {
                   <Col span={24}>
                     <Statistic
                       title={'Most Used Device Type'}
-                      value={dashboardState.data ? (dashboardState.data as Dashboard).mostUsedDeviceType : ''}
+                      value={dashboardState.data !== null ? (dashboardState.data as Dashboard).mostUsedDeviceType : ''}
                       valueStyle={{ color: 'black' }}
                     />
                   </Col>
@@ -231,7 +231,7 @@ export default defineFunctionalComponent(function Dashboard () {
                 style={{ height: '100%', overflow: 'auto' }}
               >
                 <DeploymentsOverTimeGraph
-                  data={dashboardState.data ? (dashboardState.data as Dashboard).deploymentsPerBucket : undefined}
+                  data={dashboardState.data !== null ? (dashboardState.data as Dashboard).deploymentsPerBucket : undefined}
                   chartTime={chartTime}
                 />
               </Card>
@@ -243,7 +243,7 @@ export default defineFunctionalComponent(function Dashboard () {
                 style={{ maxHeight: '480px', overflow: 'auto' }}
               >
                 <RecentDeploymentList
-                  data={dashboardState.data ? (dashboardState.data as Dashboard).recentDeployments : undefined}
+                  data={dashboardState.data !== null ? (dashboardState.data as Dashboard).recentDeployments : undefined}
                 />
               </Card>
             </Col>

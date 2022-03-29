@@ -150,7 +150,7 @@ export const RecentDeploymentItem = (props: Props): ReactElement => {
               </Typography.Link>
           }
         />
-        {props.details && (props.created != null) && (props.updated != null)
+        {(props.details != null) && (props.created != null) && (props.updated != null)
           ? <Row style={{ textAlign: 'center', justifyContent: 'center', flex: 'auto' }}>
             <Col span={8}>
               <div>

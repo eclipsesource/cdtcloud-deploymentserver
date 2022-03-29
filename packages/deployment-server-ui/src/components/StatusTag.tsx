@@ -69,7 +69,7 @@ export const StatusTag = (props: Props): ReactElement => {
   return (
     <Tag
       className={classnames(styles.label, styles[props.status.toLowerCase()])}
-      icon={props.addIcon ? formatStatus[props.status].icon : undefined}
+      icon={props.addIcon !== undefined ? formatStatus[props.status].icon : undefined}
     >
       {props.status}
     </Tag>
