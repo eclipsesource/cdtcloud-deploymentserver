@@ -69,7 +69,7 @@ export default defineFunctionalComponent(function Dashboard () {
       setLoading(false)
     }
 
-    fetchAsync()
+    fetchAsync().catch((e) => console.log(e))
   }, [dashboardState])
 
   return (

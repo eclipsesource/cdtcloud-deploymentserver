@@ -63,7 +63,7 @@ export default defineFunctionalComponent(function TypeId () {
       setDeviceCount(amount)
     }
 
-    fetchAsync()
+    fetchAsync().catch((e) => console.log(e))
   }, [refetchFlip])
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export default defineFunctionalComponent(function TypeId () {
       )
     }
 
-    fetchAsync()
+    fetchAsync().catch((e) => console.log(e))
   }, [refetchFlip])
 
   const pendingCards = deployments

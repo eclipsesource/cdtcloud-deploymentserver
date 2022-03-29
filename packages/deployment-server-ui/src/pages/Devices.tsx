@@ -155,7 +155,7 @@ export default defineFunctionalComponent(function Devices () {
       const types = await res.json()
       const sortedTypes = types.sort((x: DeviceType, y: DeviceType) => x.name < y.name ? -1 : x.name > y.name ? 1 : 0)
       setDeviceTypes(sortedTypes)
-    })
+    }).catch((e) => console.log(e))
   }, [refetchFlip])
 
   useEffect(() => {
@@ -182,7 +182,7 @@ export default defineFunctionalComponent(function Devices () {
       setLoading(false)
     }
 
-    asyncFetch()
+    asyncFetch().catch((e) => console.log(e))
   }, [showUnavailable, refetchFlip])
 
   return (

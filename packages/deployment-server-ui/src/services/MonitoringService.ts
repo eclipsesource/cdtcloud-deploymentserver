@@ -52,7 +52,7 @@ export const useMonitorFunction = (deploymentId: string, deployStatus: keyof typ
     }
 
     if (deployStatus === 'RUNNING' && condition) {
-      openSocket()
+      openSocket().catch((e) => console.log(e))
     } else {
       socket?.close()
     }

@@ -26,7 +26,7 @@ const createWebsocket = async (route: string): Promise<WebSocket> => {
   return new WebSocket(url)
 }
 
-export const useWebsocket = (route: string, condition: boolean = true): {
+export const useWebsocketFunction = (route: string, condition: boolean = true): {
   open: boolean;
   subs: Array<((message: ServerMessage) => void)>;
   attempts: number;
@@ -56,7 +56,7 @@ export const useWebsocket = (route: string, condition: boolean = true): {
     }
 
     if (condition) {
-      openSocket()
+      openSocket().catch((e) => console.log(e))
     }
 
     return () => {
@@ -90,4 +90,4 @@ export const useWebsocket = (route: string, condition: boolean = true): {
   }
 }
 
-export type useWebsocket = typeof useWebsocket
+export type useWebsocket = typeof useWebsocketFunction
