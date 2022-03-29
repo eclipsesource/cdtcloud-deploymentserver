@@ -24,7 +24,7 @@ import styles from './Graph.module.scss'
 interface GraphEntry { date: string, deploys: number }
 
 interface Props {
-  data: Record<string, number> | undefined,
+  data: Record<string, number> | undefined
   chartTime: number
 }
 

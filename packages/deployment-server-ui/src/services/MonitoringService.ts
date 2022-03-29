@@ -23,12 +23,12 @@ const createWebsocket = async (route: string): Promise<WebSocket> => {
 }
 
 export const useMonitorFunction = (deploymentId: string, deployStatus: keyof typeof DeployStatus, condition: boolean = true): {
-  open: boolean;
-  subs: Array<((message: MessageEvent<any>) => void)>;
-  attempts: number;
-  send: Function | undefined;
-  subscribe: (eventFun: (resp: MessageEvent<any>) => void) => () => void;
-  close: Function | undefined;
+  open: boolean
+  subs: Array<((message: MessageEvent<any>) => void)>
+  attempts: number
+  send: Function | undefined
+  subscribe: (eventFun: (resp: MessageEvent<any>) => void) => () => void
+  close: Function | undefined
 } => {
   const [socket, setSocket] = useState<WebSocket>()
   const [open, setOpen] = useState<boolean>(false)

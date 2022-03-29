@@ -30,7 +30,7 @@ interface Props {
 }
 
 const dateFormatter = (timestamp: number): string => format(new Date(timestamp), 'MM-dd hh aaaaa\'m\'')
-const fillNill = (timeSlots: number): Array<{hour: string; deploys: number;}> => {
+const fillNill = (timeSlots: number): Array<{hour: string, deploys: number}> => {
   const initialData = []
   const now = Date.now()
   for (let i = timeSlots; i > 0; i--) {
