@@ -220,4 +220,4 @@ RUN sudo yarn global add concurrently --prefix /usr/local
 EXPOSE 3000
 EXPOSE 3001
 
-CMD ["dumb-init", "concurrently", "--restart-tries", "-1", "-n", "arduino-cli,deployment-server,device-connector,theia", "arduino-cli daemon --port 50051 --daemonize --no-color --verbose", "yarn --cwd=deployment-server start", "yarn --cwd=device-connector start", "yarn --cwd=theia/packages/theia-extension/browser-app/src-gen/backend/main.js start --hostname=0.0.0.0"]
+CMD ["/bin/bash", "-c", "yarn --cwd=deployment-server update:db && dumb-init concurrently --restart-tries -1 -n arduino-cli,deployment-server,device-connector,theia \"arduino-cli daemon --port 50051 --daemonize --no-color --verbose\" \"yarn --cwd=deployment-server start\" \"yarn --cwd=device-connector start\" \"yarn --cwd=theia/packages/theia-extension/browser-app/src-gen/backend/main.js start --hostname=0.0.0.0\""]
