@@ -87,7 +87,7 @@ const MonitoringTerminal = (props: Props): ReactElement => {
 
   useEffect(() => {
     if (open && created) {
-      subscribe((message: any) => {
+      subscribe((message: MessageEvent) => {
         const data = typeof message.data === 'string' ? message.data.trim() : new Uint8Array(message.data)
 
         if (data != null && data !== '' && data.length !== 0) {
