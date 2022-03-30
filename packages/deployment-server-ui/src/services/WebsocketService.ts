@@ -28,11 +28,11 @@ const createWebsocket = async (route: string): Promise<WebSocket> => {
 
 export const useWebsocketFunction = (route: string, condition: boolean = true): {
   open: boolean
-  subs: Array<((message: ServerMessage) => void)>
+  subs: Array<(message: ServerMessage) => void>
   attempts: number
-  send: Function | undefined
-  subscribe: (eventFun: (resp: ServerMessage) => Promise<void>) => () => void
-  close: Function | undefined
+  send: (payload: any) => void
+  subscribe: (eventFun: (resp: ServerMessage) => void) => () => void
+  close: () => void
 } => {
   const [socket, setSocket] = useState<WebSocket>()
   const [open, setOpen] = useState<boolean>(false)
