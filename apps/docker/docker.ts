@@ -92,7 +92,7 @@ shellCommandFactory(
   "build",
   "Build the docker images",
   [
-  "docker-compose --profile deployment --profile connector --profile theia --profile demo build --parallel",
+  "docker-compose build --parallel",
   "docker image prune -f",
 ], env);
 
@@ -100,7 +100,7 @@ shellCommandFactory(
   "build:nocache",
   "Build the docker images without cache",
   [
-    "docker-compose --profile deployment --profile connector --profile theia --profile demo build --no-cache --parallel",
+    "docker-compose build --no-cache --parallel",
     "docker image prune -f",
   ],
   env,
@@ -173,6 +173,73 @@ program
         "<yellow>NOTE: you can detach from a container and leave it running using the CTRL-p CTRL-q key sequence.</yellow>",
       ),
     );
+
+    cmd = command.split(" ");
+
+    const shellCmd = run({
+      cmd,
+      cwd: process.cwd(),
+    });
+
+    await shellCmd.status();
+
+    shellCmd.close();
+  });
+
+program
+  .command("kill [service]")
+  .description("kill a service")
+  .action(async (service: string | undefined) => {
+    const { run } = Deno;
+
+    let command = `docker-compose ps`;
+
+    if (service) {
+      command = `${command} ${service}`;
+    }
+
+    console.log(ink.colorize(`<green>>>>>> Running: ${command}</green>`));
+
+    let cmd = command.split(" ");
+    const res = Deno.run({
+      cmd,
+      cwd: process.cwd(),
+      stdout: "piped",
+      stderr: "piped",
+    });
+
+    const output = await res.output(); // "piped" must be set
+
+    let services = new TextDecoder().decode(output).split("\n");
+
+    if (!services) {
+      console.error("No services available!");
+      return;
+    }
+
+    services.pop();
+    services = services.slice(2);
+
+    res.close(); // Don't forget to close it
+
+    let selService: string;
+    if (services.length > 1) {
+      selService = await Select.prompt({
+        message: `Select a service`,
+        options: services,
+      });
+    } else {
+      selService = services[0];
+    }
+
+    if (!selService) {
+      console.log(`Service ${service} is not available`);
+      return;
+    }
+
+    command = `docker kill ${selService.split(" ")[0]}`;
+
+    console.log(ink.colorize(`<green>>>>>> Running: ${command}</green>`));
 
     cmd = command.split(" ");
 
