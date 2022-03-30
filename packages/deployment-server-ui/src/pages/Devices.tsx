@@ -146,8 +146,7 @@ export default defineFunctionalComponent(function Devices () {
     }
     setFilters(filters)
     for (const [key, value] of Object.entries(filters)) {
-      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-      if (value != null) params[key] = value.map((val) => '' + val)
+      if (value != null) params[key] = value.map((val) => val.toString())
     }
   }
 
