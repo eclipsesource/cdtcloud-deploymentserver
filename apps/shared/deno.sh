@@ -9,7 +9,8 @@ function denoInstall() {
         echo "Installing Deno..."
         # just one line of command that works on all OSes
         # (temporary cd into PATH_DEPS)
-        curl -fsSL https://deno.land/x/install/install.sh | DENO_INSTALL="$PATH_DEPS/deno" sh
+        # Hotfix: Temporarily download insecure due to Windows certificate issue
+        curl -kfsSL https://deno.land/x/install/install.sh | DENO_INSTALL="$PATH_DEPS/deno" sh
     }
 }
 
