@@ -37,7 +37,9 @@ export const CdtCloudMain: FunctionComponent<{}> = ({ children }) => {
 
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       subscribe(connectorEvent)
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       subscribe(deviceEvent)
     }
   }, [open, subs])
