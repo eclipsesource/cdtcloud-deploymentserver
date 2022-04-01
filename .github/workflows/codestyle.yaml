@@ -1,7 +1,7 @@
 on: [push, pull_request]
-name: linux-build
+name: codestyle
 jobs:
-  build:
+  codestyle:
     strategy:
       fail-fast: false
       matrix:
