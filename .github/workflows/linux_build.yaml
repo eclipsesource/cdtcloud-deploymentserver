@@ -1,5 +1,10 @@
-on: [push, pull_request]
 name: linux-build
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+
 jobs:
   build:
     strategy:
