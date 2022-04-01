@@ -1,8 +1,14 @@
 on: [push, pull_request]
-name: CI
+name: linux-build
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
+        node: ["16", "17"]
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }}_node-${{ matrix.node }}
     services:
       postgres:
         image: postgres:14-alpine
@@ -16,7 +22,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: "16"
+          node-version: ${{ matrix.node }}
           cache: "yarn"
 
       - name: Setup Arduino CLI
@@ -27,7 +33,7 @@ jobs:
       - name: Install platform
         run: |
           arduino-cli core update-index
-          arduino-cli core install "arduino:avr@1.8.4"
+          arduino-cli core install "arduino:avr"
           arduino-cli core install "arduino:sam"
 
       - name: Start Arduino CLI Daemon
@@ -47,12 +53,6 @@ jobs:
 
       - name: Build server type declarations
         run: yarn run --cwd=packages/deployment-server tsc
-
-      - name: Check
-        run: yarn run typecheck
-
-      - name: Lint
-        run: yarn run lint
 
       - name: Test
         run: yarn run test
