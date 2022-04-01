@@ -16,11 +16,11 @@
 
 import axios from 'axios'
 import { inject, injectable } from '@theia/core/shared/inversify'
-import { ConfigService, DeviceTypeService } from '../common/protocol'
+import { ConfigService, ConfigServiceSymbol, DeviceTypeService } from '../common/protocol'
 
 @injectable()
 export class DeviceTypeServiceImpl implements DeviceTypeService {
-  @inject(ConfigService)
+  @inject(ConfigServiceSymbol)
   protected readonly configService: ConfigService;
 
   async getDeviceList (): Promise<any[]> {

@@ -17,7 +17,7 @@
 import { Button, Col, List, Modal, Row, Tooltip, Typography } from 'antd'
 import { CSSTransition } from 'react-transition-group'
 import { DeployStatus, DeviceType, Device } from 'deployment-server'
-import React, { useEffect, useState } from 'react'
+import React, { ReactElement, useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom'
 import { StatusTag } from '../StatusTag'
@@ -42,15 +42,15 @@ interface Props {
   updated?: Date
 }
 
-const createDownloadUrl = async (url: string) => {
+const createDownloadUrl = async (url: string): Promise<string> => {
   const response = await fetch(url, { method: 'GET' })
   const content = await response.blob()
   return URL.createObjectURL(new Blob([content]))
 }
 
-const dateFormatter = (timestamp: number) => format(new Date(timestamp), 'LLL-dd - hh:mm:ss')
+const dateFormatter = (timestamp: number): string => format(new Date(timestamp), 'LLL-dd - hh:mm:ss')
 
-export const RecentDeploymentItem = (props: Props) => {
+export const RecentDeploymentItem = (props: Props): ReactElement => {
   const [showId, setShowId] = useState<boolean>(false)
   const [artifactUrl, setArtifactUrl] = useState<string>()
   const [fileName, setFileName] = useState<string>()
@@ -150,7 +150,7 @@ export const RecentDeploymentItem = (props: Props) => {
               </Typography.Link>
           }
         />
-        {props.details && (props.created != null) && (props.updated != null)
+        {(props.details != null) && (props.created != null) && (props.updated != null)
           ? <Row style={{ textAlign: 'center', justifyContent: 'center', flex: 'auto' }}>
             <Col span={8}>
               <div>

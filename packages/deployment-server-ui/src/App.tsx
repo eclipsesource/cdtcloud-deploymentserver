@@ -16,9 +16,9 @@
 
 import './App.css'
 import Dashboard from './pages/Dashboard'
-import React from 'react'
+import React, { ReactElement } from 'react'
 
-function App () {
+function App (): ReactElement {
   return <Dashboard />
 }
 

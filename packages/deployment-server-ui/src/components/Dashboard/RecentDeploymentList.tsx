@@ -41,8 +41,8 @@ export default defineFunctionalComponent(function RecentDeploymentList (props: P
                 device={item.device}
                 artifactUrl={item.artifactUrl}
                 details={props.details}
-                created={props.details ? item.createdAt : undefined}
-                updated={props.details ? item.updatedAt : undefined}
+                created={props.details !== undefined ? item.createdAt : undefined}
+                updated={props.details !== undefined ? item.updatedAt : undefined}
               />
             </CSSTransition>
           ))}

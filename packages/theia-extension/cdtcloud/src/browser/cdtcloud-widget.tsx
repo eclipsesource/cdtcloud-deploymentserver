@@ -25,14 +25,18 @@ import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget'
 import { MessageService } from '@theia/core'
 import {
   CompilationService,
+  CompilationServiceSymbol,
   ConfigService,
+  ConfigServiceSymbol,
   Deployment,
-  DeviceTypeService
+  DeviceTypeService,
+  DeviceTypeServiceSymbol
 } from '../common/protocol'
 import { EditorManager } from '@theia/editor/lib/browser/editor-manager'
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service'
 import { FileUri } from '@theia/core/lib/node/file-uri'
 import { DeploymentManager } from './monitoring/DeploymentManager'
+import { ReactElement } from 'react'
 
 @injectable()
 export class CdtcloudWidget extends ReactWidget {
@@ -51,9 +55,9 @@ export class CdtcloudWidget extends ReactWidget {
   protected readonly messageService!: MessageService;
 
   constructor (
-    @inject(DeviceTypeService)
+    @inject(DeviceTypeServiceSymbol)
     private readonly deviceTypeService: DeviceTypeService,
-    @inject(CompilationService)
+    @inject(CompilationServiceSymbol)
     private readonly compilationService: CompilationService,
     @inject(EditorManager)
     protected readonly editorManager: EditorManager,
@@ -61,7 +65,7 @@ export class CdtcloudWidget extends ReactWidget {
     protected readonly workspaceService: WorkspaceService,
     @inject(DeploymentManager)
     protected readonly deploymentManager: DeploymentManager,
-    @inject(ConfigService)
+    @inject(ConfigServiceSymbol)
     protected readonly configService: ConfigService
   ) {
     super()
@@ -75,12 +79,12 @@ export class CdtcloudWidget extends ReactWidget {
     this.title.closable = true
     this.title.iconClass = 'fa fa-window-maximize'
     this.update()
-    this.getDeviceList()
+    await this.getDeviceList()
     this.startPollingDeployments()
   }
 
-  render () {
-    function getColor (status: string) {
+  render (): ReactElement {
+    function getColor (status: string): {color: string, background: string, border: string} {
       switch (status) {
         case 'PENDING':
           return { color: '#ffffff', background: '#808080', border: '#707070' }
@@ -201,7 +205,7 @@ export class CdtcloudWidget extends ReactWidget {
       this.deploymentIds = [...this.deploymentIds, deploymentResponse.id]
       this.update()
     } else {
-      this.messageService.error(
+      await this.messageService.error(
         deploymentResponse.data.message ??
           deploymentResponse.statusMessage ??
           'Unknown deployment error'
@@ -210,22 +214,15 @@ export class CdtcloudWidget extends ReactWidget {
   }
 
   private startPollingDeployments (): void {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.interval = setInterval(async () => {
-      try {
-        const request = await fetch(
-          `${await this.configService.getDeploymentServerHost()}/api/deployments`
-        )
-
-        const deployments = (await request.json()) as Deployment[]
-
-        this.deployments = deployments.filter((deployment) =>
-          this.deploymentIds.includes(deployment.id)
-        )
-
-        await this.getDeviceList()
-      } catch (err) {
-        console.log(err)
-      }
+      const request = await fetch(
+        `${await this.configService.getDeploymentServerHost()}/api/deployments`
+      )
+      const deployments = (await request.json()) as Deployment[]
+      this.deployments = deployments.filter((deployment) => this.deploymentIds.includes(deployment.id)
+      )
+      await this.getDeviceList()
     }, 1500) as unknown as number
   }
 

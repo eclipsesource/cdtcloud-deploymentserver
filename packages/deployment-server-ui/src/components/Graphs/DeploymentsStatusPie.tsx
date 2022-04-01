@@ -14,7 +14,7 @@
     SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
 ********************************************************************************/
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, ReactElement } from 'react'
 import {
   Cell,
   Pie,
@@ -36,7 +36,7 @@ interface Props {
   }
 }
 
-export const DeploymentStatusPie = (props: Props) => {
+export const DeploymentStatusPie = (props: Props): ReactElement => {
   const [graphData, setGraphData] = useState<DataEntries>([])
 
   useEffect(() => {

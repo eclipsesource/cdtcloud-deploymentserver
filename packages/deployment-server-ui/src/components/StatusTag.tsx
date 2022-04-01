@@ -16,7 +16,6 @@
 
 import { DeployStatus, DeviceStatus } from 'deployment-server'
 import { Tag } from 'antd'
-import React from 'react'
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -29,13 +28,14 @@ import {
 import classnames from 'classnames'
 
 import styles from './StatusTag.module.scss'
+import React, { ReactElement } from 'react'
 
 interface Props {
   status: DeployStatus | DeviceStatus
   addIcon?: boolean
 }
 
-export const StatusTag = (props: Props) => {
+export const StatusTag = (props: Props): ReactElement => {
   const formatStatus: Record<DeployStatus | DeviceStatus, { icon: JSX.Element }> = {
     SUCCESS: {
       icon: <CheckCircleOutlined/>
@@ -69,7 +69,7 @@ export const StatusTag = (props: Props) => {
   return (
     <Tag
       className={classnames(styles.label, styles[props.status.toLowerCase()])}
-      icon={props.addIcon ? formatStatus[props.status].icon : undefined}
+      icon={props.addIcon !== undefined ? formatStatus[props.status].icon : undefined}
     >
       {props.status}
     </Tag>

@@ -19,6 +19,7 @@ import { injectable, inject } from '@theia/core/shared/inversify'
 import {
   CompilationService,
   ConfigService,
+  ConfigServiceSymbol,
   Deployment,
   DeploymentError
 } from '../common/protocol'
@@ -37,7 +38,7 @@ export class CompilationServiceImpl implements CompilationService {
   binaryFile: string;
   artifactUri: string;
 
-  @inject(ConfigService)
+  @inject(ConfigServiceSymbol)
   private readonly configService: ConfigService;
 
   async compile (
@@ -124,7 +125,7 @@ export class CompilationServiceImpl implements CompilationService {
         })
       })
 
-      return { ...body, kind: 'deployment' } as Deployment
+      return { ...body, kind: 'deployment' }
     } catch (e) {
       if (e instanceof HTTPError) {
         const { statusMessage, body: data } = e.response as Response<

@@ -139,14 +139,14 @@ export default defineFunctionalComponent(function Devices () {
   function handleChange (
     _pagination: TablePaginationConfig,
     filters: Record<string, FilterValue | null>
-  ) {
+  ): void {
     const params: Record<string, string | string[]> = {
       status: [],
       deviceTypeId: []
     }
     setFilters(filters)
     for (const [key, value] of Object.entries(filters)) {
-      if (value != null) params[key] = value.map((val) => '' + val)
+      if (value != null) params[key] = value.map((val) => val.toString())
     }
   }
 
@@ -155,11 +155,11 @@ export default defineFunctionalComponent(function Devices () {
       const types = await res.json()
       const sortedTypes = types.sort((x: DeviceType, y: DeviceType) => x.name < y.name ? -1 : x.name > y.name ? 1 : 0)
       setDeviceTypes(sortedTypes)
-    })
+    }).catch((e) => console.log(e))
   }, [refetchFlip])
 
   useEffect(() => {
-    const asyncFetch = async () => {
+    const asyncFetch = async (): Promise<void> => {
       const devRes = await fetch('/api/devices')
       const devs = await devRes.json()
       const devicesWithNames = await formatDevices(showUnavailable ? devs : removeUnavailable(devs))
@@ -173,7 +173,7 @@ export default defineFunctionalComponent(function Devices () {
         }
       }, {})
       deploys.map((deploy: DeployRequest) => {
-        amounts[deploy.deviceId]++
+        return amounts[deploy.deviceId]++
       })
       const withAmount = devicesWithNames.map((device) => {
         return { ...device, deployCount: amounts[device.id] }
@@ -182,7 +182,7 @@ export default defineFunctionalComponent(function Devices () {
       setLoading(false)
     }
 
-    asyncFetch()
+    asyncFetch().catch((e) => console.log(e))
   }, [showUnavailable, refetchFlip])
 
   return (

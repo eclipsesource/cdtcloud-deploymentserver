@@ -15,8 +15,9 @@
 ********************************************************************************/
 
 import { Header } from 'antd/lib/layout/layout'
+import { ReactElement } from 'react'
 
-export function CdtCloudHeader () {
+export function CdtCloudHeader (): ReactElement {
   return (
     <Header className="header">
       <div className="logo"/>
