@@ -17,44 +17,47 @@
 import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core'
 import { ContainerModule } from '@theia/core/shared/inversify'
 import {
-  DeviceTypeService,
   DEVICE_TYPES_PATH,
   CompilationService,
+  CompilationServiceSymbol,
   COMPILATION_PATH,
   ConfigService,
-  CONFIG_PATH
+  ConfigServiceSymbol,
+  CONFIG_PATH,
+  DeviceTypeService,
+  DeviceTypeServiceSymbol
 } from '../common/protocol'
 import { CompilationServiceImpl } from './compilation-service'
 import { ConfigServiceImpl } from './config-service'
 import { DeviceTypeServiceImpl } from './device-types-service'
 
 export default new ContainerModule((bind) => {
-  bind(DeviceTypeService).to(DeviceTypeServiceImpl).inSingletonScope()
+  bind(DeviceTypeServiceSymbol).to(DeviceTypeServiceImpl).inSingletonScope()
   bind(ConnectionHandler)
     .toDynamicValue(
       (ctx) =>
         new JsonRpcConnectionHandler(DEVICE_TYPES_PATH, () => {
-          return ctx.container.get<DeviceTypeService>(DeviceTypeService)
+          return ctx.container.get<DeviceTypeService>(DeviceTypeServiceSymbol)
         })
     )
     .inSingletonScope()
 
-  bind(CompilationService).to(CompilationServiceImpl).inSingletonScope()
+  bind(CompilationServiceSymbol).to(CompilationServiceImpl).inSingletonScope()
   bind(ConnectionHandler)
     .toDynamicValue(
       (ctx) =>
         new JsonRpcConnectionHandler(COMPILATION_PATH, () => {
-          return ctx.container.get<CompilationService>(CompilationService)
+          return ctx.container.get<CompilationService>(CompilationServiceSymbol)
         })
     )
     .inSingletonScope()
 
-  bind(ConfigService).to(ConfigServiceImpl).inSingletonScope()
+  bind(ConfigServiceSymbol).to(ConfigServiceImpl).inSingletonScope()
   bind(ConnectionHandler)
     .toDynamicValue(
       (ctx) =>
         new JsonRpcConnectionHandler(CONFIG_PATH, () => {
-          return ctx.container.get<ConfigService>(ConfigService)
+          return ctx.container.get<ConfigService>(ConfigServiceSymbol)
         })
     )
     .inSingletonScope()

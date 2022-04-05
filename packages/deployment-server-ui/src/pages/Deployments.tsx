@@ -50,7 +50,7 @@ export default defineFunctionalComponent(function Deployments () {
               <RecentDeploymentList
                 details
                 data={
-                  dashboardState.data
+                  dashboardState.data !== null
                     ? (dashboardState.data as Dashboard).recentDeployments
                     : undefined
                 }
@@ -64,7 +64,7 @@ export default defineFunctionalComponent(function Deployments () {
         <Col span={24} style={{ minWidth: '0', overflow: 'auto' }}>
           <Card title="Deployment Graph">
             <DeploymentsOverTimeGraph
-              data={dashboardState.data ? (dashboardState.data as Dashboard).deploymentsPerBucket : undefined}
+              data={dashboardState.data !== null ? (dashboardState.data as Dashboard).deploymentsPerBucket : undefined}
               chartTime={24}
             />
           </Card>
