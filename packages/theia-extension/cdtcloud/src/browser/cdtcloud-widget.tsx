@@ -37,6 +37,7 @@ import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service
 import { FileUri } from '@theia/core/lib/node/file-uri'
 import { DeploymentManager } from './monitoring/DeploymentManager'
 import { ReactElement } from 'react'
+import { HostingPreferences, HostingPreferencesSymbol } from './hosting-service'
 
 @injectable()
 export class CdtcloudWidget extends ReactWidget {
@@ -55,6 +56,8 @@ export class CdtcloudWidget extends ReactWidget {
   protected readonly messageService!: MessageService;
 
   constructor (
+    @inject(HostingPreferencesSymbol)
+    protected readonly preferences: HostingPreferences,
     @inject(DeviceTypeServiceSymbol)
     private readonly deviceTypeService: DeviceTypeService,
     @inject(CompilationServiceSymbol)
@@ -69,6 +72,14 @@ export class CdtcloudWidget extends ReactWidget {
     protected readonly configService: ConfigService
   ) {
     super()
+    this.toDispose.push(preferences.onPreferenceChanged(async e => {
+      if (e.preferenceName === 'Deployment Server Host') {
+        await this.configService.setHost(e.newValue)
+      }
+      if (e.preferenceName === 'Deployment Server Secure') {
+        await this.configService.setSecure(e.newValue)
+      }
+    }))
   }
 
   @postConstruct()
