@@ -1,10 +1,16 @@
-version: "3"
-volumes:
-  postgresdb:
-  devcon:
+version: "3.7"
+
+# extension field: https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields
+x-networks: &networks
+  networks:
+    - cdtcloud-network
+
+x-shared-conf: &shared-conf
+  <<: *networks
 
 services:
   db:
+    <<: *networks
     image: postgres:14-alpine
     environment:
       POSTGRES_USER: postgres
@@ -14,43 +20,102 @@ services:
       - "5432:5432"
     volumes:
       - postgresdb:/var/lib/postgresql/data
-    restart: always
+    restart: unless-stopped
 
-
-  pgadmin:
-    image: dpage/pgadmin4
-    ports:
-      - 3002:80
-    environment:
-      PGADMIN_DEFAULT_EMAIL: tum@seba.lab
-      PGADMIN_DEFAULT_PASSWORD: tum
-
-
-  arduino:
-    image: solarbotics/arduino-cli-arduino-avr:1.8.4-0.20.0-node16.13
-    command: >
-      bash -c "arduino-cli config init --overwrite &&
-               arduino-cli config add board_manager.additional_urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json &&
-               arduino-cli core update-index &&
-               arduino-cli core install arduino:sam@1.6.12 &&
-               arduino-cli core install STMicroelectronics:stm32 &&
-               arduino-cli daemon --port 50051 --daemonize --verbose"
-    network_mode: host
-    privileged: true
-    volumes:
-      - devcon:/usr/src/app/artifacts
-    restart: always
-
-  devcon:
-    profiles:
-      - "production"
+  arduino-cli:
+    <<: *shared-conf
+    image: cdtcloud/cdtcloud-arduino-cli:${DOCKER_IMAGE_TAG:-main}
     build:
       context: .
-      dockerfile: Dockerfile.devcon
+      dockerfile: Dockerfile
+      target: arduino-cli
+    ports:
+      - "50051:50051"
+    volumes:
+      - connector:/cdtcloud/device-connector/artifacts:ro
+    privileged: true
+    restart: unless-stopped
+
+  device-connector:
+    <<: *shared-conf
+    image: cdtcloud/cdtcloud-device-connector:${DOCKER_IMAGE_TAG:-main}
     env_file:
       - .docker/device-connector/env
-    network_mode: host
-    privileged: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: device-connector
     volumes:
-      - devcon:/usr/src/app/artifacts
-    restart: always
+      - connector:/cdtcloud/device-connector
+    restart: unless-stopped
+
+  deployment-server:
+    <<: *shared-conf
+    image: cdtcloud/cdtcloud-deployment-server:${DOCKER_IMAGE_TAG:-main}
+    environment:
+      NODE_ENV: "development"
+      DATABASE_URL: "postgresql://postgres:dev@db:5432/deploymentdb?schema=public"
+      HOSTNAME: "0.0.0.0"
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: deployment-server
+    links:
+      - db
+    depends_on:
+      - db
+    ports:
+      - "3001:3001"
+    volumes:
+      - deployment:/cdtcloud/deployment-server
+    restart: unless-stopped
+
+  theia:
+    <<: *shared-conf
+    image: cdtcloud/cdtcloud-theia:${DOCKER_IMAGE_TAG:-main}
+    env_file:
+      - .docker/theia/env
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: cdtcloud-theia
+    ports:
+      - "3000:3000"
+    volumes:
+      - theia:/cdtcloud/theia
+      - theia:/cdtcloud/project
+    restart: unless-stopped
+
+  demo:
+    <<: *shared-conf
+    image: cdtcloud/cdtcloud-demo:${DOCKER_IMAGE_TAG:-main}
+    environment:
+      NODE_ENV: "demo"
+      DATABASE_URL: "postgresql://postgres:dev@db:5432/deploymentdb?schema=public"
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: demo
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    privileged: true
+    depends_on:
+      - db
+    volumes:
+      - deployment:/deployment-server
+      - deployment:/public
+      - connector:/device-connector
+      - theia:/theia
+      - theia:/project
+    restart: on-failure
+
+volumes:
+  postgresdb:
+  connector:
+  deployment:
+  theia:
+
+networks:
+  cdtcloud-network:
+  cli-network:

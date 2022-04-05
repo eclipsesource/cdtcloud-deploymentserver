@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
     "outDir": "dist",
     "target": "es2021",
     "lib": ["es2021"],
@@ -9,15 +8,17 @@
     "strict": true,
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
-    "composite": true,
     "declaration": true,
-    "declarationMap": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "types": ["node"],
-    "emitDeclarationOnly": false
+    "esModuleInterop": true,
+    "incremental": true,
+    "rootDir": ".",
+    "emitDeclarationOnly": false,
+    "composite": true
   },
   "exclude": [
-    "tests"
+    "tests",
+    "dist"
   ]
 }

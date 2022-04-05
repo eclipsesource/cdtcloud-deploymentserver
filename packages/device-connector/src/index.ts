@@ -20,12 +20,12 @@ import closeWithGrace from 'close-with-grace'
 import { logger } from './util/logger'
 
 try {
-  if (env.NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'development' || env.NODE_ENV === 'demo') {
     logger.info('Waiting for deployment server to start...')
     const waitForPort = (await import('wait-on')).default
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    await waitForPort({ resources: [`http://${env.DEPLOY_IP!}:${env.DEPLOY_PORT!}`] })
+    await waitForPort({ resources: [`http${env.DEPLOY_SECURE === 'true' ? 's' : ''}://${env.DEPLOY_IP!}:${env.DEPLOY_PORT!}`] })
   }
 
   const connector: DeviceConnector = await createConnector()
