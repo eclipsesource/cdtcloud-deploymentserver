@@ -22,19 +22,25 @@ export const hostingPreferenceSchema: PreferenceSchema = {
   properties: {
     'Deployment Server Host': {
       type: 'string',
-      default: '127.0.0.1:3001',
-      description: 'where should the application be hosted'
+      default: 'localhost',
+      description: 'The host to be used for the deployment server.'
+    },
+    'Deployment Server Port': {
+      type: 'string',
+      default: '3001',
+      description: 'The port to be used for the deployment server.'
     },
     'Deployment Server Secure': {
       type: 'boolean',
       default: 'true',
-      description: 'Is it a secure server? (http:// or https://)'
+      description: 'Controls whether http requests should be encrypted (https).'
     }
   }
 }
 
 export interface HostingConfiguration {
   'Deployment Server Host': string
+  'Deployment Server Port': string | number
   'Deployment Server Secure': boolean
 }
 

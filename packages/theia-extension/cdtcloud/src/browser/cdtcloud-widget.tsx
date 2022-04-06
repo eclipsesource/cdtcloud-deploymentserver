@@ -76,6 +76,9 @@ export class CdtcloudWidget extends ReactWidget {
       if (e.preferenceName === 'Deployment Server Host') {
         await this.configService.setHost(e.newValue)
       }
+      if (e.preferenceName === 'Deployment Server Port') {
+        await this.configService.setPort(e.newValue)
+      }
       if (e.preferenceName === 'Deployment Server Secure') {
         await this.configService.setSecure(e.newValue)
       }
