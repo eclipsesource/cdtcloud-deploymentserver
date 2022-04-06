@@ -35,9 +35,11 @@ export class ConfigServiceImpl implements ConfigService {
   async setHost (host: string): Promise<void> {
     this.#host = host
   }
-  async setPort(port: string | number): Promise<void> {
+
+  async setPort (port: string | number): Promise<void> {
     this.#port = port
   }
+
   async setSecure (secure: boolean): Promise<void> {
     this.#secure = secure
   }
