@@ -90,7 +90,7 @@ export default defineFunctionalComponent(function Devices () {
       filters: deviceTypes.map((deviceType: DeviceType) => {
         return { text: deviceType.name, value: deviceType.id }
       }),
-      filteredValue: filters.deviceTypeId || null,
+      filteredValue: filters.deviceTypeId ?? null,
       onFilter: (value: string, record: Device) => {
         return record.deviceTypeId === value
       },
@@ -114,15 +114,15 @@ export default defineFunctionalComponent(function Devices () {
           typeof DeviceStatus[keyof typeof DeviceStatus]
         ]>
       ).reduce<Array<{
-        text: keyof typeof DeviceStatus;
-        value: typeof DeviceStatus[keyof typeof DeviceStatus];
+        text: keyof typeof DeviceStatus
+        value: typeof DeviceStatus[keyof typeof DeviceStatus]
       }>>((acc, [key, value]) => {
         if (key === DeviceStatus.UNAVAILABLE && !showUnavailable) {
           return acc
         }
         return [...acc, { text: key, value: value }]
       }, []),
-      filteredValue: filters.status || null,
+      filteredValue: filters.status ?? null,
       onFilter: (value: string, record: Device) => {
         return record.status === value
       },
