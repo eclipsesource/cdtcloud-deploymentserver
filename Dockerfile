@@ -19,7 +19,10 @@ ENV TZ=Etc/UTC
 # Set noninteractive mode so tzdata doesn't ask to set timezone on install
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y git sudo curl tzdata dumb-init jq build-essential make pkg-config gcc g++ python3 libx11-dev libxkbfile-dev libsecret-1-dev
+RUN apt-get update && apt-get install -y --no-install-recommends git sudo curl tzdata dumb-init jq build-essential make pkg-config gcc g++ python3 libx11-dev libxkbfile-dev libsecret-1-dev ca-certificates
+
+# Update ca-certificates
+RUN update-ca-certificates
 
 # Change timezone in container
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && dpkg-reconfigure --frontend noninteractive tzdata
@@ -64,7 +67,10 @@ ENV TZ=Etc/UTC
 # Set noninteractive mode so tzdata doesn't ask to set timezone on install
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y curl tzdata
+RUN apt-get update && apt-get install -y --no-install-recommends curl tzdata ca-certificates
+
+# Update ca-certificates
+RUN update-ca-certificates
 
 # change timezone in container
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && dpkg-reconfigure --frontend noninteractive tzdata
@@ -207,6 +213,10 @@ LABEL description="CdtCloud demo image"
 ENV SHELL=/bin/bash
 ENV NODE_ENV=demo
 
+USER root
+RUN yarn global add concurrently --prefix /usr/local
+
+USER $DOCKER_USER
 COPY --from=arduino-cli /usr/local/bin/arduino-cli /usr/local/bin/arduino-cli
 COPY --from=arduino-cli --chown=$DOCKER_USER:$DOCKER_USER /home/$DOCKER_USER/.arduino15 /home/$DOCKER_USER/.arduino15
 COPY --from=deployment-server --chown=$DOCKER_USER:$DOCKER_USER /cdtcloud/deployment-server/ /cdtcloud/deployment-server/
@@ -214,8 +224,6 @@ COPY --from=deployment-server --chown=$DOCKER_USER:$DOCKER_USER /cdtcloud/public
 COPY --from=device-connector --chown=$DOCKER_USER:$DOCKER_USER /cdtcloud/device-connector/ /cdtcloud/device-connector/
 COPY --from=device-connector --chown=$DOCKER_USER:$DOCKER_USER /cdtcloud/grpc/ /cdtcloud/grpc/
 COPY --from=cdtcloud-theia --chown=$DOCKER_USER:$DOCKER_USER /cdtcloud/theia/ /cdtcloud/theia/
-
-RUN sudo yarn global add concurrently --prefix /usr/local
 
 EXPOSE 3000
 EXPOSE 3001
