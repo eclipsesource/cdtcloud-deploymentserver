@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
-        node: ["16", "17"]
+        node: ["16"]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }}_node-${{ matrix.node }}
     services:
