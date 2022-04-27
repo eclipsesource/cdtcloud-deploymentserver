@@ -14,11 +14,11 @@
     SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
 ********************************************************************************/
 
-import React, { CSSProperties, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, ReactElement, useEffect, useRef, useState } from 'react'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import type { DeployStatus } from 'deployment-server'
-import { useMonitor } from '../services/MonitoringService'
+import { useMonitorFunction } from '../services/MonitoringService'
 
 import './xterm.css'
 
@@ -30,13 +30,13 @@ interface Props {
   className?: string
 }
 
-const MonitoringTerminal = (props: Props) => {
+const MonitoringTerminal = (props: Props): ReactElement => {
   const [created, setCreated] = useState<boolean>(false)
   const terminalDivRef = useRef<HTMLDivElement | null>(null)
   const terminalRef = useRef<Terminal>()
-  const { open, subscribe } = useMonitor(props.deploymentId, props.deployStatus)
+  const { open, subscribe } = useMonitorFunction(props.deploymentId, props.deployStatus)
   const fitAddon = new FitAddon()
-  const prefix = `\u001b[1;31mMonitor\u001b[1;33m\@\u001b[1;36m${props.deviceName}\u001b[1;33m\$\u001b[0m `
+  const prefix = `\u001b[1;31mMonitor\u001b[1;33m@\u001b[1;36m${props.deviceName}\u001b[1;33m$\u001b[0m `
 
   useEffect(() => {
     const term = (terminalRef.current = new Terminal({
@@ -60,7 +60,13 @@ const MonitoringTerminal = (props: Props) => {
     })
 
     terminalRef.current.loadAddon(fitAddon)
-    terminalRef.current.open(terminalDivRef.current!)
+
+    if (terminalDivRef.current !== null) {
+      terminalRef.current.open(terminalDivRef.current)
+    } else {
+      throw Error('terminalDivRef.current is null')
+    }
+
     fitAddon.fit()
 
     setCreated(true)
@@ -81,7 +87,7 @@ const MonitoringTerminal = (props: Props) => {
 
   useEffect(() => {
     if (open && created) {
-      subscribe((message) => {
+      subscribe((message: MessageEvent) => {
         const data = typeof message.data === 'string' ? message.data.trim() : new Uint8Array(message.data)
 
         if (data != null && data !== '' && data.length !== 0) {

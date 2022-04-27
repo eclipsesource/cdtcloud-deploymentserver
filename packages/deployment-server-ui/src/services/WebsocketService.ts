@@ -26,7 +26,14 @@ const createWebsocket = async (route: string): Promise<WebSocket> => {
   return new WebSocket(url)
 }
 
-export const useWebsocket = (route: string, condition: boolean = true) => {
+export const useWebsocketFunction = (route: string, condition: boolean = true): {
+  open: boolean
+  subs: Array<(message: ServerMessage) => void>
+  attempts: number
+  send: (payload: any) => void
+  subscribe: (eventFun: (resp: ServerMessage) => void) => () => void
+  close: () => void
+} => {
   const [socket, setSocket] = useState<WebSocket>()
   const [open, setOpen] = useState<boolean>(false)
   const [subs, setSubs] = useState<Array<((message: ServerMessage) => void)>>([])
@@ -34,9 +41,9 @@ export const useWebsocket = (route: string, condition: boolean = true) => {
 
   useEffect(() => {
     // Object to avoid clones of sockets
-    const newSocket = { ws: null } as { ws: WebSocket | null }
+    const newSocket: { ws: WebSocket | null } = { ws: null }
 
-    async function openSocket () {
+    async function openSocket (): Promise<void> {
       const ws = await createWebsocket(route)
       ws.onopen = () => setOpen(true)
       ws.onclose = () => {
@@ -49,7 +56,7 @@ export const useWebsocket = (route: string, condition: boolean = true) => {
     }
 
     if (condition) {
-      openSocket()
+      openSocket().catch((e) => console.log(e))
     }
 
     return () => {
@@ -83,4 +90,4 @@ export const useWebsocket = (route: string, condition: boolean = true) => {
   }
 }
 
-export type useWebsocket = typeof useWebsocket
+export type useWebsocket = typeof useWebsocketFunction

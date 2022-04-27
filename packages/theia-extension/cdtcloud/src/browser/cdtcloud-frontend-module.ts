@@ -27,10 +27,13 @@ import {
 import '../../src/browser/style/index.css'
 import {
   CompilationService,
+  CompilationServiceSymbol,
   COMPILATION_PATH,
   ConfigService,
+  ConfigServiceSymbol,
   CONFIG_PATH,
   DeviceTypeService,
+  DeviceTypeServiceSymbol,
   DEVICE_TYPES_PATH
 } from '../common/protocol'
 import { DeploymentManager } from './monitoring/DeploymentManager'
@@ -48,21 +51,21 @@ export default new ContainerModule((bind) => {
 
   bind(DeploymentManager).toSelf().inSingletonScope()
 
-  bind(DeviceTypeService)
+  bind(DeviceTypeServiceSymbol)
     .toDynamicValue((ctx) => {
       const connection = ctx.container.get(WebSocketConnectionProvider)
       return connection.createProxy<DeviceTypeService>(DEVICE_TYPES_PATH)
     })
     .inSingletonScope()
 
-  bind(CompilationService)
+  bind(CompilationServiceSymbol)
     .toDynamicValue((ctx) => {
       const connection = ctx.container.get(WebSocketConnectionProvider)
       return connection.createProxy<CompilationService>(COMPILATION_PATH)
     })
     .inSingletonScope()
 
-  bind(ConfigService)
+  bind(ConfigServiceSymbol)
     .toDynamicValue((ctx) => {
       const connection = ctx.container.get(WebSocketConnectionProvider)
       return connection.createProxy<ConfigService>(CONFIG_PATH)

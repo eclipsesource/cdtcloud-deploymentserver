@@ -23,19 +23,19 @@ import {
   FileOutlined
 } from '@ant-design/icons'
 import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { ReactElement, useEffect, useState } from 'react'
 
-export function CdtCloudSidebar () {
+export function CdtCloudSidebar (): ReactElement {
   const [current, setCurrent] = useState(location.pathname)
 
   useEffect(() => {
-    if (location) {
+    if (location !== null) {
       if (current !== location.pathname) {
         setCurrent(location.pathname)
       }
     }
   }, [location, current])
-  function handleClick (e: any) {
+  function handleClick (e: any): void {
     setCurrent(e.key)
   }
   return (

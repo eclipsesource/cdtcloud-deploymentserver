@@ -14,14 +14,14 @@
     SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
 ********************************************************************************/
 
-export const DeviceTypeService = Symbol('DeviceType')
+export const DeviceTypeServiceSymbol = Symbol('DeviceType')
 export const DEVICE_TYPES_PATH = '/services/device-types'
 
 export interface DeviceTypeService {
   getDeviceList: () => Promise<any[]>
 }
 
-export const CompilationService = Symbol('Compilation')
+export const CompilationServiceSymbol = Symbol('Compilation')
 export const COMPILATION_PATH = '/services/compilation'
 export interface CompilationService {
   binaryFile: string
@@ -48,7 +48,7 @@ export interface DeploymentError {
   }
 }
 
-export const ConfigService = Symbol('Config')
+export const ConfigServiceSymbol = Symbol('Config')
 export const CONFIG_PATH = '/services/config'
 export interface ConfigService {
   getWebsocketHost: () => Promise<string>
