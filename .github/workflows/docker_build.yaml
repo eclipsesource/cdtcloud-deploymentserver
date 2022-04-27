@@ -27,5 +27,3 @@ jobs:
       - name: Build Arduino-CLI
         run: docker-compose build arduino-cli
 
-      - name: Build Demo
-        run: docker-compose build demo
