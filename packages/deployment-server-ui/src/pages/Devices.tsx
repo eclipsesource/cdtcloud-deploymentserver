@@ -90,7 +90,7 @@ export default defineFunctionalComponent(function Devices () {
       filters: deviceTypes.map((deviceType: DeviceType) => {
         return { text: deviceType.name, value: deviceType.id }
       }),
-      filteredValue: (filters.deviceTypeId != null) || null,
+      filteredValue: filters.deviceTypeId ?? null,
       onFilter: (value: string, record: Device) => {
         return record.deviceTypeId === value
       },
@@ -122,7 +122,7 @@ export default defineFunctionalComponent(function Devices () {
         }
         return [...acc, { text: key, value: value }]
       }, []),
-      filteredValue: (filters.status != null) || null,
+      filteredValue: filters.status ?? null,
       onFilter: (value: string, record: Device) => {
         return record.status === value
       },

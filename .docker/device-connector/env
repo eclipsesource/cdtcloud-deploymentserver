@@ -1,5 +1,7 @@
 NODE_ENV='production'
-DEPLOY_IP='cdtcloud-374rhitm6q-ey.a.run.app'
-DEPLOY_PORT=443
-DEPLOY_SECURE=true
+DEPLOY_IP=deployment-server
+DEPLOY_PORT=3001
+DEPLOY_SECURE=false
 LOG_LEVEL='info'
+ARDUINO_CLI_IP=arduino-cli
+ARDUINO_CLI_PORT=50051

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+[ -z "$WITH_ERRORS" ] && set -e
+
+CURRENT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+
+source "$CURRENT_PATH/apps/main/main.sh"

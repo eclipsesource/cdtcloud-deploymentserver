@@ -1,9 +1,14 @@
 {
   "name": "cdtcloud-deploymentserver",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Root package of the cdtcloud-deploymentserver service",
+  "homepage": "https://github.com/eclipsesource/cdtcloud-deploymentserver",
   "repository": "git@github.com:EclipseSource/cdtcloud-deploymentserver.git",
   "license": "EPL-2.0",
   "private": true,
+  "bugs": {
+    "url": "https://github.com/EclipseSource/cdtcloud-deploymentserver/issues"
+  },
   "workspaces": {
     "packages": [
       "packages/deployment-server",
@@ -19,13 +24,17 @@
     "test": "lerna run --parallel test",
     "typecheck": "lerna run --parallel typecheck",
     "lint": "lerna run --parallel lint",
-    "dev": "concurrently \"lerna run --parallel dev\" \"yarn start:browser\" \"yarn --cwd packages/deployment-server tsc -w --preserveWatchOutput\"",
     "prepare": "lerna run prepare",
     "rebuild:browser": "yarn theia rebuild:browser",
     "rebuild:electron": "yarn theia rebuild:electron",
+    "dev": "concurrently \"lerna run --parallel dev\" \"yarn start:browser\" \"yarn --cwd packages/deployment-server tsc -w --preserveWatchOutput\"",
+    "start:demo": "NODE_ENV=demo concurrently --restart-after 1 --restart-tries -1 -n deployment-server,deployment-ui,device-connector,electron,theia \"yarn start:deployment\" \"yarn --cwd=packages/deployment-server-ui preview\" \"yarn start:connector\" \"yarn start:electron\" \"yarn start:browser\"",
+    "start:deployment": "NODE_ENV=production yarn --cwd=packages/deployment-server start",
+    "start:connector": "yarn --cwd=packages/device-connector start",
     "start:browser": "yarn rebuild:browser && yarn --cwd=packages/theia-extension/browser-app start",
     "start:electron": "yarn --cwd=packages/theia-extension/electron-app rebuild && yarn --cwd=packages/theia-extension/electron-app start",
-    "build:theia": "yarn --cwd=packages/theia-extension/browser-app run theia build --mode=production",
+    "build:browser": "yarn --cwd=packages/theia-extension/browser-app run theia build --mode=production",
+    "build:electron": "yarn --cwd=packages/theia-extension/electron-app run theia build --mode=production",
     "download:plugins": "yarn --cwd=packages/theia-extension/cdtcloud run theia download:plugins"
   },
   "dependencies": {

@@ -1,10 +1,17 @@
 {
-  "private": true,
   "name": "cdtcloud",
   "keywords": [
     "theia-extension"
   ],
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Theia-Widget for the cdtcloud-deploymentserver service",
+  "homepage": "https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/theia-extension",
+  "repository": "git@github.com:EclipseSource/cdtcloud-deploymentserver.git",
+  "license": "EPL-2.0",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/EclipseSource/cdtcloud-deploymentserver/issues"
+  },
   "files": [
     "lib",
     "src"

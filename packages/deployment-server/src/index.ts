@@ -19,6 +19,7 @@ import { closeServer, createServer } from './server'
 import closeWithGrace from 'close-with-grace'
 import logger from './util/logger'
 import type { PrismaClient } from '@prisma/client'
+import { AddressInfo } from 'node:net'
 
 export let db: PrismaClient
 
@@ -26,7 +27,8 @@ try {
   const [server, , prismaClient] = await createServer()
   db = prismaClient
 
-  logger.info('Listening')
+  const listenAddress = server.address() as AddressInfo
+  logger.info(`Listening on ${listenAddress?.address}:${listenAddress.port}`)
 
   const handler = closeWithGrace({ delay: 1000 }, closeServer.bind({ server, db }))
 

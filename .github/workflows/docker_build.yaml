@@ -1,0 +1,29 @@
+name: docker-build
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-20.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Deployment-Server
+        run: docker-compose build deployment-server
+
+      - name: Build Device-Connector
+        run: docker-compose build device-connector
+
+      - name: Build Theia
+        run: docker-compose build theia
+
+      - name: Build Arduino-CLI
+        run: docker-compose build arduino-cli
+
