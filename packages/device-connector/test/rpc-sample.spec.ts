@@ -16,7 +16,7 @@ before(async () => {
 test('List supported arduino uno mini boards from arduino-cli', async (t) => {
   const boards = await client.listAllBoards(['Uno Mini'])
 
-  t.same(boards, [
+  t.match(boards[0],
     {
       name: 'Arduino Uno Mini',
       fqbn: 'arduino:avr:unomini',
@@ -24,8 +24,8 @@ test('List supported arduino uno mini boards from arduino-cli', async (t) => {
       platform: {
         boards: [],
         id: 'arduino:avr',
-        installed: '1.8.4',
-        latest: '1.8.4',
+        installed: /\d+\.\d+\.\d+/,
+        latest: /\d+\.\d+\.\d+/,
         name: 'Arduino AVR Boards',
         maintainer: 'Arduino',
         website: 'http://www.arduino.cc/',
@@ -34,6 +34,6 @@ test('List supported arduino uno mini boards from arduino-cli', async (t) => {
         deprecated: false
       }
     }
-  ]
+
   )
 })
