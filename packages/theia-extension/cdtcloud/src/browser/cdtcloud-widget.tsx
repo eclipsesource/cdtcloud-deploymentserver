@@ -89,7 +89,7 @@ export class CdtcloudWidget extends ReactWidget {
         case 'PENDING':
           return { color: 'var(--theia-terminal-ansiBrightBlack)', background: 'transparent', border: 'var(--theia-terminal-ansiBrightBlack)' }
         case 'RUNNING':
-          return { color: 'var(--theia-terminal-ansiBrightBlue',  background: 'var(--theia-inputOption-activeBackground)', border: 'var(--theia-terminal-ansiBrightBlue)' }
+          return { color: 'var(--theia-terminal-ansiBrightBlue', background: 'var(--theia-inputOption-activeBackground)', border: 'var(--theia-terminal-ansiBrightBlue)' }
         case 'TERMINATED':
           return { color: 'var(--theia-terminal-ansiBrightYellow)', background: 'var(--theia-editor-rangeHighlightBackground)', border: 'var(--theia-terminal-ansiBrightYellow)' }
         case 'SUCCESS':
@@ -98,7 +98,6 @@ export class CdtcloudWidget extends ReactWidget {
           return { color: 'var(--theia-terminal-ansiBrightRed)', background: 'var(--theia-searchEditor-findMatchBackground)', border: 'var(--theia-terminal-ansiBrightRed)' }
         default:
           return { color: '#ffffff', background: '#ffffff', border: '#ffffff' }
-    
       }
     }
 
