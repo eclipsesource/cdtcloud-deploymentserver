@@ -18,7 +18,7 @@ import { useEffect, useState } from 'react'
 import { DeployStatus } from 'deployment-server/dist/src'
 
 const createWebsocket = async (route: string): Promise<WebSocket> => {
-  const url = `${window.location.protocol === 'https' ? 'wss' : 'ws'}://${window.location.host}${route}`
+  const url = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}${route}`
   return new WebSocket(url)
 }
 
