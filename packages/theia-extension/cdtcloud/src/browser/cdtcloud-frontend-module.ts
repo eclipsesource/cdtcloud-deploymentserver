@@ -37,6 +37,7 @@ import {
   DEVICE_TYPES_PATH
 } from '../common/protocol'
 import { DeploymentManager } from './monitoring/DeploymentManager'
+import { bindHostingPreferences } from './hosting-service'
 
 export default new ContainerModule((bind) => {
   bindViewContribution(bind, CdtcloudContribution)
@@ -71,4 +72,6 @@ export default new ContainerModule((bind) => {
       return connection.createProxy<ConfigService>(CONFIG_PATH)
     })
     .inSingletonScope()
+
+  bindHostingPreferences(bind)
 })

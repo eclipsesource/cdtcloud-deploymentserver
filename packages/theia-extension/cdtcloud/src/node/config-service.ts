@@ -31,4 +31,16 @@ export class ConfigServiceImpl implements ConfigService {
   async getDeploymentServerHost (): Promise<string> {
     return `${this.#secure ? 'https' : 'http'}://${this.#host}:${this.#port}`
   }
+
+  async setHost (host: string): Promise<void> {
+    this.#host = host
+  }
+
+  async setPort (port: string | number): Promise<void> {
+    this.#port = port
+  }
+
+  async setSecure (secure: boolean): Promise<void> {
+    this.#secure = secure
+  }
 }

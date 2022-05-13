@@ -53,4 +53,7 @@ export const CONFIG_PATH = '/services/config'
 export interface ConfigService {
   getWebsocketHost: () => Promise<string>
   getDeploymentServerHost: () => Promise<string>
+  setHost: (host: string) => void
+  setPort: (port: string | number) => void
+  setSecure: (secure: boolean) => void
 }
