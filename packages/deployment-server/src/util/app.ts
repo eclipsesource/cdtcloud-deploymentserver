@@ -59,11 +59,11 @@ export function createApp (db: PrismaClient): Application {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         'script-src': ["'self'", "'unsafe-inline'"],
         'img-src': ["'self'", 'data:', 'storage.googleapis.com', 'raw.githubusercontent.com'],
-        'connect-src': ["'self'", 'data:', 'storage.googleapis.com'],
+        'connect-src': ["'self'", 'data:', 'storage.googleapis.com']
       }
     },
     crossOriginEmbedderPolicy: true
-}))
+  }))
 
   const apiRouter = Router()
 

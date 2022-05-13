@@ -84,15 +84,17 @@ export default function deploymentArtifactsRoutes (router: Router): void {
           return res.sendStatus(500)
         }
 
-        const url= req.originalUrl
+        const url = req.originalUrl
         let protocol = req.protocol
 
         // Adjust host and protocol in case of proxies
-        if (req.headers['x-forwarded-host'])
+        if (req.headers['x-forwarded-host'] != null) {
           host = req.headers['x-forwarded-host'] as string
+        }
 
-        if (req.headers['x-forwarded-proto'])
+        if (req.headers['x-forwarded-proto'] != null) {
           protocol = req.headers['x-forwarded-proto'] as string
+        }
 
         const artifactUri = req.file.linkUrl ?? `${protocol}://${host}${url}/${req.file.filename}`
         return res.json({ artifactUri })
