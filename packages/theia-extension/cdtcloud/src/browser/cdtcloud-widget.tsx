@@ -101,15 +101,15 @@ export class CdtcloudWidget extends ReactWidget {
     function getColor (status: string): {color: string, background: string, border: string} {
       switch (status) {
         case 'PENDING':
-          return { color: '#ffffff', background: '#808080', border: '#707070' }
+          return { color: 'var(--theia-terminal-ansiBrightBlack)', background: 'transparent', border: 'var(--theia-terminal-ansiBrightBlack)' }
         case 'RUNNING':
-          return { color: '#1890ff', background: '#e6f7ff', border: '#91d5ff' }
+          return { color: 'var(--theia-terminal-ansiBrightBlue', background: 'var(--theia-inputOption-activeBackground)', border: 'var(--theia-terminal-ansiBrightBlue)' }
         case 'TERMINATED':
-          return { color: '#faad14', background: '#fffbe6', border: '#ffe58f' }
+          return { color: 'var(--theia-terminal-ansiBrightYellow)', background: 'var(--theia-editor-rangeHighlightBackground)', border: 'var(--theia-terminal-ansiBrightYellow)' }
         case 'SUCCESS':
-          return { color: '#52c41a', background: '#f6ffed', border: '#b7eb8f' }
+          return { color: 'var(--theia-terminal-ansiBrightGreen)', background: 'var(--theia-diffEditor-insertedTextBackground)', border: 'var(--theia-terminal-ansiBrightGreen)' }
         case 'FAILED':
-          return { color: '#cf1322', background: '#fff1f0', border: '#ffa39e' }
+          return { color: 'var(--theia-terminal-ansiBrightRed)', background: 'var(--theia-searchEditor-findMatchBackground)', border: 'var(--theia-terminal-ansiBrightRed)' }
         default:
           return { color: '#ffffff', background: '#ffffff', border: '#ffffff' }
       }

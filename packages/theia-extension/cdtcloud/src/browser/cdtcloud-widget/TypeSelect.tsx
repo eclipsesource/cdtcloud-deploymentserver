@@ -58,12 +58,12 @@ export const TypeSelect: FunctionComponent<{
   function getColor (status: string): string {
     switch (status) {
       case 'QUEUEABLE':
-        return '#faad14'
+        return 'var(--theia-terminal-ansiYellow)'
       case 'AVAILABLE':
-        return '#52c41a'
+        return 'var(--theia-terminal-ansiGreen)'
       case 'BUSY':
       case 'UNAVAILABLE':
-        return '#cf1322'
+        return 'var(--theia-terminal-ansiRed)'
       default:
         return 'transparent'
     }
