@@ -2,10 +2,15 @@
 
 [![node](https://img.shields.io/badge/node-%3E%3D%2016.5.0-success)](https://nodejs.org/en/blog/release/v16.5.0/)
 [![psql](https://img.shields.io/badge/PostgreSQL-v14.3-4169E1?logo=postgresql&logoColor=FFFFFF)](https://https://docker.com/)
+[![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](https://https://docker.com/)
 
 ## Introduction
 
-The Deployment Server is responsible 
+The Deployment Server is responsible for the communication between the [Device Connectors](https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/device-connector) and the [Theia Extension](https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/theia-extension).
+<br/>
+It manages the hardware and distributes the deployments among the connected devices, forwarding the request to the responsible Device Connector. Finally, the Deployment Server also forwards any monitoring output back to Theia and, if necessary, the AdminUI.
+<br/>
+The Deployment Server also provides an AdminUI under (by default) [http://localhost:3001](http://localhost:3001).
 
 ## Requirements
 
