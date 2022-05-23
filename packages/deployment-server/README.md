@@ -31,6 +31,14 @@ To have an easy installation and start of the CDT.cloud Services run the `./cdtc
 5. To then seed the DB run `yarn run prisma db seed`
 6. Finally start the server with `yarn run start`
 
+### Docker
+
+1. Run the `./cdtcloud` script from the root directory
+2. Select *docker* to run the docker tools
+3. Enter the command `start:deployment:d` to start the server
+4. You can use the *docker* section to attach and kill containers as well
+
+
 ### Configuration (Optional)
 
 - Edit the **env** variables to adjust *Host*, *Database* and *Environment*
@@ -85,13 +93,6 @@ server {
 }
 ```
 </details>
-
-### Docker
-
-1. Run the `./cdtcloud` script from the root directory
-2. Select *docker* to run the docker tools
-3. Enter the command `start:deployment:d` to start the server
-4. You can use the *docker* section to attach and kill containers as well
 
 ## License
 
