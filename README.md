@@ -3,7 +3,7 @@
 [![linux-build](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/linux_build.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/linux_build.yaml)
 [![docker-build](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/docker_build.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/docker_build.yaml)
 [![codestyle](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/codestyle.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/codestyle.yaml)
-[![docker](https://img.shields.io/badge/Docker-Support-0db7ed?logo=docker)](https://https://docker.com/)
+[![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](https://https://docker.com/)
 
 ## Introduction
 
@@ -17,9 +17,9 @@ Additionally, the service allows for an overall administration of the devices an
 We have implemented an auto-installation and start script [here](https://github.com/eclipsesource/cdtcloud-deploymentserver/blob/main/apps/main/main.sh) for a quick and easy start into the service.
 
 For detailed instructions on how to start and adjust each service included in the CDT.cloud Deployment-Server please visit the individual packages.
-- [Deployment-Server](https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/deployment-server)
-- [Device-Connector](https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/device-connector)
-- [Theia-Extension](https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/theia-extension)
+- [Deployment Server](https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/deployment-server) by default running on [http://localhost:3001/api](http://localhost:3001/api) and the AdminUI on [http://localhost:3001](http://localhost:3001)
+- [Theia Extension](https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/theia-extension) by default running on [http://localhost:3000](http://localhost:3000)
+- [Device Connector](https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/device-connector)
 
 ### Quick Start
 
@@ -30,6 +30,7 @@ To have an easy installation and start of the CDT.cloud Services run the `./cdtc
 - NodeJS Version >= 16.5.0
 - Yarn Version >= 1.22.18
 - PostgreSQL Server
+- Arduino CLI >= 0.20.0
 
 #### First Installation
 

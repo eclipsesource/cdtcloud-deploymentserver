@@ -2,9 +2,17 @@
 # Device-Connector
 
 [![node](https://img.shields.io/badge/node-%3E%3D%2016.5.0-success)](https://nodejs.org/en/blog/release/v16.5.0/)
-[![arduino-cli](https://img.shields.io/badge/arduino--cli-0.21.1-00979C)](https://github.com/arduino/arduino-cli/releases/tag/0.21.1)
+[![arduino-cli](https://img.shields.io/badge/arduino--cli-0.20.0-00979C)](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
+
+## Introduction
+
+## Requirements
 
 ## Getting Started
+
+### Quick Start
+
+### Docker
 
 ### With Docker
 
@@ -38,3 +46,7 @@ Arduino:sam Board-Core
 arduino-cli core update-index
 arduino-cli core install arduino:sam
 ```
+
+## License
+
+This code and content is released under the [EPL 2.0 license](https://github.com/eclipsesource/cdtcloud-deploymentserver/blob/main/LICENSE).
