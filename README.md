@@ -3,7 +3,7 @@
 [![linux-build](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/linux_build.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/linux_build.yaml)
 [![docker-build](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/docker_build.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/docker_build.yaml)
 [![codestyle](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/codestyle.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/codestyle.yaml)
-[![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](https://https://docker.com/)
+[![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](https://docker.com/)
 
 ## Introduction
 
