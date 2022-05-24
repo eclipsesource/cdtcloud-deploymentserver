@@ -21,10 +21,12 @@ The Deployment Server also provides an AdminUI under (by default) [http://localh
 ## Getting Started
 
 To have an easy installation and start of the CDT.cloud Services run the `./cdtcloud` script from the root directory.
+<br/>
+You can either run the Deployment Server [natively](#Quick-Start) on your system or in a [Docker](#Docker) container.
 
 ### Quick Start
 
-Firstly, run a PostgreSQL Server -- Natively or using Docker (run `docker-compose up db` from the root directory)
+A PostgreSQL Server needs to be running. It can run natively on the system or using Docker (`docker-compose up db` in the root directory).
 
 #### First Installation
 
@@ -39,16 +41,10 @@ Run the server with `yarn run start`
 
 ### Docker
 
-#### Using the Start Script
-
 1. Run the `./cdtcloud` script from the root directory
 2. Select *docker* to run the docker tools
 3. Enter the command `start:deployment:d` to start the server
 4. You can use the *docker* section to attach and kill containers as well
-
-#### Manually
-
-
 
 ### Configuration
 

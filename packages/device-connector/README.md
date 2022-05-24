@@ -23,17 +23,19 @@ The Device Connector establishes a connection to the [Deployment Server](../depl
 
 To have an easy installation and start of the CDT.cloud Services run the `./cdtcloud` script from the root directory.
 <br/>
-You can either run the Device Connector [natively](#Quick-Start) on your system or in a Docker container.
+You can either run the Device Connector [natively](#Quick-Start) on your system or in a [Docker](#Docker) container.
 
 ### Quick Start
 
-Firstly, start the [Arduino CLI](https://github.com/arduino/arduino-cli/releases) daemon with `arduino-cli daemon --port 50051 --daemonize`
+The [Arduino CLI](https://github.com/arduino/arduino-cli/releases) needs to be running on startup.
+<br/>
+Start the daemon with `arduino-cli daemon --port 50051 --daemonize`
 
 #### First Installation
 1. Initialize the Arduino CLI by running `arduino-cli config init`
 2. Update the core and library indexes with `arduino-cli update`
 3. Install the base cores by entering `arduino-cli core install arduino:avr`
-4. Install the dependencies using <code class="language-shell">yarn install</code>
+4. Install the dependencies using `yarn install`
 5. Set the **env** variables for the Deployment Server Connection (you can use the [.env](.env) file)
 
 #### Run the Device Connector
@@ -50,21 +52,23 @@ Run the Device Connector using `yarn run start`
 4. Enter the command `start:connector:d` to start the server
 5. You can use the *docker* section to attach and kill containers as well
 
-#### Add support for additonal boards
+### Adding support for additional devices
 
-STM32 Board-Core
+More devices or cores can be supported by installing them through the Arduino CLI.
+<br/>
+This needs to be done in the [Theia Extension](../theia-extension) as well.
+<br/>
+To do so run the following commands:
+```bash
+arduino-cli core update-index
+arduino-cli core install base:core
+```
 
+#### External Cores - i.e. STM32 Board-Core
 ```bash
 arduino-cli config add board_manager.additional_urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
 arduino-cli core update-index
 arduino-cli core install STMicroelectronics:stm32
-```
-
-Arduino:sam Board-Core
-
-```bash
-arduino-cli core update-index
-arduino-cli core install arduino:sam
 ```
 
 ## License
