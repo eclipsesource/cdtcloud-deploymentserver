@@ -17,8 +17,9 @@ Additionally, the service allows for an overall administration of the devices an
 We have implemented an auto-installation and start script [here](apps/main/main.sh) for a quick and easy start into the service.
 
 For detailed instructions on how to start and adjust each service included in the CDT.cloud Deployment-Server please visit the individual packages.
-- [Deployment Server](packages/deployment-server) by default running on [http://localhost:3001/api](http://localhost:3001/api) and the AdminUI on [http://localhost:3001](http://localhost:3001)
-- [Theia Extension](packages/theia-extension) by default running on [http://localhost:3000](http://localhost:3000)
+- [Deployment Server](packages/deployment-server) by default running on [localhost:3001/api](http://localhost:3001/api)
+- [AdminUI](packages/deployment-server-ui) after setting up the Deployment Server is by default running on [localhost:3001](http://localhost:3001)
+- [Theia Extension](packages/theia-extension) by default running on [localhost:3000](http://localhost:3000)
 - [Device Connector](packages/device-connector)
 
 ### Quick Start
