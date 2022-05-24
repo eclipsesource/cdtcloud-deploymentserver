@@ -2,7 +2,7 @@
 
 [![node](https://img.shields.io/badge/node-%3E%3D%2016.5.0-339933?logo=node.js)](https://nodejs.org/en/blog/release/v16.5.0/)
 [![psql](https://img.shields.io/badge/PostgreSQL-v14.3-008bb9?logo=postgresql&logoColor=008bb9)](https://www.postgresql.org/)
-[![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](https://docker.com/)
+[![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](#Docker)
 
 ## Introduction
 
@@ -42,13 +42,13 @@ Run the server with `yarn run start`
 ### Docker
 
 1. Run the `./cdtcloud` script from the root directory
-2. Select *docker* to run the docker tools
+2. Select _docker_ to run the docker tools
 3. Enter the command `start:deployment:d` to start the server
-4. You can use the *docker* section to attach and kill containers as well
+4. You can use the _docker_ section to attach and kill containers as well
 
 ### Configuration
 
-- Edit the **env** variables to adjust *Host*, *Database* and *Environment*
+- Edit the **env** variables to adjust _Host_, _Database_ and _Environment_
 
 #### GCS support
 

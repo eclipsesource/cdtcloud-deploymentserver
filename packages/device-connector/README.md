@@ -3,7 +3,7 @@
 
 [![node](https://img.shields.io/badge/node-%3E%3D%2016.5.0-339933?logo=node.js)](https://nodejs.org/en/blog/release/v16.5.0/)
 [![arduino-cli](https://img.shields.io/badge/arduino--cli-0.20.0-00979C?logo=arduino)](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
-[![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](https://docker.com/)
+[![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](#Docker)
 
 ## Introduction
 
@@ -48,9 +48,9 @@ Run the Device Connector using `yarn run start`
 
 1. Set the **env** variables for the Deployment Server Connection (you can use the [Docker env](../../.docker/device-connector/env) file)
 2. Run the `./cdtcloud` script from the root directory
-3. Select *docker* to run the docker tools
-4. Enter the command `start:connector:d` to start the server
-5. You can use the *docker* section to attach and kill containers as well
+3. Select _docker_ to run the docker tools
+4. Enter the command `start:connector:d` to start the service
+5. You can use the _docker_ section to attach and kill containers as well
 
 ### Adding support for additional devices
 

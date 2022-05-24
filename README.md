@@ -3,14 +3,14 @@
 [![linux-build](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/linux_build.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/linux_build.yaml)
 [![docker-build](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/docker_build.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/docker_build.yaml)
 [![codestyle](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/codestyle.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/codestyle.yaml)
-[![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](https://docker.com/)
+[![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](#Docker)
 
 ## Introduction
 
 The CDT.cloud Deployment-Server is a service for embedded deployment environments.
 <br/>
 It enables the whole development process for microcontrollers, including distributed development, remote deployment and monitoring.
-Additionally, the service allows for an overall administration of the devices and deployments with a user centric dashboard.
+Additionally, the service allows for an overall administration of the devices and deployments with a user-centric dashboard.
 
 ## Getting Started
 
@@ -39,18 +39,18 @@ To have an easy installation and start of the CDT.cloud Services run the `./cdtc
 #### First Installation
 
 1. Run a PostgreSQL Server -- Natively or using Docker (`docker-compose up db`)
-2. Select *init* in the `./cdtcloud` script to run the initialization for the first start and install all dependencies
+2. Select _init_ in the `./cdtcloud` script to run the initialization for the first start and install all dependencies
 
 #### Starting a CDT.cloud Deployment-Server Service
 
-- Using the `./cdtcloud` script, you can run a demo service by selecting *run cdtcloud demo*
+- Using the `./cdtcloud` script, you can run a demo service by selecting _run cdtcloud demo_
 - To start a specific service, use `yarn run` and select the desired command
 
 #### Docker
 
-1. Select *docker* in the `./cdtcloud` script
+1. Select _docker_ in the `./cdtcloud` script
 2. Enter the command to start the desired service
-3. You can use the *docker* section to attach and kill containers as well
+3. You can use the _docker_ section to attach and kill containers as well
 
 ## Contributing
 
