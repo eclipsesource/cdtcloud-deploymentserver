@@ -1,99 +1,87 @@
-# cdtcloud
-The example of how to build the Theia-based applications with the cdtcloud.
+# Theia Extension
 
-## Getting started
+[![node](https://img.shields.io/badge/node-%3E%3D%2012.20.1-339933?logo=node.js)](https://nodejs.org/en/blog/release/v12.20.1/)
+[![arduino-cli](https://img.shields.io/badge/arduino--cli-v0.20.0-00979C?logo=arduino)](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
+[![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](#Docker)
 
-Install [nvm](https://github.com/creationix/nvm#install-script).
+## Introduction
 
-    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash
+The Theia Extension provides a Widget to deploy and monitor code remotely on devices using the well-known Theia IDE Environment.
 
-Install npm and node.
+It compiles the code and sends a deployment request, including the binary data, for a specific device to the [Deployment Server](../deployment-server), which forwards the request to the responsible [Device Connector](../device-connector) and transfers the monitoring output back to the Theia Extension.
 
-    nvm install 10
-    nvm use 10
+## Requirements
 
-Install yarn.
+- NodeJS Version >= 12.20.1
+- Yarn Version >= 1.22.18
+- Arduino CLI >= 0.20.0 (last tested 0.21.1)
 
-    npm install -g yarn
+## Getting Started
 
-## Running the browser example
+To have an easy installation and start of the CDT.cloud Services run the `./cdtcloud` script from the root directory.
+<br/>
+You can either run Theia [natively](#Quick-Start) on your system or in a [Docker](#Docker) container.
 
-    yarn start:browser
+### Quick Start
 
-*or:*
+The [Arduino CLI](https://github.com/arduino/arduino-cli/releases) needs to be running on startup.
+<br/>
+Start the daemon with `arduino-cli daemon --port 50051 --daemonize`
 
-    yarn rebuild:browser
-    cd browser-app
-    yarn start
+#### First Installation
+1. Initialize the Arduino CLI by running `arduino-cli config init`
+2. Update the core and library indexes with `arduino-cli update`
+3. Install the base cores by entering `arduino-cli core install arduino:avr`
+4. Install the dependencies using `yarn --cwd=cdtcloud`
+5. Build Theia either for 
+   - Browser `yarn --cwd=browser-app run theia build --mode=production` 
+   - Electron `yarn --cwd=electron-app run theia build --mode=production`
+6. Download the necessary plugins by running `yarn --cwd=cdtcloud theia download:plugins` 
 
-*or:* launch `Start Browser Backend` configuration from VS code.
+#### Run the CDT.cloud Imlpementation in Theia 
 
-Open http://localhost:3000 in the browser.
+- Run Theia in either in 
+  - Browser using `yarn --cwd=browser-app start` and enter Theia by heading to [localhost:3000](http://localhost:3000)
+  - Electron using `yarn --cwd=electron-app start`
+- Select _View_ > _Cdtcloud Widget_ to open the extension widget
 
-## Running the Electron example
+### Docker
 
-    yarn start:electron
-
-*or:*
-
-    yarn rebuild:electron
-    cd electron-app
-    yarn start
-
-*or:* launch `Start Electron Backend` configuration from VS code.
+1. Run the `./cdtcloud` script from the root directory
+2. Select `docker` to run the docker tools
+3. Enter the command `start:theia:d` to start the service
+4. You can use the `docker` section to attach and kill containers as well
+5. Head to [localhost:3000](http://localhost:3000) to enter Theia
+6. Select _View_ > _Cdtcloud Widget_ to open the extension widget
 
 
-## Running the tests
+### Configuration
 
-    yarn test
+1. Head to Theia and choose _File_ > _Preferences_ > _Open Settings_
+2. Select the _Extensions_ Tab
+3. Set the correct variables for the connection to the Deployment Server
 
-*or* run the tests of a specific package with
+### Adding support for additional devices
 
-    cd cdtcloud
-    yarn test
-    
+More devices or cores can be supported by installing them through the Arduino CLI.
+<br/>
+This needs to be done in the [Device Connector](../device-connector) as well.
 
-## Developing with the browser example
+> It is possible that the [code](https://github.com/eclipsesource/cdtcloud-deploymentserver/blob/a09070cfaec74d6be5ef1e12a2aaa37b5e684141/packages/theia-extension/cdtcloud/src/node/compilation-service.ts#L55-L86) needs to be slightly adjusted to be able to select the correct output file.
 
-Start watching all packages, including `browser-app`, of your application with
+A new core support can be installed within the Arduion CLI by running the following commands:
+```bash
+arduino-cli core update-index
+arduino-cli core install base:core
+```
 
-    yarn watch
+#### External Cores - i.e. STM32 Board-Core
+```bash
+arduino-cli config add board_manager.additional_urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
+arduino-cli core update-index
+arduino-cli core install STMicroelectronics:stm32
+```
 
-*or* watch only specific packages with
+## License
 
-    cd cdtcloud
-    yarn watch
-
-and the browser example.
-
-    cd browser-app
-    yarn watch
-
-Run the example as [described above](#Running-the-browser-example)
-## Developing with the Electron example
-
-Start watching all packages, including `electron-app`, of your application with
-
-    yarn watch
-
-*or* watch only specific packages with
-
-    cd cdtcloud
-    yarn watch
-
-and the Electron example.
-
-    cd electron-app
-    yarn watch
-
-Run the example as [described above](#Running-the-Electron-example)
-
-## Publishing cdtcloud
-
-Create a npm user and login to the npm registry, [more on npm publishing](https://docs.npmjs.com/getting-started/publishing-npm-packages).
-
-    npm login
-
-Publish packages with lerna to update versions properly across local packages, [more on publishing with lerna](https://github.com/lerna/lerna#publish).
-
-    npx lerna publish
+This code and content is released under the [EPL 2.0 license](https://github.com/eclipsesource/cdtcloud-deploymentserver/blob/main/LICENSE).

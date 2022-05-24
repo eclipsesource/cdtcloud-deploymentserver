@@ -1,71 +1,80 @@
-# cdtcloud-deploymentserver
+# ![logo](packages/deployment-server-ui/src/logo.png) CDT.cloud Deployment-Server
 
-[![CI](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/ci.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/ci.yaml)
+[![linux-build](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/linux_build.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/linux_build.yaml)
+[![docker-build](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/docker_build.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/docker_build.yaml)
+[![codestyle](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/codestyle.yaml/badge.svg)](https://github.com/eclipsesource/cdtcloud-deploymentserver/actions/workflows/codestyle.yaml)
+[![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](#Docker)
+
+## Introduction
+
+The CDT.cloud Deployment-Server is a service for embedded deployment environments.
+<br/>
+It enables the whole development process for microcontrollers, including distributed development, remote deployment and monitoring.
+Additionally, the service allows for an overall administration of the devices and deployments with a user-centric dashboard.
 
 ## Getting Started
 
-### Deployment Server
+We have implemented an auto-installation and start script [here](apps/main/main.sh) for a quick and easy start into the service.
 
-1. Install docker-compose
-2. Run `docker-compose up db`
-3. Install dependencies: `yarn install`
-4. Run database migration once to initialize: `yarn --cwd=packages/deployment-server run prisma migrate deploy`
-5. Generate DB Typings: `yarn --cwd=packages/deployment-server run prisma generate`
-6. Seed DB: `yarn --cwd=packages/deployment-server run prisma db seed`
-7. Start the server: `yarn --cwd=packages/deployment-server run dev`
+For detailed instructions on how to start and adjust each service included in the CDT.cloud Deployment-Server please visit the individual packages.
+- [Deployment Server](packages/deployment-server) by default running on [localhost:3001/api](http://localhost:3001/api)
+- [AdminUI](packages/deployment-server-ui) after setting up the Deployment Server by default running on [localhost:3001](http://localhost:3001)
+- [Theia Extension](packages/theia-extension) by default running on [localhost:3000](http://localhost:3000)
+- [Device Connector](packages/device-connector)
 
-#### GCS support
+### Quick Start
 
-1. Set env variables
+To have an easy installation and start of the CDT.cloud Services run the `./cdtcloud` script.
 
-```
-GOOGLE_CLOUD_PROJECT
-GOOGLE_CLOUD_BUCKET
-```
+#### Requirements
 
-2. Add a `.gcs_key.json` in `packages/deployment-server`
+[![node](https://img.shields.io/badge/node-%3E%3D%2016.5.0-339933?logo=node.js)](https://nodejs.org/en/blog/release/v16.5.0/)
+[![arduino-cli](https://img.shields.io/badge/arduino--cli-v0.20.0-00979C?logo=arduino)](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
+[![psql](https://img.shields.io/badge/PostgreSQL-v14.3-008bb9?logo=postgresql&logoColor=008bb9)](https://www.postgresql.org/)
 
-3. Run the deployment server
+- NodeJS Version >= 16.5.0
+- Yarn Version >= 1.22.18
+- PostgreSQL Server >= 14.3
+- Arduino CLI >= 0.20.0 (last tested 0.21.1)
 
-### Device Connector
+#### First Installation
 
-#### With Docker
+1. Run a PostgreSQL Server -- Natively or using Docker (`docker-compose up db`)
+2. Start an [Arduino CLI](https://github.com/arduino/arduino-cli/releases) daemon with `arduino-cli daemon --port 50051 --daemonize`
+3. Select `init` in the `./cdtcloud` script to run the initialization for the first start and install all dependencies
 
-1. Set deployment-server URI in [.docker/device-connector/env](.docker/device-connector/env)
-2. Run the device-connector: `docker-compose up devcon`
-   - Build the docker-image beforehand if necessary `docker-compose build`
+#### Starting a CDT.cloud Deployment-Server Service
 
-`Note: Due to docker not supporting privileged mode on Windows, this does only work on unix systems.`
+- Using the `./cdtcloud` script, you can run a demo service by selecting `run cdtcloud demo`
+- To start a specific service, use `yarn run` and select the desired command
 
-#### On System
+#### Docker
 
-1. Download the latest supported arduino-cli version _(currently v0.20.0)_ from [arduino-cli releases](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
-2. Start the arduino-cli daemon: `arduino-cli daemon --port 50051 --daemonize --verbose`
-3. Install dependencies: `yarn install`
-4. Set deployment-server URI in [packages/device-connector/.env](packages/device-connector/.env)
-5. Start the device connector: `yarn --cwd=packages/device-connector run start`
+1. Select `docker` in the `./cdtcloud` script
+2. Enter the command to start the desired service
+3. You can use the `docker` section to attach and kill containers as well
 
-##### Add support for additonal boards
+## Contributing
 
-STM32 Board-Core
+Any contribution is welcome!
 
-```bash
-arduino-cli config add board_manager.additional_urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
-arduino-cli core update-index
-arduino-cli core install STMicroelectronics:stm32
-```
+- Developing directly to the project
+- Testing PRs fixes
+- Reporting bugs within the project
+- Adding to or improving our wiki
 
-Arduino:sam Board-Core
+## Authors & Contributors
 
-```bash
-arduino-cli core update-index
-arduino-cli core install arduino:sam
-```
+- The original contributors from the project introduced at TUM -- [Gozzim](https://github.com/Gozzim), [WoH](https://github.com/WoH), [KevinK-9](https://github.com/KevinK-9), [theZasa](https://github.com/theZasa)
+- [EclipseSource](https://eclipsesource.com/), specifically [Jonas Helming](https://github.com/JonasHelming) as Product Owner
+- All [contributors](https://github.com/eclipsesource/cdtcloud-deploymentserver/graphs/contributors) of the project
 
-## Theia:
+## Important Links
 
-To configure the deployment server, set:
+- [Arduino CLI](https://github.com/arduino/arduino-cli)
+- [Theia](https://theia-ide.org/)
+- [EclipseSource](https://eclipsesource.com/)
 
-```
-DEPLOYMENT_SERVER_HOST=localhost:3001 DEPLOYMENT_SERVER_SECURE=false
-```
+## License
+
+This code and content is released under the [EPL 2.0 license](https://github.com/eclipsesource/cdtcloud-deploymentserver/blob/main/LICENSE).
