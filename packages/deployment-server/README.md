@@ -10,7 +10,7 @@ The Deployment Server is responsible for the communication between the [Device C
 
 It manages the hardware and distributes the deployments among the connected devices, forwarding the request to the responsible Device Connector. Finally, the Deployment Server also forwards any monitoring output back to Theia and, if necessary, the AdminUI.
 
-The Deployment Server also provides an AdminUI under (by default) [http://localhost:3001](http://localhost:3001).
+The Deployment Server also provides an [AdminUI](../deployment-server-ui) under [localhost:3001](http://localhost:3001) by default after initialization.
 
 ## Requirements
 
@@ -39,12 +39,15 @@ A PostgreSQL Server needs to be running. It can run natively on the system or us
 
 Run the server with `yarn run start`
 
+To set up the [AdminUI](../deployment-server-ui) natively on a system, please follow the corresponding [Readme](../deployment-server-ui/README.md)
+
 ### Docker
 
 1. Run the `./cdtcloud` script from the root directory
 2. Select `docker` to run the docker tools
 3. Enter the command `start:deployment:d` to start the server
 4. You can use the `docker` section to attach and kill containers as well
+5. Head to [localhost:3001/api](http://localhost:3001/api)
 
 ### Configuration
 

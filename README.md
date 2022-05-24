@@ -29,7 +29,7 @@ To have an easy installation and start of the CDT.cloud Services run the `./cdtc
 #### Requirements
 
 [![node](https://img.shields.io/badge/node-%3E%3D%2016.5.0-339933?logo=node.js)](https://nodejs.org/en/blog/release/v16.5.0/)
-[![arduino-cli](https://img.shields.io/badge/arduino--cli-0.20.0-00979C?logo=arduino)](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
+[![arduino-cli](https://img.shields.io/badge/arduino--cli-v0.20.0-00979C?logo=arduino)](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
 [![psql](https://img.shields.io/badge/PostgreSQL-14.3-008bb9?logo=postgresql&logoColor=008bb9)](https://www.postgresql.org/)
 
 - NodeJS Version >= 16.5.0

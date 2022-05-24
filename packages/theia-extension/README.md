@@ -1,6 +1,7 @@
 # Theia Extension
 
-[![arduino-cli](https://img.shields.io/badge/arduino--cli-0.20.0-00979C?logo=arduino)](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
+[![node](https://img.shields.io/badge/node-%3E%3D%2012.20.1-339933?logo=node.js)](https://nodejs.org/en/blog/release/v12.20.1/)
+[![arduino-cli](https://img.shields.io/badge/arduino--cli-v0.20.0-00979C?logo=arduino)](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
 [![docker](https://img.shields.io/badge/Docker-Support-2496ED?logo=docker)](#Docker)
 
 ## Introduction
@@ -11,6 +12,8 @@ It compiles the code and sends a deployment request, including the binary data, 
 
 ## Requirements
 
+- NodeJS Version >= 12.20.1
+- Yarn Version >= 1.22.18
 - Arduino CLI >= 0.20.0 (last tested 0.21.1)
 
 ## Getting Started
@@ -38,7 +41,7 @@ Start the daemon with `arduino-cli daemon --port 50051 --daemonize`
 #### Run the CDT.cloud Imlpementation in Theia 
 
 - Run Theia in either in 
-  - Browser using `yarn --cwd=browser-app start` and enter Theia by heading to [http://localhost:3000](http://localhost:3000)
+  - Browser using `yarn --cwd=browser-app start` and enter Theia by heading to [localhost:3000](http://localhost:3000)
   - Electron using `yarn --cwd=electron-app start`
 - Select _View_ > _Cdtcloud Widget_ to open the extension widget
 
@@ -48,7 +51,7 @@ Start the daemon with `arduino-cli daemon --port 50051 --daemonize`
 2. Select `docker` to run the docker tools
 3. Enter the command `start:theia:d` to start the service
 4. You can use the `docker` section to attach and kill containers as well
-5. Head to [http://localhost:3000](http://localhost:3000) to enter Theia
+5. Head to [localhost:3000](http://localhost:3000) to enter Theia
 6. Select _View_ > _Cdtcloud Widget_ to open the extension widget
 
 

@@ -1,6 +1,7 @@
-# Deployment Server
+# AdminUI
 
 [![node](https://img.shields.io/badge/node-%3E%3D%2016.5.0-339933?logo=node.js)](https://nodejs.org/en/blog/release/v16.5.0/)
+[![vite](https://img.shields.io/badge/vite-v2.7.10-646CFF?logo=vite)](https://vitejs.dev/)
 
 ## Introduction
 
