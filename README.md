@@ -14,12 +14,12 @@ Additionally, the service allows for an overall administration of the devices an
 
 ## Getting Started
 
-We have implemented an auto-installation and start script [here](https://github.com/eclipsesource/cdtcloud-deploymentserver/blob/main/apps/main/main.sh) for a quick and easy start into the service.
+We have implemented an auto-installation and start script [here](apps/main/main.sh) for a quick and easy start into the service.
 
 For detailed instructions on how to start and adjust each service included in the CDT.cloud Deployment-Server please visit the individual packages.
-- [Deployment Server](https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/deployment-server) by default running on [http://localhost:3001/api](http://localhost:3001/api) and the AdminUI on [http://localhost:3001](http://localhost:3001)
-- [Theia Extension](https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/theia-extension) by default running on [http://localhost:3000](http://localhost:3000)
-- [Device Connector](https://github.com/eclipsesource/cdtcloud-deploymentserver/tree/main/packages/device-connector)
+- [Deployment Server](packages/deployment-server) by default running on [http://localhost:3001/api](http://localhost:3001/api) and the AdminUI on [http://localhost:3001](http://localhost:3001)
+- [Theia Extension](packages/theia-extension) by default running on [http://localhost:3000](http://localhost:3000)
+- [Device Connector](packages/device-connector)
 
 ### Quick Start
 
@@ -27,10 +27,14 @@ To have an easy installation and start of the CDT.cloud Services run the `./cdtc
 
 #### Requirements
 
+[![node](https://img.shields.io/badge/node-%3E%3D%2016.5.0-339933?logo=node.js)](https://nodejs.org/en/blog/release/v16.5.0/)
+[![arduino-cli](https://img.shields.io/badge/arduino--cli-0.20.0-00979C?logo=arduino)](https://github.com/arduino/arduino-cli/releases/tag/0.20.0)
+[![psql](https://img.shields.io/badge/PostgreSQL-14.3-008bb9?logo=postgresql&logoColor=008bb9)](https://www.postgresql.org/)
+
 - NodeJS Version >= 16.5.0
 - Yarn Version >= 1.22.18
-- PostgreSQL Server
-- Arduino CLI >= 0.20.0
+- PostgreSQL Server >= 14.3
+- Arduino CLI >= 0.20.0 (last tested 0.21.1)
 
 #### First Installation
 
