@@ -39,18 +39,19 @@ To have an easy installation and start of the CDT.cloud Services run the `./cdtc
 #### First Installation
 
 1. Run a PostgreSQL Server -- Natively or using Docker (`docker-compose up db`)
-2. Select _init_ in the `./cdtcloud` script to run the initialization for the first start and install all dependencies
+2. Start an [Arduino CLI](https://github.com/arduino/arduino-cli/releases) daemon with `arduino-cli daemon --port 50051 --daemonize`
+3. Select `init` in the `./cdtcloud` script to run the initialization for the first start and install all dependencies
 
 #### Starting a CDT.cloud Deployment-Server Service
 
-- Using the `./cdtcloud` script, you can run a demo service by selecting _run cdtcloud demo_
+- Using the `./cdtcloud` script, you can run a demo service by selecting `run cdtcloud demo`
 - To start a specific service, use `yarn run` and select the desired command
 
 #### Docker
 
-1. Select _docker_ in the `./cdtcloud` script
+1. Select `docker` in the `./cdtcloud` script
 2. Enter the command to start the desired service
-3. You can use the _docker_ section to attach and kill containers as well
+3. You can use the `docker` section to attach and kill containers as well
 
 ## Contributing
 

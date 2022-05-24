@@ -30,13 +30,14 @@ Start the daemon with `arduino-cli daemon --port 50051 --daemonize`
 2. Update the core and library indexes with `arduino-cli update`
 3. Install the base cores by entering `arduino-cli core install arduino:avr`
 4. Install the dependencies using `yarn --cwd=cdtcloud`
-5. Run either `yarn --cwd=browser-app run theia build --mode=production` or `yarn --cwd=electron-app run theia build --mode=production` depending on your needs
+5. Build Theia either for 
+   - Browser `yarn --cwd=browser-app run theia build --mode=production` 
+   - Electron `yarn --cwd=electron-app run theia build --mode=production`
 6. Download the necessary plugins by running `yarn --cwd=cdtcloud theia download:plugins` 
 
 #### Run the CDT.cloud Imlpementation in Theia 
 
 - Run Theia in either in 
-<br/>
   - Browser using `yarn --cwd=browser-app start` and enter Theia by heading to [http://localhost:3000](http://localhost:3000)
   - Electron using `yarn --cwd=electron-app start`
 - Select _View_ > _Cdtcloud Widget_ to open the extension widget
@@ -44,9 +45,9 @@ Start the daemon with `arduino-cli daemon --port 50051 --daemonize`
 ### Docker
 
 1. Run the `./cdtcloud` script from the root directory
-2. Select _docker_ to run the docker tools
+2. Select `docker` to run the docker tools
 3. Enter the command `start:theia:d` to start the service
-4. You can use the _docker_ section to attach and kill containers as well
+4. You can use the `docker` section to attach and kill containers as well
 5. Head to [http://localhost:3000](http://localhost:3000) to enter Theia
 6. Select _View_ > _Cdtcloud Widget_ to open the extension widget
 

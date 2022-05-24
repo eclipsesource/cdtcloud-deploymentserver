@@ -48,9 +48,9 @@ Run the Device Connector using `yarn run start`
 
 1. Set the **env** variables for the Deployment Server Connection (you can use the [Docker env](../../.docker/device-connector/env) file)
 2. Run the `./cdtcloud` script from the root directory
-3. Select _docker_ to run the docker tools
+3. Select `docker` to run the docker tools
 4. Enter the command `start:connector:d` to start the service
-5. You can use the _docker_ section to attach and kill containers as well
+5. You can use the `docker` section to attach and kill containers as well
 
 ### Adding support for additional devices
 

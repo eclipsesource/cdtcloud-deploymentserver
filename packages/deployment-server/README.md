@@ -42,9 +42,9 @@ Run the server with `yarn run start`
 ### Docker
 
 1. Run the `./cdtcloud` script from the root directory
-2. Select _docker_ to run the docker tools
+2. Select `docker` to run the docker tools
 3. Enter the command `start:deployment:d` to start the server
-4. You can use the _docker_ section to attach and kill containers as well
+4. You can use the `docker` section to attach and kill containers as well
 
 ### Configuration
 
@@ -67,7 +67,7 @@ Cloudflare is supported but will cause issues with the Websockets, as Cloudflare
 
 To support all features using a reverse proxy, certain configurations need to be made within the webserver.
 <br/>
-Upgrade Headers need to be added and as usual the proxy_forward headers should be set.
+`Upgrade Headers` need to be added and as usual the `proxy_forward` headers should be set.
 
 <details>
 <summary>Nginx Configuration Example</summary>
